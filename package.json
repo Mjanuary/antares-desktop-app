@@ -1,5 +1,5 @@
 {
-  "name": "desktop-todo",
+  "name": "antares_app",
   "version": "1.0.0",
   "description": "A cross-platform todo application built with Electron and React",
   "main": "dist/main/index.js",
@@ -23,7 +23,7 @@
   "publish": {
     "provider": "github",
     "owner": "YOUR_GITHUB_USERNAME",
-    "repo": "desktop-todo",
+    "repo": "antares_app",
     "private": false,
     "releaseType": "release"
   },

@@ -11,7 +11,7 @@ export class TodoDatabase {
 
   constructor() {
     // Use the app's user data directory for the database file
-    this.dbPath = path.join(app.getPath("userData"), "todos.db");
+    this.dbPath = path.join(app.getPath("userData"), "antares_app.db");
     this.initializeDatabase();
   }
 
@@ -20,8 +20,8 @@ export class TodoDatabase {
     if (!fs.existsSync(this.dbPath)) {
       // Get the path to the default database
       const defaultDbPath = isDev
-        ? path.join(__dirname, "../../src/assets/default-db/todos.db")
-        : path.join(process.resourcesPath, "default-db/todos.db");
+        ? path.join(__dirname, "../../src/assets/default-db/antares_app.db")
+        : path.join(process.resourcesPath, "default-db/antares_app.db");
 
       // If default database exists, copy it
       if (fs.existsSync(defaultDbPath)) {

@@ -70,6 +70,7 @@ function createWindow() {
     width: 1200,
     height: 800,
     show: false, // Don't show the main window until it's ready
+    title: "Antares App",
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
