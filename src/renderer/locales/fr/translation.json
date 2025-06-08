@@ -1,0 +1,32 @@
+{
+  "common": {
+    "language": "Langue",
+    "english": "Anglais",
+    "french": "Français",
+    "home": "Accueil",
+    "settings": "Paramètres"
+  },
+  "todo": {
+    "add": "Ajouter une tâche",
+    "edit": "Modifier la tâche",
+    "delete": "Supprimer la tâche",
+    "completed": "Terminé",
+    "pending": "En attente",
+    "placeholder": "Qu'est-ce qui doit être fait ?",
+    "empty": "Aucune tâche pour le moment. Ajoutez-en une ci-dessus !"
+  },
+  "actions": {
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "delete": "Supprimer",
+    "edit": "Modifier"
+  },
+  "updates": {
+    "newVersionAvailable": "Nouvelle version {{version}} disponible !",
+    "downloading": "Téléchargement de la mise à jour...",
+    "readyToInstall": "Mise à jour téléchargée et prête à être installée !",
+    "error": "Erreur lors de la vérification des mises à jour. Veuillez réessayer plus tard.",
+    "download": "Télécharger la mise à jour",
+    "install": "Redémarrer pour mettre à jour"
+  }
+}

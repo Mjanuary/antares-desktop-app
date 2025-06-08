@@ -1,0 +1,26 @@
+{
+  "appId": "com.desktop.todo",
+  "productName": "Desktop Todo",
+  "directories": {
+    "output": "release"
+  },
+  "files": ["dist/**/*"],
+  "publish": {
+    "provider": "github",
+    "releaseType": "release"
+  },
+  "mac": {
+    "category": "public.app-category.productivity",
+    "target": ["dmg", "zip"],
+    "hardenedRuntime": true,
+    "gatekeeperAssess": false,
+    "entitlements": "build/entitlements.mac.plist",
+    "entitlementsInherit": "build/entitlements.mac.plist"
+  },
+  "win": {
+    "target": ["nsis", "portable"]
+  },
+  "linux": {
+    "target": ["AppImage", "deb"]
+  }
+}

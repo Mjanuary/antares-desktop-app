@@ -1,0 +1,118 @@
+{
+  "name": "desktop-todo",
+  "version": "1.0.0",
+  "description": "A cross-platform todo application built with Electron and React",
+  "main": "dist/main/index.js",
+  "scripts": {
+    "start": "cross-env NODE_ENV=development npm run build && concurrently \"npm run start:renderer\" \"npm run start:electron\"",
+    "start:renderer": "webpack serve --config webpack.renderer.config.js --open",
+    "start:electron": "wait-on http://localhost:3000 && electron .",
+    "build": "npm run build:renderer && npm run build:electron && npm run build:preload && npm run rebuild",
+    "build:renderer": "cross-env NODE_ENV=production webpack --config webpack.renderer.config.js",
+    "build:electron": "webpack --config webpack.main.config.js",
+    "build:preload": "webpack --config webpack.preload.config.js",
+    "rebuild": "electron-rebuild -f -w sqlite3",
+    "package": "npm run build && electron-builder",
+    "package:mac": "npm run build && electron-builder --mac",
+    "package:win": "npm run build && electron-builder --win",
+    "postinstall": "electron-builder install-app-deps"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "publish": {
+    "provider": "github",
+    "owner": "YOUR_GITHUB_USERNAME",
+    "repo": "desktop-todo",
+    "private": false,
+    "releaseType": "release"
+  },
+  "build": {
+    "appId": "com.desktoptodo.app",
+    "productName": "Desktop Todo",
+    "mac": {
+      "target": [
+        "dmg",
+        "zip"
+      ],
+      "category": "public.app-category.productivity",
+      "hardenedRuntime": true,
+      "gatekeeperAssess": false,
+      "entitlements": "build/entitlements.mac.plist",
+      "entitlementsInherit": "build/entitlements.mac.plist"
+    },
+    "win": {
+      "target": [
+        "nsis"
+      ],
+      "icon": "assets/icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": true,
+      "allowToChangeInstallationDirectory": true
+    },
+    "files": [
+      "dist/**/*",
+      "node_modules/**/*",
+      "package.json",
+      "src/splash.html"
+    ],
+    "extraResources": [
+      {
+        "from": "src/assets/default-db",
+        "to": "default-db",
+        "filter": [
+          "**/*"
+        ]
+      },
+      {
+        "from": "src/splash.html",
+        "to": "."
+      }
+    ],
+    "directories": {
+      "output": "release"
+    }
+  },
+  "dependencies": {
+    "electron-is-dev": "^3.0.1",
+    "electron-log": "^5.4.0",
+    "electron-store": "^8.1.0",
+    "electron-updater": "^6.6.2",
+    "i18next": "^25.2.0",
+    "i18next-browser-languagedetector": "^8.1.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-i18next": "^15.5.1",
+    "react-router-dom": "^7.6.0",
+    "sqlite3": "^5.1.7",
+    "typeorm": "^0.3.20"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.20",
+    "@types/react-dom": "^18.3.6",
+    "@types/sqlite3": "^3.1.8",
+    "autoprefixer": "^10.4.21",
+    "concurrently": "^8.2.2",
+    "copy-webpack-plugin": "^13.0.0",
+    "cross-env": "^7.0.3",
+    "css-loader": "^6.10.0",
+    "electron": "^28.0.0",
+    "electron-builder": "^24.9.1",
+    "electron-rebuild": "^3.2.9",
+    "global": "^4.4.0",
+    "html-webpack-plugin": "^5.6.0",
+    "mini-css-extract-plugin": "^2.9.2",
+    "path-browserify": "^1.0.1",
+    "postcss": "^8.5.3",
+    "style-loader": "^3.3.4",
+    "tailwindcss": "^4.1.7",
+    "ts-loader": "^9.5.1",
+    "typescript": "^5.3.3",
+    "wait-on": "^7.2.0",
+    "webpack": "^5.99.5",
+    "webpack-cli": "^5.1.4",
+    "webpack-dev-server": "^5.2.1"
+  }
+}

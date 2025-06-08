@@ -1,0 +1,18 @@
+MyApp
+├── dist/
+│   ├── main/
+│   │   └── index.js  <-- Your compiled main process code (__dirname points here)
+│   └── renderer/
+│       ├── index.html <-- Your React app entry point
+│       ├── main.js    <-- Your React app bundle
+│       └── ... (other assets)
+└──src
+    ├── main/
+    │   ├── index.ts <-- the file I just shared
+    │   ├── ipc.ts
+    │   └── database.ts
+    │
+    ├── preload/
+    │   └── index.ts
+    ├── renderer/
+    └── types
