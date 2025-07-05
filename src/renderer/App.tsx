@@ -1,44 +1,48 @@
-import React from "react";
-import {
-  HashRouter as Router,
-  Routes,
-  Route,
-  // Link,
-  NavLink,
-} from "react-router-dom";
+import React, { useState } from "react";
+import { HashRouter as Router, Routes, Route, NavLink } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-
-// import { Todo } from "../types/Todo";
 import { Settings } from "./pages/settings";
 import { Home } from "./pages/home";
-import LanguageSwitcher from "./components/LanguageSwitcher";
+// import LanguageSwitcher from "./components/LanguageSwitcher";
 import UpdateNotification from "./components/UpdateNotification";
 import "./i18n";
+import SideNavigation from "./components/side-nav/side-nav";
+import AppsMenu from "./components/side-nav/apps-menu";
+import BackupSync from "./pages/backup-sync";
+import ProfilePage from "./pages/profile/profile.page";
+import AuthScreen from "./pages/auth-screens/auth-screen";
+import { RouterPages } from "../types/pages.types";
 
 function App() {
   const { t } = useTranslation();
 
+  const [selectedNav, setSelectedNav] = useState("");
+  const [appsOpen, setAppsOpen] = useState(false);
+
   return (
     <Router>
-      <div className="app-container">
-        <UpdateNotification />
-        <nav className="app-nav">
-          <div className="flex items-center justify-between">
-            <div>
-              <NavLink to="/">🏠 {t("common.home")}</NavLink> |{" "}
-              <NavLink to="/settings">⚙️ {t("common.settings")}</NavLink>
-            </div>
-            <LanguageSwitcher />
-          </div>
-        </nav>
+      <SideNavigation
+        onSelect={setSelectedNav}
+        selected={selectedNav}
+        onAppsOpen={() => setAppsOpen(!appsOpen)}
+      />
 
-        <main className="app-content">
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/settings" element={<Settings />} />
-          </Routes>
-        </main>
+      {appsOpen && <AppsMenu onClose={() => setAppsOpen(false)} />}
+
+      <div className="bg-black" style={{ marginLeft: "70px" }}>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path={`/${RouterPages.Settings}`} element={<Settings />} />
+          <Route path={`/${RouterPages.BackupSync}`} element={<BackupSync />} />
+          <Route path={`/${RouterPages.Profile}`} element={<ProfilePage />} />
+          <Route
+            path={`/${RouterPages.AuthConnect}`}
+            element={<AuthScreen />}
+          />
+        </Routes>
       </div>
+
+      <UpdateNotification />
     </Router>
   );
 }

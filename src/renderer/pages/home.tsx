@@ -70,7 +70,7 @@ export const Home: React.FC = () => {
       <header className="bg-blue-600 text-white">
         <nav className="flex items-center px-4 h-16">
           <h1 className="text-xl font-semibold flex-grow">
-            Desktop Todo v23 janvier ui 22
+            Antares v23 janvier ui 22
           </h1>
           <button
             onClick={() => window.electronAPI?.minimize()}

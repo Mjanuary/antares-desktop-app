@@ -1,6 +1,6 @@
 {
   "appId": "com.desktop.todo",
-  "productName": "Desktop Todo",
+  "productName": "Antares",
   "directories": {
     "output": "release"
   },

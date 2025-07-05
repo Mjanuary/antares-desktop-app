@@ -3,7 +3,7 @@ import { Todo } from "../types/Todo";
 import { app } from "electron";
 import * as path from "path";
 import * as fs from "fs";
-import isDev from "electron-is-dev";
+import { runMigrations } from "./database/migrations";
 
 export class TodoDatabase {
   private db!: Database;
@@ -15,34 +15,18 @@ export class TodoDatabase {
     this.initializeDatabase();
   }
 
-  private initializeDatabase() {
-    // Check if the database file exists
-    if (!fs.existsSync(this.dbPath)) {
-      // Get the path to the default database
-      const defaultDbPath = isDev
-        ? path.join(__dirname, "../../src/assets/default-db/antares_app.db")
-        : path.join(process.resourcesPath, "default-db/antares_app.db");
-
-      // If default database exists, copy it
-      if (fs.existsSync(defaultDbPath)) {
-        fs.copyFileSync(defaultDbPath, this.dbPath);
-      }
+  private async initializeDatabase() {
+    // Ensure user data directory exists
+    const userDataDir = app.getPath("userData");
+    if (!fs.existsSync(userDataDir)) {
+      fs.mkdirSync(userDataDir, { recursive: true });
     }
 
     // Initialize the database connection
     this.db = new Database(this.dbPath);
 
-    // Create tables if they don't exist
-    this.db.run(`
-      CREATE TABLE IF NOT EXISTS todos (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        title TEXT NOT NULL,
-        description TEXT,
-        completed BOOLEAN DEFAULT 0,
-        createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
-        updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP
-      )
-    `);
+    // Run migrations
+    await runMigrations(this.db);
   }
 
   async createTodo(
