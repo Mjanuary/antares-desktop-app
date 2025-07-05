@@ -4,9 +4,17 @@ import { MdCheck } from "react-icons/md";
 import { AddEmailCode } from "./add-email-code";
 import { ConfirmProfile } from "./confirm-profile";
 import { CompleteCode } from "./complete-code";
+import { useQuery } from "@tanstack/react-query";
+import { testApi } from "../../../api-requests/auth-connect";
 
 const AuthScreen = () => {
   const [selected, setSelected] = useState<number>(0);
+
+  const { isPending, error, data } = useQuery({
+    queryKey: ["repoData-test-data"],
+    queryFn: testApi,
+  });
+
   return (
     <div className="min-h-[90vh] flex items-center justify-center">
       <div className="flex flex-col gap-6">
@@ -16,6 +24,10 @@ const AuthScreen = () => {
             This application is for internal Antares team
           </p>
         </div>
+
+        <p>DATA: {JSON.stringify(data)}</p>
+        <p>ERROR: {JSON.stringify(error)}</p>
+        <p>LOADING: {JSON.stringify(isPending)}</p>
 
         <div className="w-[400px] bg-overlay relative p-4 rounded-lg">
           <div className="p-2 bg-black absolute top-7 left-12 right-12" />
