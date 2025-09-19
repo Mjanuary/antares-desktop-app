@@ -4,16 +4,23 @@ import { MdCheck } from "react-icons/md";
 import { AddEmailCode } from "./add-email-code";
 import { ConfirmProfile } from "./confirm-profile";
 import { CompleteCode } from "./complete-code";
-import { useQuery } from "@tanstack/react-query";
-import { testApi } from "../../../api-requests/auth-connect";
+import { authStore } from "../../../store/auth";
+// import { authStore } from "@/store/auth";
 
 const AuthScreen = () => {
+  const { account } = authStore();
+
   const [selected, setSelected] = useState<number>(0);
 
-  const { isPending, error, data } = useQuery({
-    queryKey: ["repoData-test-data"],
-    queryFn: testApi,
-  });
+  // const { isPending, error, data } = useQuery({
+  //   queryKey: ["repoData-test-data"],
+  //   queryFn: () => connectToApp({ code: "", email: "" }),
+  //   enabled: false,
+  // });
+
+  //const useMutation = () => {
+  //
+  //}
 
   return (
     <div className="min-h-[90vh] flex items-center justify-center">
@@ -25,9 +32,9 @@ const AuthScreen = () => {
           </p>
         </div>
 
-        <p>DATA: {JSON.stringify(data)}</p>
+        {/* <p>DATA: {JSON.stringify(data)}</p>
         <p>ERROR: {JSON.stringify(error)}</p>
-        <p>LOADING: {JSON.stringify(isPending)}</p>
+        <p>LOADING: {JSON.stringify(isPending)}</p> */}
 
         <div className="w-[400px] bg-overlay relative p-4 rounded-lg">
           <div className="p-2 bg-black absolute top-7 left-12 right-12" />
@@ -61,32 +68,32 @@ const AuthScreen = () => {
           </div>
         </div>
 
-        {selected === 0 && (
+        {!account && (
           <AddEmailCode
             onBack={() => setSelected(0)}
             onNext={() => setSelected(1)}
-            code="- - - - -"
-            email=""
-            onChangeCode={() => {}}
-            onChangeEmail={() => {}}
-            isLoading={false}
+            // code="- - - - -"
+            // email=""
+            // onChangeCode={() => {}}
+            // onChangeEmail={() => {}}
+            // isLoading={false}
           />
         )}
 
-        {selected === 1 && (
+        {account && (
           <ConfirmProfile
             avatarUrl="https://avatar.iran.liara.run/public"
-            branch="Antares House"
-            email="janviermuhawenimana@gmail.com"
-            names="Janvier Muhawenimana"
+            branch={account?.user_info?.branch?.branch?.name}
+            email={account.email}
+            names={account.user_name}
             onPrevious={() => setSelected(0)}
             onNext={() => setSelected(2)}
           />
         )}
 
-        {selected === 2 && (
+        {/* {selected === 2 && (
           <CompleteCode code="12312" onComplete={() => setSelected(3)} />
-        )}
+        )} */}
       </div>
     </div>
   );

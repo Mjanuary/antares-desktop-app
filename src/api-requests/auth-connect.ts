@@ -1,17 +1,15 @@
 import axios from "axios";
 import { catchReqError } from "./utils";
-import { APPLICATION_LINK } from "../constants";
+import { API_URL } from "./constants";
+import { DeviceConnection } from "@/renderer/types";
 
-export const testApi = async () => {
+export const connectToApp = async (data: { email: string; code: string }) => {
   try {
-    const { data } = await axios.get<unknown>(
-      `https://antares-theta.vercel.app/api/desktop`,
-      {
-        timeout: 10000, // 10 seconds
-      }
+    const userContent = await axios.post<DeviceConnection>(
+      API_URL + `/connect`,
+      data
     );
-    console.log({ data });
-    return data;
+    return userContent;
   } catch (error: unknown) {
     catchReqError(error);
   }

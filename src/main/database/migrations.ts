@@ -29,6 +29,49 @@ export const migrations: Migration[] = [
       )
     `,
   },
+  {
+    name: "app_connect_table",
+    sql: `
+    CREATE TABLE IF NOT EXISTS app_connect (
+      id TEXT PRIMARY KEY,
+      user_id TEXT,
+      device_name TEXT,
+      app_type TEXT,
+      device_info JSON DEFAULT '[]',
+      user_info JSON NOT NULL,
+      user_name TEXT NOT NULL,
+      email TEXT NOT NULL,
+
+      -- codes --
+      verification_code TEXT NOT NULL,
+      approval_code TEXT NOT NULL,
+
+      -- connection-info --
+      device_connected BOOLEAN DEFAULT 0,
+      connection_date DATETIME,
+      connection_id TEXT NOT NULL,
+      
+      blocked BOOLEAN DEFAULT 1,
+      blocked_time DATETIME,
+
+      branch_id TEXT,
+      created_by TEXT,
+      created_time DATETIME DEFAULT CURRENT_TIMESTAMP,
+      updated_time DATETIME,
+
+      -- foreign keys (SQLite is looser, but we can declare them) --
+      FOREIGN KEY(user_id) REFERENCES users(id),
+      FOREIGN KEY(branch_id) REFERENCES branch(id),
+      FOREIGN KEY(created_by) REFERENCES users(id)
+    );
+    
+    CREATE INDEX IF NOT EXISTS user_id_idx ON app_connect (user_id);
+    CREATE INDEX IF NOT EXISTS connection_id_idx ON app_connect (connection_id);
+    CREATE INDEX IF NOT EXISTS branch_id_idx ON app_connect (branch_id);
+    CREATE INDEX IF NOT EXISTS connect_link_email_idx ON app_connect (email);
+    CREATE INDEX IF NOT EXISTS active_idx ON app_connect (blocked);
+  `,
+  },
 ];
 
 export async function runMigrations(db: Database): Promise<void> {

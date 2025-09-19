@@ -1,18 +1,59 @@
 MyApp
 ├── dist/
 │   ├── main/
-│   │   └── index.js  <-- Your compiled main process code (__dirname points here)
+│   │   └── index.js            <-- Compiled main process (where __dirname points at runtime)
 │   └── renderer/
-│       ├── index.html <-- Your React app entry point
-│       ├── main.js    <-- Your React app bundle
+│       ├── index.html          <-- React app entry (production)
+│       ├── main.js             <-- React bundle + other static assets
 │       └── ... (other assets)
-└──src
-    ├── main/
-    │   ├── index.ts <-- the file I just shared
-    │   ├── ipc.ts
-    │   └── database.ts
-    │
-    ├── preload/
-    │   └── index.ts
-    ├── renderer/
-    └── types
+├── release/                    <-- electron-builder output (configured in package.json -> build.directories.output)
+├── node_modules/
+├── src/
+│   ├── main/
+│   │   ├── index.ts           <-- Main process entry (source)
+│   │   ├── ipc.ts             <-- IPC handlers between main <-> renderer
+│   │   └── database.ts        <-- DB setup (sqlite3 / typeorm usage)
+│   │
+│   ├── preload/
+│   │   └── index.ts           <-- Preload script (exposes safe APIs to renderer)
+│   │
+│   ├── renderer/
+│   │   ├── index.tsx          <-- Renderer entry (React)
+│   │   ├── App.tsx
+│   │   ├── routes.tsx
+│   │   ├── pages/
+│   │   │   ├── Home.tsx
+│   │   │   └── Settings.tsx
+│   │   ├── components/
+│   │   │   ├── Header.tsx
+│   │   │   └── TodoList.tsx
+│   │   └── styles/
+│   │       └── index.css
+│   │
+│   ├── entities/
+│   │   └── Todo.ts            <-- TypeORM entities
+│   │
+│   ├── assets/
+│   │   ├── default-db/        <-- default sqlite DB copied into app via extraResources
+│   │   │   └── todos.sqlite
+│   │   └── icons/
+│   │       └── icon.png
+│   │
+│   └── splash.html            <-- Splash screen used in build (referenced in package.json files/extraResources)
+├── build/                     <-- packaging resources (entitlements, etc.)
+│   └── entitlements.mac.plist
+├── webpack.main.config.js
+├── webpack.preload.config.js
+├── webpack.renderer.config.js
+├── tsconfig.json
+├── package.json               <-- (opened file) scripts, deps, electron-builder config
+├── postcss.config.js
+├── tailwind.config.js
+├── .env
+├── README.md
+└── structure.txt              <-- the selection you shared
+
+Notes
+- Files referenced explicitly in package.json: package.json -> build.files includes dist/**/*, node_modules/**/*, package.json and src/splash.html.
+- extraResources in package.json copies src/assets/default-db into the packaged app (to "default-db").
+- Adjust this tree to match your repo if you have other folders (e.g., scripts/, tests/, .github/, CI configs).

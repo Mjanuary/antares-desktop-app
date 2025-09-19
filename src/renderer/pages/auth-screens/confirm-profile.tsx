@@ -1,5 +1,6 @@
 import React, { FunctionComponent } from "react";
 import { Button } from "../../components/ui/button";
+import { authStore } from "../../../store/auth";
 
 export const ConfirmProfile: FunctionComponent<{
   onPrevious: () => void;
@@ -9,6 +10,13 @@ export const ConfirmProfile: FunctionComponent<{
   email: string;
   branch: string;
 }> = ({ onPrevious, onNext, avatarUrl, names, email, branch }) => {
+  const { setAccount } = authStore();
+
+  const goBackHandler = () => {
+    if (!window.confirm("Are you sure you want to cancel the process")) return;
+    setAccount(null);
+    onPrevious();
+  };
   return (
     <div className="flex flex-col gap-4">
       <div className="bg-overlay p-4 rounded-xl">
@@ -34,7 +42,7 @@ export const ConfirmProfile: FunctionComponent<{
           Is this your account?
         </p>
         <div className="justify-between- grid grid-cols-2 gap-2 items-center mt-4 ">
-          <Button variant="outline" onClick={onNext}>
+          <Button variant="outline" onClick={goBackHandler}>
             No, go back
           </Button>
           <Button variant="primary" onClick={onPrevious}>
