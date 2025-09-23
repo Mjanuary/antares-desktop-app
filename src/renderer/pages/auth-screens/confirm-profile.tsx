@@ -4,12 +4,12 @@ import { authStore } from "../../../store/auth";
 
 export const ConfirmProfile: FunctionComponent<{
   onPrevious: () => void;
-  onNext: () => void;
+  onApproveAccount: () => void;
   avatarUrl?: string;
   names: string;
   email: string;
   branch: string;
-}> = ({ onPrevious, onNext, avatarUrl, names, email, branch }) => {
+}> = ({ onPrevious, onApproveAccount, avatarUrl, names, email, branch }) => {
   const { setAccount } = authStore();
 
   const goBackHandler = () => {
@@ -41,11 +41,12 @@ export const ConfirmProfile: FunctionComponent<{
         <p className="pt-1 text-center border-gray-700 text-yellow-200">
           Is this your account?
         </p>
+
         <div className="justify-between- grid grid-cols-2 gap-2 items-center mt-4 ">
           <Button variant="outline" onClick={goBackHandler}>
             No, go back
           </Button>
-          <Button variant="primary" onClick={onPrevious}>
+          <Button variant="primary" onClick={onApproveAccount}>
             Yes, continue
           </Button>
         </div>

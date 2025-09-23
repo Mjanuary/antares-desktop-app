@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Todo } from "@/types/Todo";
+import { Input } from "../components/ui/input";
+import { Textarea } from "../components/ui/textarea";
+import { Button } from "../components/ui/button";
 
 const MinimizeIcon = () => (
   <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
@@ -106,10 +109,9 @@ export const Home: React.FC = () => {
             >
               Title
             </label>
-            <input
-              type="text"
+
+            <Input
               id="title"
-              className="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
               value={newTodo.title}
               onChange={(e) =>
                 setNewTodo({ ...newTodo, title: e.target.value })
@@ -124,23 +126,23 @@ export const Home: React.FC = () => {
             >
               Description
             </label>
-            <textarea
+
+            <Textarea
               id="description"
-              className="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
               value={newTodo.description}
               onChange={(e) =>
                 setNewTodo({ ...newTodo, description: e.target.value })
               }
-              rows={2}
             />
           </div>
 
-          <button
+          <Button
             type="submit"
-            className="mt-2 w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+            variant="primary"
+            // className="mt-2 w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
           >
             Add Todo
-          </button>
+          </Button>
         </form>
 
         {/* List */}
@@ -148,16 +150,17 @@ export const Home: React.FC = () => {
           {todos.map((todo) => (
             <li
               key={todo.id}
-              className="flex items-center justify-between p-3 bg-white shadow rounded-md"
+              className="flex items-center justify-between p-3 bg-white-- shadow rounded-md"
             >
               <div className="flex items-center">
                 <input
                   type="checkbox"
                   id={`todo-${todo.id}`}
-                  className="h-5 w-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500 mr-3"
+                  className="h-5 w-5 text-blue-600 bg-transparent border-gray-300 rounded focus:ring-blue-500 mr-3"
                   checked={todo.completed}
                   onChange={() => toggleTodo(todo)}
                 />
+
                 <div>
                   <label
                     htmlFor={`todo-${todo.id}`}

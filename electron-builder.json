@@ -1,5 +1,5 @@
 {
-  "appId": "com.desktop.todo",
+  "appId": "com.antares.app",
   "productName": "Antares",
   "directories": {
     "output": "release"

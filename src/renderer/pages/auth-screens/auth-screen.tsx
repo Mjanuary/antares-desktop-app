@@ -8,9 +8,28 @@ import { authStore } from "../../../store/auth";
 // import { authStore } from "@/store/auth";
 
 const AuthScreen = () => {
-  const { account } = authStore();
+  const { connection, setConnection, setAccount } = authStore();
 
   const [selected, setSelected] = useState<number>(0);
+  const [confirmAccount, setConfirm] = useState(false);
+
+  // const createAccountConnection = () => {
+
+  // }
+
+  const createAccountConnection = async () => {
+    if (!window.confirm("Are you sure to approve this account?")) return;
+    if (!connection) return;
+
+    try {
+      await window.electronAPI.createAppConnection(connection);
+      setAccount(connection);
+    } catch (error) {
+      window.alert("Failed to create connection: " + error);
+    }
+  };
+
+  // const [selected, setSelected] = useState<number>(0);
 
   // const { isPending, error, data } = useQuery({
   //   queryKey: ["repoData-test-data"],
@@ -68,7 +87,7 @@ const AuthScreen = () => {
           </div>
         </div>
 
-        {!account && (
+        {!connection && (
           <AddEmailCode
             onBack={() => setSelected(0)}
             onNext={() => setSelected(1)}
@@ -80,20 +99,26 @@ const AuthScreen = () => {
           />
         )}
 
-        {account && (
+        {connection && !confirmAccount && (
           <ConfirmProfile
-            avatarUrl="https://avatar.iran.liara.run/public"
-            branch={account?.user_info?.branch?.branch?.name}
-            email={account.email}
-            names={account.user_name}
-            onPrevious={() => setSelected(0)}
-            onNext={() => setSelected(2)}
+            avatarUrl={
+              connection?.user_info?.user?.image ||
+              "https://avatar.iran.liara.run/public"
+            }
+            branch={connection?.user_info?.branch?.branch?.name}
+            email={connection.email}
+            names={connection.user_name}
+            onPrevious={() => setConnection(null)}
+            onApproveAccount={() => setConfirm(true)}
           />
         )}
 
-        {/* {selected === 2 && (
-          <CompleteCode code="12312" onComplete={() => setSelected(3)} />
-        )} */}
+        {connection && confirmAccount && (
+          <CompleteCode
+            code={connection.approval_code}
+            onComplete={() => createAccountConnection()}
+          />
+        )}
       </div>
     </div>
   );

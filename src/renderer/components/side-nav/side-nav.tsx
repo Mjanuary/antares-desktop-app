@@ -82,13 +82,6 @@ const SideNavigation: FunctionComponent<{
           pageUrl={RouterPages.BackupSync}
         />
 
-        <NavButtonIcon
-          icon={<FaSync />}
-          label="Connect"
-          isActive={selected === "sync"}
-          pageUrl={RouterPages.AuthConnect}
-        />
-
         <button
           className="p-3 text-4xl text-center hover:bg-gray-500/20 border-t border-gray-700 transition-colors duration-200"
           onClick={onAppsOpen}

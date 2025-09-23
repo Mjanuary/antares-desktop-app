@@ -21,6 +21,19 @@ export function setupIPC() {
     return await db.deleteTodo(id);
   });
 
+  // Connections operations ----------------------------------------------
+  ipcMain.handle("create-app-connection", async (_, data) => {
+    return await db.createDeviceConnection(data);
+  });
+
+  ipcMain.handle("get-app-connection", async () => {
+    return await db.getLatestDeviceConnection();
+  });
+
+  ipcMain.handle("remove-app-connection", async () => {
+    return await db.deleteAllDeviceConnections();
+  });
+
   // Window operations
   ipcMain.on("minimize-window", (event) => {
     const window = BrowserWindow.fromWebContents(event.sender);

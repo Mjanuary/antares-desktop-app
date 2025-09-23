@@ -28,8 +28,8 @@
     "releaseType": "release"
   },
   "build": {
-    "appId": "com.desktoptodo.app",
-    "productName": "Desktop Todo",
+    "appId": "com.antares.app",
+    "productName": "Antares",
     "mac": {
       "target": [
         "dmg",

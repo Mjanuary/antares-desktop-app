@@ -1,7 +1,7 @@
 import axios from "axios";
 import { catchReqError } from "./utils";
 import { API_URL } from "./constants";
-import { DeviceConnection } from "@/renderer/types";
+import { DeviceConnection } from "@/types/auth.types";
 
 export const connectToApp = async (data: { email: string; code: string }) => {
   try {

@@ -10,7 +10,7 @@ export const AddEmailCode: FunctionComponent<{
   onBack: () => void;
   onNext: () => void;
 }> = ({ onBack, onNext }) => {
-  const { setAccount } = authStore();
+  const { setConnection } = authStore();
 
   const [email, onChangeEmail] = useState("");
   const [code, onChangeCode] = useState("");
@@ -23,8 +23,8 @@ export const AddEmailCode: FunctionComponent<{
     mutationFn: connectToApp,
     onSuccess: (data) => {
       if (data?.data) {
-        setAccount(data.data);
-        onNext();
+        setConnection(data.data);
+        // onNext();
       }
     },
     onError: (error) => {

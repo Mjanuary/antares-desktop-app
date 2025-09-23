@@ -8,6 +8,12 @@ contextBridge.exposeInMainWorld("electronAPI", {
     ipcRenderer.invoke("update-todo", id, todo),
   deleteTodo: (id: number) => ipcRenderer.invoke("delete-todo", id),
 
+  // Auth operation
+  createAppConnection: (data: any) =>
+    ipcRenderer.invoke("create-app-connection", data),
+  getConnection: () => ipcRenderer.invoke("get-app-connection"),
+  removeConnection: () => ipcRenderer.invoke("remove-app-connection"),
+
   // Window operations
   minimize: () => ipcRenderer.send("minimize-window"),
   maximize: () => ipcRenderer.send("maximize-window"),

@@ -1,6 +1,6 @@
 export enum RouterPages {
   Settings = "settings",
-  AuthConnect = "auth-connect",
+  // AuthConnect = "auth-connect",
   BackupSync = "backup-sync",
   Home = "home",
   Profile = "profile",

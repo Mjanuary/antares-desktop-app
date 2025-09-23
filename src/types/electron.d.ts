@@ -1,4 +1,5 @@
 import { Todo } from "./Todo";
+import { DeviceConnection } from "./auth.types";
 import { UpdateInfo, DownloadProgress, UpdateStatus } from "./updates";
 
 declare global {
@@ -11,6 +12,13 @@ declare global {
       getTodos: () => Promise<Todo[]>;
       updateTodo: (id: number, todo: Partial<Todo>) => Promise<void>;
       deleteTodo: (id: number) => Promise<void>;
+
+      // Auth operation
+      createAppConnection: (
+        data: DeviceConnection
+      ) => Promise<DeviceConnection>;
+      getConnection: () => Promise<DeviceConnection>;
+      removeConnection: () => Promise<void>;
 
       // Window operations
       minimize: () => void;
