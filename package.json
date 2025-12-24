@@ -92,6 +92,7 @@
     "framer-motion": "^12.23.0",
     "i18next": "^25.2.0",
     "i18next-browser-languagedetector": "^8.1.0",
+    "p-queue": "^9.0.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-i18next": "^15.5.1",
@@ -128,5 +129,10 @@
     "webpack": "^5.99.5",
     "webpack-cli": "^5.1.4",
     "webpack-dev-server": "^5.2.1"
+  },
+  "overrides": {
+    "sqlite3": {
+      "node-gyp": "10.1.0"
+    }
   }
 }

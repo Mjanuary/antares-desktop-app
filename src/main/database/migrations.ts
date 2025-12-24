@@ -469,6 +469,18 @@ export const migrations: Migration[] = [
       CREATE INDEX IF NOT EXISTS clients_name_idx ON clients (name);
     `,
   },
+  {
+    name: "create_sync_retry_queue",
+    sql: `CREATE TABLE IF NOT EXISTS sync_retry_queue (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            table_name TEXT,
+            payload TEXT,
+            retry_count INTEGER DEFAULT 0,
+            last_error TEXT,
+            created_at TEXT DEFAULT CURRENT_TIMESTAMP
+          );
+    `,
+  },
 ];
 
 export async function runMigrations(db: Database): Promise<void> {
@@ -483,11 +495,13 @@ export async function runMigrations(db: Database): Promise<void> {
       // Get list of applied migrations
       db.all("SELECT name FROM migrations", (err, rows) => {
         if (err) {
+          console.error("Error reading migrations table", err);
           reject(err);
           return;
         }
 
         const appliedMigrations = new Set(rows.map((row: any) => row.name));
+        console.log(`[Migrations] Found ${appliedMigrations.size} applied migrations.`);
 
         // Run pending migrations
         const pendingMigrations = migrations.filter(
@@ -509,6 +523,7 @@ export async function runMigrations(db: Database): Promise<void> {
           }
 
           const migration = pendingMigrations[currentIndex];
+          console.log(`[Migrations] Running migration: ${migration.name}`);
           db.run(migration.sql, (err) => {
             if (err) {
               reject(err);

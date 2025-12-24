@@ -5,6 +5,12 @@ import isDev from "electron-is-dev";
 import { setupIPC } from "./ipc";
 import { autoUpdater } from "electron-updater";
 import log from "electron-log";
+import { SyncEngine } from "./sync/sync-engine";
+import { registerAutoSync } from "./sync/sync-manager";
+import { registerSyncIPC } from "./ipc/sync.ipc";
+import { db } from "./ipc";
+
+
 
 // Configure logging
 log.transports.file.level = "info";
@@ -16,6 +22,11 @@ autoUpdater.autoInstallOnAppQuit = true;
 
 let mainWindow: BrowserWindow | null = null;
 let splashWindow: BrowserWindow | null = null;
+let syncEngine: SyncEngine | null = null;
+
+export function resolveDbPath() {
+  return path.join(app.getPath("userData"), "database.sqlite");
+}
 
 function createSplashWindow() {
   log.info("Creating splash window...");
@@ -76,6 +87,7 @@ function createWindow() {
       contextIsolation: true,
       preload: path.join(__dirname, "../preload/index.js"),
       webSecurity: true,
+      devTools: true, // Enable dev tools
     },
   });
 
@@ -93,6 +105,9 @@ function createWindow() {
     });
   }
 
+  // Optionally open DevTools automatically
+  mainWindow.webContents.openDevTools();
+
   // Show main window when it's ready
   mainWindow.webContents.on("did-finish-load", () => {
     log.info("Main window loaded, waiting 3 seconds before showing...");
@@ -108,6 +123,14 @@ function createWindow() {
       }
     }, 3000);
   });
+
+  // ------------------------
+  // Add periodic sync here
+  setInterval(() => {
+    if (mainWindow) {
+      mainWindow.webContents.send("sync:trigger-interval");
+    }
+  }, 5 * 60 * 1000);
 
   // Listen for failures
   mainWindow.webContents.on(
@@ -201,17 +224,43 @@ function setupAutoUpdater() {
   });
 }
 
-app.whenReady().then(() => {
-  log.info("App is ready");
-  log.info("App path:", app.getAppPath());
-  log.info("User data path:", app.getPath("userData"));
-  log.info("Resources path:", process.resourcesPath);
-  log.info("__dirname:", __dirname);
-
+app.whenReady().then(async () => {
+  // 1. Show Splash Immediately
   createSplashWindow();
+
+  // 2. LIFECYCLE BARRIER: Initialize Database
+  // Nothing else (IPC, Sync, Main Window) can happen until this finishes.
+  try {
+    log.info("Initializing database...");
+    await db.init();
+    log.info("Database initialized successfully.");
+  } catch (err) {
+    log.error("CRITICAL: Database initialization failed", err);
+    // In a real app, you might show a dialog here and quit.
+    // For now, we log and potentially let it crash or hang on splash.
+    return;
+  }
+
+  // 3. Create Main Window (Hidden until loaded)
   createWindow();
+
+  // 4. Register Legacy IPC (safe now that DB is ready)
   setupIPC();
+
+  // 5. Setup Updater
   setupAutoUpdater();
+
+  /**
+   * Enable auto-sync when internet reconnects
+   * Register IPC handlers ONCE
+   */
+  if (mainWindow) {
+    mainWindow.webContents.on("did-finish-load", () => {
+      // 6. Register Sync IPC & Auto-Sync (Worker startup)
+      registerSyncIPC(mainWindow!);
+      registerAutoSync(mainWindow!);
+    });
+  }
 
   // Check for updates on startup (only in production)
   if (!isDev) {
@@ -227,6 +276,10 @@ app.on("window-all-closed", () => {
 
 app.on("activate", () => {
   if (BrowserWindow.getAllWindows().length === 0) {
-    createWindow();
+    createWindow(); // sets mainWindow internally
+    mainWindow?.webContents.on("did-finish-load", () => {
+      registerSyncIPC(mainWindow!);
+      registerAutoSync(mainWindow!);
+    });
   }
 });

@@ -36,5 +36,18 @@ declare global {
         ) => void
       ) => void;
     };
+
+    // Sync
+    syncAPI: {
+      start(): Promise<{ ok: boolean }>;
+      cancel(): Promise<{ ok: boolean }>;
+      onStatus(cb: (status: any) => void): () => void;
+    };
+
+    electron: {
+      on: (channel: string, callback: (data: any) => void) => void;
+      off?: (channel: string, callback: (data: any) => void) => void;
+      send?: (channel: string, data?: any) => void;
+    };
   }
 }

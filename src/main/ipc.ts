@@ -1,9 +1,60 @@
 import { ipcMain, BrowserWindow } from "electron";
-import { TodoDatabase } from "./database";
+import { AppDatabase } from "./database";
+// import { db } from "./sync/sync-manager"; // reuse SAME instance
+// export const db = new AppDatabase({ role: "initializel" });
+import { handle } from "./ipc-typed";
 
-const db = new TodoDatabase();
+// import { BrowserWindow } from "electron";
+// import { Worker } from "worker_threads";
+// import { networkMonitor } from "../network/networkMonitor";
+// import { AppDatabase } from "../database";
+// import { resolveSyncWorkerPath } from "./worker-utils";
+import fs from "fs";
+import { app as electronApp } from "electron";
+import path from "path";
+// import { appTableList } from "..";
+
+export const db = new AppDatabase(resolveDbPath());
+
+export function resolveDbPath(): string {
+  // If running inside Electron main process
+  const userDataDir = electronApp
+    ? electronApp.getPath("userData")
+    : process.cwd(); // fallback for workers / Node-only
+
+  // Ensure directory exists
+  if (!fs.existsSync(userDataDir)) {
+    fs.mkdirSync(userDataDir, { recursive: true });
+  }
+
+  // Return full path to the database file
+  const dbPath = path.join(userDataDir, "antares_app.db");
+  console.log(`[resolveDbPath] DB Path: ${dbPath}`);
+  return dbPath;
+}
 
 export function setupIPC() {
+  // Sync operations ------------------------------------------------
+  handle("db:getActiveDeviceContext", () => db.getActiveDeviceContext());
+  handle("db:countUnsyncedRows", (table) => db.countUnsyncedRows(table));
+  handle("db:getUnsyncedRows", (table, limit, offset) =>
+    db.getUnsyncedRows(table, limit, offset)
+  );
+  handle("db:upsertMany", (table, rows) => db.upsertMany(table, rows));
+  handle("db:markTableSynced", (table) => db.markTableAsSynced(table));
+
+  // 🚀 BATCH HANDLER
+  handle("db:batch", async (ops) => {
+    const results = [];
+    for (const op of ops) {
+      // @ts-expect-error safe by contract
+      results.push(await db[op.op](...op.args));
+    }
+    return results;
+  });
+
+  // other operations ------------------------------------------------
+
   // Todo operations
   ipcMain.handle("create-todo", async (_, todo) => {
     return await db.createTodo(todo);

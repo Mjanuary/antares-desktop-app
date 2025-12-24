@@ -29,3 +29,14 @@ contextBridge.exposeInMainWorld("electronAPI", {
     );
   },
 });
+
+contextBridge.exposeInMainWorld("syncAPI", {
+  start: () => ipcRenderer.invoke("sync:start"),
+  cancel: () => ipcRenderer.invoke("sync:cancel"),
+
+  onStatus: (cb: (status: any) => void) => {
+    const handler = (_: any, status: any) => cb(status);
+    ipcRenderer.on("sync:status", handler);
+    return () => ipcRenderer.removeListener("sync:status", handler);
+  },
+});

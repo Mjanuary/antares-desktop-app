@@ -40,6 +40,7 @@ export const Home: React.FC = () => {
 
   const loadTodos = async () => {
     const todos = await window.electronAPI.getTodos();
+    console.log("Loaded todos:", todos);
     setTodos(todos);
   };
 
