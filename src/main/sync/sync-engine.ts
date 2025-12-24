@@ -64,19 +64,6 @@ export class SyncEngine extends EventEmitter {
 
   private tableProgress = new Map<string, number>();
 
-  // constructor(opts: {
-  //   db: AppDatabase;
-  //   tables: string[];
-  //   deviceId: string;
-  //   branchId: string;
-  // }) {
-  //   super();
-  //   this.db = opts.db;
-  //   this.tables = opts.tables;
-  //   this.deviceId = opts.deviceId;
-  //   this.branchId = opts.branchId;
-  // }
-
   constructor(opts: {
     db: SyncDB;
     tables: string[];
@@ -111,7 +98,6 @@ export class SyncEngine extends EventEmitter {
   }
 
   /* ================= PUSH ================= */
-
   private async pushTable(table: string) {
     let page = 0;
 
@@ -127,7 +113,7 @@ export class SyncEngine extends EventEmitter {
       const rows = await this.db.getUnsyncedRows(
         table,
         this.pageLimit,
-        page * this.pageLimit
+        page * this.pageLimit,
       );
 
       if (!rows.length) break;
@@ -139,7 +125,10 @@ export class SyncEngine extends EventEmitter {
           deviceId: this.deviceId,
           branchId: this.branchId,
         });
-        console.log(`[SyncEngine] PUSH ${table} Response:`, JSON.stringify(data, null, 2));
+        console.log(
+          `[SyncEngine] PUSH ${table} Response:`,
+          JSON.stringify(data, null, 2),
+        );
 
         // for (const row of data) {
         //   await this.db.upsert(table, row);
@@ -160,27 +149,30 @@ export class SyncEngine extends EventEmitter {
   /* ================= PULL ================= */
 
   private async pullTable(table: string) {
-    let cursor: string | null = null; // cursor 
+    let cursor: string | null = null; // cursor
+
     // add lasy sync which will be fetched from the local table called last_sync
     // const lastSync = await this.db.getLastSync(table);
     // if (lastSync) cursor = lastSync.cursor;
 
     while (!this.cancelled) {
       try {
-        console.log(`[SyncEngine] PULL ${table}: Requesting (cursor=${cursor ?? "null"})`);
-        const res = await this.api.get<PullResponse>(
-          `/api/desktop/${table}`,
-          {
-            params: { 
-              // cursor, 
-              lastSync: "2024-04-11 09:44:31.219",
-              limit: this.pageLimit, 
-              deviceId: this.deviceId, 
-              branchId: this.branchId 
-            },
-          }
+        console.log(
+          `[SyncEngine] PULL ${table}: Requesting (cursor=${cursor ?? "null"})`,
         );
-        console.log(`[SyncEngine] PULL ${table} Response:`, JSON.stringify(res.data, null, 2));
+        const res = await this.api.get<PullResponse>(`/api/desktop/${table}`, {
+          params: {
+            // cursor,
+            lastSync: "2024-04-11 09:44:31.219",
+            limit: this.pageLimit,
+            deviceId: this.deviceId,
+            branchId: this.branchId,
+          },
+        });
+        console.log(
+          `[SyncEngine] PULL ${table} Response:`,
+          JSON.stringify(res.data, null, 2),
+        );
 
         const data = res.data as PullResponse<any>;
 
@@ -204,10 +196,7 @@ export class SyncEngine extends EventEmitter {
     console.log("[SyncEngine] RETRIES", retries);
     for (const r of retries) {
       try {
-        await this.api.post(
-          `/api/desktop/${table}`,
-          JSON.parse(r.payload)
-        );
+        await this.api.post(`/api/desktop/${table}`, JSON.parse(r.payload));
         await this.db.removeRetry(r.id);
       } catch {
         await this.db.incrementRetry(r.id);

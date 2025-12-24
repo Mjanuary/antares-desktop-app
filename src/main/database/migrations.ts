@@ -477,10 +477,34 @@ export const migrations: Migration[] = [
             payload TEXT,
             retry_count INTEGER DEFAULT 0,
             last_error TEXT,
-            created_at TEXT DEFAULT CURRENT_TIMESTAMP
+            created_at  DATETIME DEFAULT CURRENT_TIMESTAMP
           );
     `,
   },
+
+  {
+    name: "create_settings_table",
+    sql: `
+      CREATE TABLE IF NOT EXISTS settings (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        key TEXT,
+        value TEXT,
+        created_at  DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at  DATETIME DEFAULT CURRENT_TIMESTAMP
+      );
+    `
+  },
+  {
+    name: "create_updated_at_sync_table",
+    sql: `
+      CREATE TABLE IF NOT EXISTS updated_at_sync (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        table_name TEXT,
+        last_sync TEXT,
+        updated_at  DATETIME DEFAULT CURRENT_TIMESTAMP
+      );
+    `
+  }
 ];
 
 export async function runMigrations(db: Database): Promise<void> {

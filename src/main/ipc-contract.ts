@@ -6,7 +6,11 @@ export type BatchOp<K extends keyof IpcDB = keyof IpcDB> = {
 export interface IpcDB {
   "db:getActiveDeviceContext": {
     args: [];
-    result: { deviceId: string; branchId: string | null } | null;
+    result: {
+      deviceId: string | null;
+      branchId: string | null;
+      baseUrl: string | null;
+    } | null;
   };
 
   "db:countUnsyncedRows": {

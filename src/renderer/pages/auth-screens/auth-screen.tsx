@@ -29,18 +29,6 @@ const AuthScreen = () => {
     }
   };
 
-  // const [selected, setSelected] = useState<number>(0);
-
-  // const { isPending, error, data } = useQuery({
-  //   queryKey: ["repoData-test-data"],
-  //   queryFn: () => connectToApp({ code: "", email: "" }),
-  //   enabled: false,
-  // });
-
-  //const useMutation = () => {
-  //
-  //}
-
   return (
     <div className="min-h-[90vh] flex items-center justify-center">
       <div className="flex flex-col gap-6">
@@ -50,10 +38,6 @@ const AuthScreen = () => {
             This application is for internal Antares team
           </p>
         </div>
-
-        {/* <p>DATA: {JSON.stringify(data)}</p>
-        <p>ERROR: {JSON.stringify(error)}</p>
-        <p>LOADING: {JSON.stringify(isPending)}</p> */}
 
         <div className="w-[400px] bg-overlay relative p-4 rounded-lg">
           <div className="p-2 bg-black absolute top-7 left-12 right-12" />
@@ -75,7 +59,7 @@ const AuthScreen = () => {
                       "bg-green-400": item.completed,
                       "bg-gray-500": !item.completed,
                       "outline outline-offset-1": selected === index,
-                    }
+                    },
                   )}
                 >
                   {item.completed ? <MdCheck /> : index + 1}
@@ -91,11 +75,6 @@ const AuthScreen = () => {
           <AddEmailCode
             onBack={() => setSelected(0)}
             onNext={() => setSelected(1)}
-            // code="- - - - -"
-            // email=""
-            // onChangeCode={() => {}}
-            // onChangeEmail={() => {}}
-            // isLoading={false}
           />
         )}
 

@@ -1,18 +1,9 @@
 import { ipcMain, BrowserWindow } from "electron";
 import { AppDatabase } from "./database";
-// import { db } from "./sync/sync-manager"; // reuse SAME instance
-// export const db = new AppDatabase({ role: "initializel" });
 import { handle } from "./ipc-typed";
-
-// import { BrowserWindow } from "electron";
-// import { Worker } from "worker_threads";
-// import { networkMonitor } from "../network/networkMonitor";
-// import { AppDatabase } from "../database";
-// import { resolveSyncWorkerPath } from "./worker-utils";
 import fs from "fs";
 import { app as electronApp } from "electron";
 import path from "path";
-// import { appTableList } from "..";
 
 export const db = new AppDatabase(resolveDbPath());
 
@@ -38,7 +29,7 @@ export function setupIPC() {
   handle("db:getActiveDeviceContext", () => db.getActiveDeviceContext());
   handle("db:countUnsyncedRows", (table) => db.countUnsyncedRows(table));
   handle("db:getUnsyncedRows", (table, limit, offset) =>
-    db.getUnsyncedRows(table, limit, offset)
+    db.getUnsyncedRows(table, limit, offset),
   );
   handle("db:upsertMany", (table, rows) => db.upsertMany(table, rows));
   handle("db:markTableSynced", (table) => db.markTableAsSynced(table));

@@ -5,7 +5,8 @@ import { app } from "electron";
 import * as path from "path";
 import * as fs from "fs";
 import { runMigrations } from "./database/migrations";
-import { appTableList } from "./constants";
+import { appTableList, SettingsSeeds } from "./constants";
+import { runSeeds } from "./database/seeds";
 
 type DbRole = "initializer" | "consumer" | "worker";
 
@@ -24,7 +25,7 @@ try {
 export class AppDatabase {
   private db!: Database;
   public readonly dbPath: string;
-  
+
   // 🔒 LIFECYCLE & CONCURRENCY CONTROLS
   private initPromise: Promise<void> | null = null;
   private queue: Promise<void> = Promise.resolve();
@@ -32,7 +33,7 @@ export class AppDatabase {
   constructor(dbPath: string) {
     this.dbPath = dbPath;
     this.ensureDir();
-    
+
     // DB is opened immediately, but NO commands are run until init()
     this.db = new Database(dbPath);
   }
@@ -40,7 +41,7 @@ export class AppDatabase {
   /* -----------------------------
      LIFECYCLE MANAGEMENT
   ------------------------------ */
-  
+
   /**
    * Initializes the database.
    * - Sets WAL mode
@@ -61,12 +62,22 @@ export class AppDatabase {
       runMigrations(this.db)
         .then(() => {
           console.log("[AppDatabase] Initialized & Migrated");
-          resolve();
+
+          runSeeds(this.db)
+            .then(() => {
+              resolve();
+            })
+            .catch((err) => {
+              console.error("[AppDatabase] Fatal Init Error:", err);
+              reject(err);
+            });
         })
         .catch((err) => {
           console.error("[AppDatabase] Fatal Init Error:", err);
           reject(err);
         });
+
+      //
     });
 
     return this.initPromise;
@@ -80,7 +91,9 @@ export class AppDatabase {
    */
   private async perform<T>(action: () => Promise<T>): Promise<T> {
     if (!this.initPromise) {
-      throw new Error("❌ Database NOT initialized. Call await db.init() first.");
+      throw new Error(
+        "❌ Database NOT initialized. Call await db.init() first.",
+      );
     }
 
     // Wait for init to complete (or fail)
@@ -114,30 +127,45 @@ export class AppDatabase {
   ------------------------------ */
 
   async getActiveDeviceContext(): Promise<{
-    deviceId: string;
+    deviceId: string | null;
     branchId: string | null;
+    baseUrl: string | null;
   } | null> {
     return this.perform(async () => {
-      return new Promise((resolve, reject) => {
+      // 1. Fetch Device Connection Info
+      const connection = await new Promise<any>((resolve, reject) => {
         const sql = `SELECT connection_id AS deviceId, branch_id AS branchId FROM app_connect LIMIT 1;`;
-        this.db.get(sql, [], (err, row: any) => {
+        this.db.get(sql, [], (err, row) => {
           if (err) return reject(err);
-          if (!row) return resolve(null);
-          resolve({
-            deviceId: row.deviceId,
-            branchId: row.branchId ?? null,
-          });
+          resolve(row); // If no row, this resolves as undefined/null
         });
       });
+
+      // 2. Fetch Base URL Setting (Runs even if connection is null)
+      const setting = await new Promise<any>((resolve, reject) => {
+        const sql = `SELECT value FROM settings WHERE key = ? LIMIT 1;`;
+        this.db.get(sql, [SettingsSeeds.BASE_URL.key], (err, row) => {
+          if (err) return reject(err);
+          resolve(row);
+        });
+      });
+
+      // 3. Return combined results with null fallbacks
+      return {
+        deviceId: connection?.deviceId ?? null,
+        branchId: connection?.branchId ?? null,
+        baseUrl: setting?.value ?? null,
+      };
     });
   }
 
   /* =====================================================
      =============== SYNC – PUSH HELPERS =================
      ===================================================== */
-  
+
   async countUnsyncedRows(table: string): Promise<number> {
-    if (!allowedTables.has(table)) throw new Error("Invalid table name: "+table);
+    if (!allowedTables.has(table))
+      throw new Error("Invalid table name: " + table);
 
     return this.perform(async () => {
       return new Promise((resolve, reject) => {
@@ -153,9 +181,10 @@ export class AppDatabase {
   async getUnsyncedRows(
     table: string,
     limit: number,
-    offset: number
+    offset: number,
   ): Promise<any[]> {
-    if (!allowedTables.has(table)) throw new Error("Invalid table name: "+table);
+    if (!allowedTables.has(table))
+      throw new Error("Invalid table name: " + table);
 
     return this.perform(async () => {
       return new Promise((resolve, reject) => {
@@ -173,7 +202,8 @@ export class AppDatabase {
   }
 
   async markTableAsSynced(table: string): Promise<number> {
-    if (!allowedTables.has(table)) throw new Error("Invalid table name: "+table);
+    if (!allowedTables.has(table))
+      throw new Error("Invalid table name: " + table);
 
     return this.perform(async () => {
       return new Promise((resolve, reject) => {
@@ -196,9 +226,10 @@ export class AppDatabase {
 
   async upsertMany(
     table: string,
-    rows: Record<string, any>[]
+    rows: Record<string, any>[],
   ): Promise<number> {
-    if (!allowedTables.has(table)) throw new Error("Invalid table name: "+table);
+    if (!allowedTables.has(table))
+      throw new Error("Invalid table name: " + table);
     if (!rows.length) return 0;
 
     return this.perform(async () => {
@@ -250,7 +281,8 @@ export class AppDatabase {
   }
 
   async upsert(table: string, row: Record<string, any>): Promise<number> {
-    if (!allowedTables.has(table)) throw new Error("Invalid table name: "+table);
+    if (!allowedTables.has(table))
+      throw new Error("Invalid table name: " + table);
 
     return this.perform(async () => {
       return new Promise((resolve, reject) => {
@@ -276,7 +308,8 @@ export class AppDatabase {
      ===================================================== */
 
   async addRetry(table: string, payload: any, error: string): Promise<number> {
-    if (!allowedTables.has(table)) throw new Error("Invalid table name: "+table);
+    if (!allowedTables.has(table))
+      throw new Error("Invalid table name: " + table);
 
     return this.perform(async () => {
       return new Promise((resolve, reject) => {
@@ -284,16 +317,21 @@ export class AppDatabase {
           INSERT INTO sync_retry_queue (table_name, payload, last_error)
           VALUES (?, ?, ?)
         `;
-        this.db.run(sql, [table, JSON.stringify(payload), error], function (err) {
-          if (err) reject(err);
-          else resolve(this.changes);
-        });
+        this.db.run(
+          sql,
+          [table, JSON.stringify(payload), error],
+          function (err) {
+            if (err) reject(err);
+            else resolve(this.changes);
+          },
+        );
       });
     });
   }
 
   async getRetries(table: string, limit = 5): Promise<any[]> {
-    if (!allowedTables.has(table)) throw new Error("Invalid table name: "+table);
+    if (!allowedTables.has(table))
+      throw new Error("Invalid table name: " + table);
 
     return this.perform(async () => {
       return new Promise((resolve, reject) => {
@@ -344,7 +382,7 @@ export class AppDatabase {
      ===================================================== */
 
   async createDeviceConnection(
-    connection: Omit<DeviceConnection, "created_time" | "updated_time">
+    connection: Omit<DeviceConnection, "created_time" | "updated_time">,
   ): Promise<DeviceConnection> {
     return this.perform(async () => {
       return new Promise((resolve, reject) => {
@@ -382,7 +420,7 @@ export class AppDatabase {
                 updated_time: new Date().toISOString(),
               });
             }
-          }
+          },
         );
       });
     });
@@ -420,7 +458,7 @@ export class AppDatabase {
               };
               resolve(connection);
             }
-          }
+          },
         );
       });
     });
@@ -440,7 +478,7 @@ export class AppDatabase {
   // ********************************************
 
   async createTodo(
-    todo: Omit<Todo, "id" | "createdAt" | "updatedAt">
+    todo: Omit<Todo, "id" | "createdAt" | "updatedAt">,
   ): Promise<Todo> {
     return this.perform(async () => {
       return new Promise((resolve, reject) => {
@@ -456,7 +494,7 @@ export class AppDatabase {
                 createdAt: new Date(),
                 updatedAt: new Date(),
               });
-          }
+          },
         );
       });
     });
@@ -465,18 +503,21 @@ export class AppDatabase {
   async getTodos(): Promise<Todo[]> {
     return this.perform(async () => {
       return new Promise((resolve, reject) => {
-        this.db.all("SELECT * FROM todos ORDER BY createdAt DESC", (err, rows) => {
-          if (err) reject(err);
-          else {
-            const todos = rows.map((row: any) => ({
-              ...row,
-              completed: Boolean(row.completed),
-              createdAt: new Date(row.createdAt),
-              updatedAt: new Date(row.updatedAt),
-            }));
-            resolve(todos as Todo[]);
-          }
-        });
+        this.db.all(
+          "SELECT * FROM todos ORDER BY createdAt DESC",
+          (err, rows) => {
+            if (err) reject(err);
+            else {
+              const todos = rows.map((row: any) => ({
+                ...row,
+                completed: Boolean(row.completed),
+                createdAt: new Date(row.createdAt),
+                updatedAt: new Date(row.updatedAt),
+              }));
+              resolve(todos as Todo[]);
+            }
+          },
+        );
       });
     });
   }
@@ -509,7 +550,7 @@ export class AppDatabase {
           (err) => {
             if (err) reject(err);
             else resolve();
-          }
+          },
         );
       });
     });

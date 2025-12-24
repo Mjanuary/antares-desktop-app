@@ -25,9 +25,10 @@ function callMain<T>(action: string, ...args: any[]): Promise<T> {
 
 (async () => {
   try {
-    const deviceContext = await callMain<{ deviceId: string; branchId: string }>(
-      "db:getActiveDeviceContext"
-    );
+    const deviceContext = await callMain<{
+      deviceId: string;
+      branchId: string;
+    }>("db:getActiveDeviceContext");
 
     if (!deviceContext) {
       parentPort?.postMessage({
@@ -49,7 +50,7 @@ function callMain<T>(action: string, ...args: any[]): Promise<T> {
         incrementRetry: (id) => callMain("db:incrementRetry", id),
         upsert: (t, r) => callMain("db:upsert", t, r),
       },
-      tables: ["users", "todos" ], // Tables to sync
+      tables: ["users", "todos"], // Tables to sync
       deviceId: deviceContext.deviceId,
       branchId: deviceContext.branchId || "",
     });
@@ -65,106 +66,3 @@ function callMain<T>(action: string, ...args: any[]): Promise<T> {
     });
   }
 })();
-
-// old codes
-// import { parentPort, workerData } from "worker_threads";
-// import { SyncEngine } from "./sync-engine";
-// import { AppDatabase } from "../database";
-
-// /* ----------------------------------
-//    1️⃣ Crash reporting helpers
-// ----------------------------------- */
-// function reportFatal(code: string, error: unknown) {
-//   parentPort?.postMessage({
-//     type: "fatal",
-//     code,
-//     message: error instanceof Error ? error.message : String(error),
-//     stack: error instanceof Error ? error.stack : undefined,
-//   });
-// }
-
-// /* ----------------------------------
-//    2️⃣ GLOBAL crash handlers
-//    (must be at top level)
-// ----------------------------------- */
-// process.on("unhandledRejection", (reason) => {
-//   reportFatal("UNHANDLED_REJECTION", reason);
-//   process.exit(1);
-// });
-
-// process.on("uncaughtException", (error) => {
-//   reportFatal("UNCAUGHT_EXCEPTION", error);
-//   process.exit(1);
-// });
-
-// /* ----------------------------------
-//    3️⃣ Worker exit visibility
-// ----------------------------------- */
-// process.on("exit", (code) => {
-//   parentPort?.postMessage({
-//     type: "exit",
-//     code,
-//   });
-// });
-
-// (async () => {
-//   const { dbPath } = workerData;
-
-//   if (!dbPath) {
-//     throw new Error("dbPath not provided to sync worker");
-//   }
-
-//   // const db = new AppDatabase(dbPath);
-//   // await db.initializeDatabase();
-
-//   const db = new AppDatabase({
-//     role: "worker",
-//     dbPath: dbPath,
-//   });
-
-//   /**
-//    * Resolve device & branch context BEFORE sync.
-//    * Abort early if device is not registered.
-//    */
-//   console.log("Calling: getActiveDeviceContext() - syn-worker", dbPath);
-
-//   const deviceContext = await db.getActiveDeviceContext();
-//   console.log(
-//     "--------------------------------------------------------------------------"
-//   );
-//   console.log({ deviceContext });
-//   if (!deviceContext) {
-//     parentPort?.postMessage({
-//       type: "error",
-//       code: "NO_DEVICE_CONTEXT",
-//       message:
-//         "This device is not connected or has been blocked. Sync aborted.",
-//     });
-
-//     process.exit(0);
-//     return;
-//   }
-
-//   console.log({ deviceContext, tables: ["clients", "orders", "payments"] });
-//   console.log(
-//     "--------------------------------------------------------------------------"
-//   );
-
-//   const engine = new SyncEngine({
-//     db,
-//     tables: ["clients", "orders", "payments"],
-//     deviceId: deviceContext.deviceId,
-//     branchId: deviceContext.branchId || "",
-//   });
-
-//   engine.on("status", (status) => {
-//     console.log("[SYNC WORKER] status:", status);
-
-//     parentPort?.postMessage(status);
-//   });
-
-//   parentPort?.on("message", (msg) => {
-//     if (msg === "start") engine.run();
-//     if (msg === "cancel") engine.cancel();
-//   });
-// })();
