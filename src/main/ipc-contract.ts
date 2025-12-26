@@ -1,3 +1,5 @@
+import { UpsertManyOptions } from "../types/sync.types";
+
 export type BatchOp<K extends keyof IpcDB = keyof IpcDB> = {
   op: K;
   args: IpcDB[K]["args"];
@@ -24,7 +26,7 @@ export interface IpcDB {
   };
 
   "db:upsertMany": {
-    args: [table: string, rows: any[]];
+    args: [UpsertManyOptions];
     result: number;
   };
 

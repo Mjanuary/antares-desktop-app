@@ -7,6 +7,7 @@ import * as fs from "fs";
 import { runMigrations } from "./database/migrations";
 import { appTableList, SettingsSeeds } from "./constants";
 import { runSeeds } from "./database/seeds";
+import { UpsertManyOptions } from "../types/sync.types";
 
 type DbRole = "initializer" | "consumer" | "worker";
 
@@ -220,14 +221,31 @@ export class AppDatabase {
     });
   }
 
+  async getLastSync(
+    table: string,
+  ): Promise<{ last_sync: string; next_id: string } | null> {
+    return this.perform(async () => {
+      return new Promise((resolve, reject) => {
+        const sql = `SELECT last_sync, next_id FROM updated_at_sync WHERE table_name = ?`;
+        this.db.get(
+          sql,
+          [table],
+          (err, row: { last_sync: string; next_id: string } | undefined) => {
+            if (err) reject(err);
+            else resolve(row ?? null);
+          },
+        );
+      });
+    });
+  }
+
   /* =====================================================
      =============== UPSERT (PUSH & PULL) =================
      ===================================================== */
 
-  async upsertMany(
-    table: string,
-    rows: Record<string, any>[],
-  ): Promise<number> {
+  async upsertMany(opts: UpsertManyOptions): Promise<number> {
+    const { table, rows, last_sync, next_id } = opts;
+
     if (!allowedTables.has(table))
       throw new Error("Invalid table name: " + table);
     if (!rows.length) return 0;
@@ -268,11 +286,62 @@ export class AppDatabase {
             if (err) {
               this.db.run("ROLLBACK");
               reject(err);
-            } else {
+              return;
+            }
+
+            const commit = () => {
               this.db.run("COMMIT", (err) => {
                 if (err) reject(err);
                 else resolve(totalChanges);
               });
+            };
+
+            if (last_sync) {
+              const db = this.db;
+              // Check if a record exists for this table
+              db.get(
+                "SELECT id FROM updated_at_sync WHERE table_name = ?",
+                [table],
+                (err, row: any) => {
+                  if (err) {
+                    db.run("ROLLBACK");
+                    reject(err);
+                    return;
+                  }
+
+                  if (row) {
+                    // Update existing record
+                    db.run(
+                      "UPDATE updated_at_sync SET last_sync = ?, next_id = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?",
+                      [last_sync, next_id, row.id],
+                      (err) => {
+                        if (err) {
+                          db.run("ROLLBACK");
+                          reject(err);
+                        } else {
+                          commit();
+                        }
+                      },
+                    );
+                  } else {
+                    // Insert new record
+                    db.run(
+                      "INSERT INTO updated_at_sync (table_name, last_sync, next_id) VALUES (?, ?, ?)",
+                      [table, last_sync, next_id],
+                      (err) => {
+                        if (err) {
+                          db.run("ROLLBACK");
+                          reject(err);
+                        } else {
+                          commit();
+                        }
+                      },
+                    );
+                  }
+                },
+              );
+            } else {
+              commit();
             }
           });
         });

@@ -1,5 +1,10 @@
-import { parentPort } from "worker_threads";
+import { parentPort, workerData } from "worker_threads";
 import { SyncEngine } from "./sync-engine";
+import { setApiBaseUrl } from "../../api-requests/axios-instance";
+
+if (workerData?.baseUrl) {
+  setApiBaseUrl(workerData.baseUrl);
+}
 
 /**
  * Bridge to Main Process
@@ -42,15 +47,16 @@ function callMain<T>(action: string, ...args: any[]): Promise<T> {
       db: {
         countUnsyncedRows: (t) => callMain("db:countUnsyncedRows", t),
         getUnsyncedRows: (t, l, o) => callMain("db:getUnsyncedRows", t, l, o),
-        upsertMany: (t, r) => callMain("db:upsertMany", t, r),
+        upsertMany: (opts) => callMain("db:upsertMany", opts),
         markTableAsSynced: (t) => callMain("db:markTableSynced", t),
         addRetry: (t, p, e) => callMain("db:addRetry", t, p, e),
         getRetries: (t) => callMain("db:getRetries", t),
         removeRetry: (id) => callMain("db:removeRetry", id),
         incrementRetry: (id) => callMain("db:incrementRetry", id),
         upsert: (t, r) => callMain("db:upsert", t, r),
+        getLastSync: (t) => callMain("db:getLastSync", t),
       },
-      tables: ["users", "todos"], // Tables to sync
+      tables: ["users"], // Tables to sync janvier
       deviceId: deviceContext.deviceId,
       branchId: deviceContext.branchId || "",
     });

@@ -12,6 +12,16 @@ export const appTableList = [
   "deposit",
 ];
 
+export const pushTableList = [
+  "spendings",
+  "houses",
+  "clients",
+  "spending_categories",
+  "sales",
+  "sales_items",
+  "deposit",
+];
+
 export const SettingsSeeds = {
   BASE_URL: {
     key: "BASE_URL",

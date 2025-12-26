@@ -5,6 +5,7 @@ import { resolveSyncWorkerPath } from "./worker-utils";
 import { appTableList } from "../constants";
 // import { invoke } from "../ipc-typed";
 import { db } from "../ipc";
+import { setApiBaseUrl } from "../../api-requests/axios-instance";
 
 let worker: Worker | null = null;
 let syncing = false;
@@ -28,6 +29,11 @@ export async function startSync(mainWindow: BrowserWindow) {
       message: "Device not connected. Sync aborted.",
     });
     return;
+  }
+
+  // Set the global base URL for the main process
+  if (deviceContext.baseUrl) {
+    setApiBaseUrl(deviceContext.baseUrl);
   }
 
   console.log("[]Starting sync...");

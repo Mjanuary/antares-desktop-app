@@ -31,7 +31,7 @@ export function setupIPC() {
   handle("db:getUnsyncedRows", (table, limit, offset) =>
     db.getUnsyncedRows(table, limit, offset),
   );
-  handle("db:upsertMany", (table, rows) => db.upsertMany(table, rows));
+  handle("db:upsertMany", (opts) => db.upsertMany(opts));
   handle("db:markTableSynced", (table) => db.markTableAsSynced(table));
 
   // 🚀 BATCH HANDLER

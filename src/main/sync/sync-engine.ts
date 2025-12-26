@@ -5,6 +5,7 @@ import { EventEmitter } from "events";
 import { AsyncDB } from "./db-wrapper";
 import resolveConflict from "./conflite-resolution";
 import { AppDatabase } from "../database";
+import { axiosInstance } from "../../api-requests/axios-instance";
 
 type ApiPage<T> = {
   data: T[];
@@ -22,9 +23,14 @@ export type SyncProgress =
   | { type: "done" };
 
 type PullResponse<T = any> = {
-  rows: T[];
-  nextCursor: string | null;
+  data: T[];
+  has_more: boolean;
+  next_cursor: string | null;
+  server_timestamp: string;
+  next_id: string | null;
 };
+
+import { UpsertManyOptions } from "../../types/sync.types";
 
 /**
  * SyncEngine
@@ -36,7 +42,7 @@ type PullResponse<T = any> = {
 type SyncDB = {
   countUnsyncedRows(table: string): Promise<number>;
   getUnsyncedRows(table: string, limit: number, offset: number): Promise<any[]>;
-  upsertMany(table: string, rows: Record<string, any>[]): Promise<number>;
+  upsertMany(opts: UpsertManyOptions): Promise<number>;
   markTableAsSynced(table: string): Promise<number>;
 
   // already used in your code ↓
@@ -47,18 +53,22 @@ type SyncDB = {
 
   // pull path
   upsert(table: string, row: any): Promise<void>;
+  getLastSync(
+    table: string,
+  ): Promise<{ last_sync: string; next_id: string } | null>;
 };
 
 export class SyncEngine extends EventEmitter {
   // private db: AppDatabase;
   private db: SyncDB;
 
-  private api: AxiosInstance = axios.create({ timeout: 15000 });
+  private api: AxiosInstance = axiosInstance;
 
   private cancelled = false;
 
   private tables: string[];
-  private pageLimit = 100;
+  // private pageLimit = 100;
+  private pageLimit = 1;
   private deviceId: string;
   private branchId: string;
 
@@ -89,9 +99,9 @@ export class SyncEngine extends EventEmitter {
 
       this.emit("status", { type: "push:table", table });
 
-      await this.processRetryQueue(table);
+      // await this.processRetryQueue(table);
       await this.pullTable(table);
-      await this.pushTable(table);
+      // await this.pushTable(table);
     }
 
     this.emit("status", { type: "done" });
@@ -120,7 +130,7 @@ export class SyncEngine extends EventEmitter {
 
       try {
         console.log(`[SyncEngine] PUSH ${table}: Sending ${rows.length} rows`);
-        const { data } = await this.api.post(`/api/desktop/${table}`, {
+        const { data } = await this.api.post(`/${table}`, {
           rows,
           deviceId: this.deviceId,
           branchId: this.branchId,
@@ -133,7 +143,7 @@ export class SyncEngine extends EventEmitter {
         // for (const row of data) {
         //   await this.db.upsert(table, row);
         // }
-        await this.db.upsertMany(table, data.rows);
+        // await this.db.upsertMany(table, data.rows);
         await this.db.markTableAsSynced(table);
 
         this.updateProgress(table, pageWeight);
@@ -149,21 +159,34 @@ export class SyncEngine extends EventEmitter {
   /* ================= PULL ================= */
 
   private async pullTable(table: string) {
-    let cursor: string | null = null; // cursor
+    let cursor: string | null = "2024-04-11 09:44:31.219"; // default fetch date
+    let lastId: string | null = null;
+    let hasMore = true;
 
-    // add lasy sync which will be fetched from the local table called last_sync
-    // const lastSync = await this.db.getLastSync(table);
-    // if (lastSync) cursor = lastSync.cursor;
+    // Get initial sync state from DB
+    try {
+      const lastSync = await this.db.getLastSync(table);
+      if (lastSync) {
+        cursor = lastSync.last_sync;
+        lastId = lastSync.next_id;
+      }
+      console.log("last sync db ==========================> ", lastSync);
+    } catch (err) {
+      console.error(`[SyncEngine] Failed to get last sync for ${table}:`, err);
+      // If we can't get the last sync, we probably shouldn't proceed with this table
+      return;
+    }
 
-    while (!this.cancelled) {
+    while (!this.cancelled && hasMore) {
       try {
         console.log(
-          `[SyncEngine] PULL ${table}: Requesting (cursor=${cursor ?? "null"})`,
+          `[SyncEngine] PULL ${table}: Requesting (cursor=${cursor ?? "null"}, lastId=${lastId ?? "null"})`,
         );
-        const res = await this.api.get<PullResponse>(`/api/desktop/${table}`, {
+
+        const res = await this.api.get<PullResponse>(`/${table}`, {
           params: {
-            // cursor,
-            lastSync: "2024-04-11 09:44:31.219",
+            lastSync: cursor,
+            lastId: lastId,
             limit: this.pageLimit,
             deviceId: this.deviceId,
             branchId: this.branchId,
@@ -176,15 +199,31 @@ export class SyncEngine extends EventEmitter {
 
         const data = res.data as PullResponse<any>;
 
-        if (!data.rows.length) break;
+        // Always upsert if we have data, or just check has_more
+        // Even if data is empty, server might return has_more=false and a new cursor?
+        // Usually data is empty means no more data, but let's trust has_more.
 
-        data.rows.forEach((row: any) => this.db.upsert(table, row));
+        if (data.data.length > 0) {
+          await this.db.upsertMany({
+            table,
+            rows: data.data,
+            last_sync: data.next_cursor,
+            next_id: data.next_id,
+          });
+        }
 
-        cursor = data.nextCursor;
+        // Update verify state for next iteration
+        cursor = data.next_cursor;
+        lastId = data.next_id;
+        hasMore = data.has_more;
+
         this.updateProgress(table, 1);
       } catch (err: any) {
+        console.error(`[SyncEngine] Error pulling ${table}:`, err);
+        // "If fetching data fails, you should skip the whole process or that table"
+        // We add retry record for visibility (optional per existing logic) but MUST break loop for this table.
         await this.db.addRetry(table, { cursor }, err.message);
-        break;
+        break; // Stop processing this table, proceed to next in run()
       }
     }
   }
@@ -196,7 +235,7 @@ export class SyncEngine extends EventEmitter {
     console.log("[SyncEngine] RETRIES", retries);
     for (const r of retries) {
       try {
-        await this.api.post(`/api/desktop/${table}`, JSON.parse(r.payload));
+        await this.api.post(`/${table}`, JSON.parse(r.payload));
         await this.db.removeRetry(r.id);
       } catch {
         await this.db.incrementRetry(r.id);

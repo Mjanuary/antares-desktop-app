@@ -492,7 +492,7 @@ export const migrations: Migration[] = [
         created_at  DATETIME DEFAULT CURRENT_TIMESTAMP,
         updated_at  DATETIME DEFAULT CURRENT_TIMESTAMP
       );
-    `
+    `,
   },
   {
     name: "create_updated_at_sync_table",
@@ -501,10 +501,11 @@ export const migrations: Migration[] = [
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         table_name TEXT,
         last_sync TEXT,
+        next_id TEXT,
         updated_at  DATETIME DEFAULT CURRENT_TIMESTAMP
       );
-    `
-  }
+    `,
+  },
 ];
 
 export async function runMigrations(db: Database): Promise<void> {
@@ -525,11 +526,13 @@ export async function runMigrations(db: Database): Promise<void> {
         }
 
         const appliedMigrations = new Set(rows.map((row: any) => row.name));
-        console.log(`[Migrations] Found ${appliedMigrations.size} applied migrations.`);
+        console.log(
+          `[Migrations] Found ${appliedMigrations.size} applied migrations.`,
+        );
 
         // Run pending migrations
         const pendingMigrations = migrations.filter(
-          (migration) => !appliedMigrations.has(migration.name)
+          (migration) => !appliedMigrations.has(migration.name),
         );
 
         if (pendingMigrations.length === 0) {
@@ -566,7 +569,7 @@ export async function runMigrations(db: Database): Promise<void> {
 
                 currentIndex++;
                 runNextMigration();
-              }
+              },
             );
           });
         }
