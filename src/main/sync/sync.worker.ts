@@ -1,6 +1,7 @@
 import { parentPort, workerData } from "worker_threads";
 import { SyncEngine } from "./sync-engine";
 import { setApiBaseUrl } from "../../api-requests/axios-instance";
+import { appTableList } from "../constants";
 
 if (workerData?.baseUrl) {
   setApiBaseUrl(workerData.baseUrl);
@@ -56,7 +57,7 @@ function callMain<T>(action: string, ...args: any[]): Promise<T> {
         upsert: (t, r) => callMain("db:upsert", t, r),
         getLastSync: (t) => callMain("db:getLastSync", t),
       },
-      tables: ["users"], // Tables to sync janvier
+      tables: appTableList,
       deviceId: deviceContext.deviceId,
       branchId: deviceContext.branchId || "",
     });

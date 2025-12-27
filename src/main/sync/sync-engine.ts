@@ -4,6 +4,7 @@ import { EventEmitter } from "events";
 // import { resolveConflict } from "./conflictResolver";
 import { AsyncDB } from "./db-wrapper";
 import resolveConflict from "./conflite-resolution";
+import { validateAndTransformData } from "./sync-validation";
 import { AppDatabase } from "../database";
 import { axiosInstance } from "../../api-requests/axios-instance";
 
@@ -68,7 +69,7 @@ export class SyncEngine extends EventEmitter {
 
   private tables: string[];
   // private pageLimit = 100;
-  private pageLimit = 1;
+  private pageLimit = 100;
   private deviceId: string;
   private branchId: string;
 
@@ -199,14 +200,21 @@ export class SyncEngine extends EventEmitter {
 
         const data = res.data as PullResponse<any>;
 
-        // Always upsert if we have data, or just check has_more
-        // Even if data is empty, server might return has_more=false and a new cursor?
-        // Usually data is empty means no more data, but let's trust has_more.
-
         if (data.data.length > 0) {
+          const validation = validateAndTransformData(table, data.data);
+
+          if (!validation.isValid) {
+            console.error(
+              `[SyncEngine] ----------)))))))------- Validation failed for ${table}:`,
+              validation.error,
+            );
+            // Skip this table for this run
+            break;
+          }
+
           await this.db.upsertMany({
             table,
-            rows: data.data,
+            rows: validation.transformed,
             last_sync: data.next_cursor,
             next_id: data.next_id,
           });

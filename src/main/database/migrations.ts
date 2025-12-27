@@ -102,13 +102,13 @@ export const migrations: Migration[] = [
         spending_category_id TEXT,
         spending_type TEXT,
         deposit_id TEXT,
-        rate_RWF INTEGER DEFAULT 0,
-        rate_CDF INTEGER DEFAULT 0,
+        rate_RWF NUMERIC DEFAULT 0,
+        rate_CDF NUMERIC DEFAULT 0,
         branch_currency TEXT,
-        cash_USD INTEGER DEFAULT 0,
-        cash_CDF INTEGER DEFAULT 0,
-        cash_RWF INTEGER DEFAULT 0,
-        total_bc INTEGER DEFAULT 0,
+        cash_USD NUMERIC DEFAULT 0,
+        cash_CDF NUMERIC DEFAULT 0,
+        cash_RWF NUMERIC DEFAULT 0,
+        total_bc NUMERIC DEFAULT 0,
         branch_id TEXT,
         recorded_by TEXT,
         comment TEXT,
@@ -178,9 +178,9 @@ export const migrations: Migration[] = [
       quantity INTEGER DEFAULT 0,
       bonus INTEGER DEFAULT 0,
 
-      price_unit INTEGER DEFAULT 0,
-      price_total INTEGER DEFAULT 0,
-      price_total_bc INTEGER DEFAULT 0,
+      price_unit NUMERIC DEFAULT 0,
+      price_total NUMERIC DEFAULT 0,
+      price_total_bc NUMERIC DEFAULT 0,
 
       printed BOOLEAN DEFAULT 0,
       designed BOOLEAN DEFAULT 0,
@@ -222,17 +222,17 @@ export const migrations: Migration[] = [
         payment_currency TEXT,
         branch_currency TEXT,
 
-        price_total INTEGER DEFAULT 0,
-        price_total_bc INTEGER DEFAULT 0,
-        rate_RWF INTEGER DEFAULT 0,
-        rate_CDF INTEGER DEFAULT 0,
-        payed_USD INTEGER DEFAULT 0,
-        payed_CDF INTEGER DEFAULT 0,
-        payed_RWF INTEGER DEFAULT 0,
-        total_payed_cash INTEGER DEFAULT 0,
-        total_payed_cash_bc INTEGER DEFAULT 0,
-        balance INTEGER DEFAULT 0,
-        balance_bc INTEGER DEFAULT 0,
+        price_total NUMERIC DEFAULT 0,
+        price_total_bc NUMERIC DEFAULT 0,
+        rate_RWF NUMERIC DEFAULT 0,
+        rate_CDF NUMERIC DEFAULT 0,
+        payed_USD NUMERIC DEFAULT 0,
+        payed_CDF NUMERIC DEFAULT 0,
+        payed_RWF NUMERIC DEFAULT 0,
+        total_payed_cash NUMERIC DEFAULT 0,
+        total_payed_cash_bc NUMERIC DEFAULT 0,
+        balance NUMERIC DEFAULT 0,
+        balance_bc NUMERIC DEFAULT 0,
 
         comment TEXT,
         deposit_id TEXT,
@@ -290,9 +290,9 @@ export const migrations: Migration[] = [
           product_active BOOLEAN DEFAULT 1,
           branch_active BOOLEAN DEFAULT 1,
 
-          price_CDF INTEGER DEFAULT 0,
-          price_RWF INTEGER DEFAULT 0,
-          price_USD INTEGER DEFAULT 0,
+          price_CDF NUMERIC DEFAULT 0,
+          price_RWF NUMERIC DEFAULT 0,
+          price_USD NUMERIC DEFAULT 0,
 
           stock_quantity INTEGER DEFAULT 0,
 
@@ -417,12 +417,12 @@ export const migrations: Migration[] = [
  
         approved BOOLEAN DEFAULT 0,
 
-        rate_RWF INTEGER DEFAULT 0,
-        rate_CDF INTEGER DEFAULT 0,
-        cash_USD INTEGER DEFAULT 0,
-        cash_CDF INTEGER DEFAULT 0,
-        cash_RWF INTEGER DEFAULT 0,
-        total_bc INTEGER DEFAULT 0,
+        rate_RWF NUMERIC DEFAULT 0,
+        rate_CDF NUMERIC DEFAULT 0,
+        cash_USD NUMERIC DEFAULT 0,
+        cash_CDF NUMERIC DEFAULT 0,
+        cash_RWF NUMERIC DEFAULT 0,
+        total_bc NUMERIC DEFAULT 0,
 
         history TEXT DEFAULT '[]',
         deposit_summary TEXT DEFAULT 'null',
@@ -448,25 +448,24 @@ export const migrations: Migration[] = [
     sql: `
       CREATE TABLE IF NOT EXISTS clients (
         id TEXT PRIMARY KEY,
-        name TEXT NOT NULL,
-        country TEXT,
+        names TEXT NOT NULL,
+        phone_number TEXT,
+        gender TEXT,
         address TEXT,
-        contacts TEXT,
-        comment TEXT,
-
-        active BOOLEAN DEFAULT 1,
-
+        email TEXT,
+        other_phone_numbers TEXT,
+        recorded_by TEXT,
+        recorded_branch TEXT,
         created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
-        updated_date DATETIME DEFAULT CURRENT_TIMESTAMP,
-
         app_connection TEXT,
+
         row_version INTEGER DEFAULT 1,
         row_deleted TEXT DEFAULT 'null',
         sync_status TEXT DEFAULT 'PENDING'
       );
       
-      CREATE INDEX IF NOT EXISTS clients_active_idx ON clients (active);
-      CREATE INDEX IF NOT EXISTS clients_name_idx ON clients (name);
+      CREATE INDEX IF NOT EXISTS clients_names_idx ON clients (names);
+      CREATE INDEX IF NOT EXISTS clients_phone_number_idx ON clients (phone_number);
     `,
   },
   {
