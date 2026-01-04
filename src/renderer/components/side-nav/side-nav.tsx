@@ -6,12 +6,14 @@ import { IoApps } from "react-icons/io5";
 import { NavButton, NavButtonIcon } from "./nav-button";
 import { FaSync } from "react-icons/fa";
 import { RouterPages } from "../../../types/pages.types";
+import { useSyncStore } from "../../../store/sync-store";
 
 const SideNavigation: FunctionComponent<{
   selected: string;
   onSelect: (value: string) => void;
   onAppsOpen: () => void;
 }> = ({ selected, onSelect, onAppsOpen }) => {
+  const { running } = useSyncStore();
   return (
     <div
       className="bg-overlay fixed top-0 left-0 bottom-0 flex flex-col justify-between text-white "
@@ -76,7 +78,7 @@ const SideNavigation: FunctionComponent<{
         />
 
         <NavButtonIcon
-          icon={<FaSync />}
+          icon={<FaSync className={running ? "animate-spin" : ""} />}
           label="Sync"
           isActive={selected === "sync"}
           pageUrl={RouterPages.BackupSync}

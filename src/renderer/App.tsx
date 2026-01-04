@@ -13,6 +13,7 @@ import AuthScreen from "./pages/auth-screens/auth-screen";
 import { RouterPages } from "../types/pages.types";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { authStore } from "../store/auth";
+import { useSyncStore } from "../store/sync-store";
 
 const queryClient = new QueryClient();
 
@@ -27,6 +28,13 @@ function App() {
   useEffect(() => {
     loadConnection();
   }, []);
+
+  // ✅ Global Sync Listener
+  const { setStatus } = useSyncStore();
+  useEffect(() => {
+    const unsub = window.syncAPI?.onStatus(setStatus);
+    return unsub;
+  }, [setStatus]);
 
   const [selectedNav, setSelectedNav] = useState("");
   const [appsOpen, setAppsOpen] = useState(false);

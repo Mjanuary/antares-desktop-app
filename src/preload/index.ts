@@ -25,7 +25,7 @@ contextBridge.exposeInMainWorld("electronAPI", {
   installUpdate: () => ipcRenderer.invoke("install-update"),
   onUpdateStatus: (callback: (status: string, data?: any) => void) => {
     ipcRenderer.on("update-status", (_, status, data) =>
-      callback(status, data)
+      callback(status, data),
     );
   },
 });
@@ -35,7 +35,9 @@ contextBridge.exposeInMainWorld("syncAPI", {
   cancel: () => ipcRenderer.invoke("sync:cancel"),
 
   onStatus: (cb: (status: any) => void) => {
-    const handler = (_: any, status: any) => cb(status);
+    const handler = (_: any, status: any) => {
+      cb(status);
+    };
     ipcRenderer.on("sync:status", handler);
     return () => ipcRenderer.removeListener("sync:status", handler);
   },

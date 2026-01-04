@@ -1,5 +1,6 @@
 import { Button } from "../components/double-button";
-import { MdSync } from "react-icons/md";
+import { useSyncStore } from "../../store/sync-store";
+import { MdCheckCircle, MdError, MdSync } from "react-icons/md";
 import { Badge } from "../components/ui/badge";
 
 const backups = [
@@ -222,6 +223,13 @@ const backups = [
 ];
 
 const BackupSync = () => {
+  const { running, progress, table, error } = useSyncStore();
+
+  const handleSync = async () => {
+    // @ts-ignore
+    await window.syncAPI?.start();
+  };
+
   return (
     <div className="max-w-[1440px] px-4 pt-4 mx-auto">
       <div className="bg-overlay p-6 rounded-2xl">
@@ -231,10 +239,30 @@ const BackupSync = () => {
             <p>
               Check the updates from the server and, send the local changes made
             </p>
+            {error && (
+              <div className="text-red-400 flex items-center gap-2 mt-2">
+                <MdError /> {error}
+              </div>
+            )}
+            {running && (
+              <div className="text-blue-400 flex items-center gap-2 mt-2 animate-pulse">
+                <MdSync className="animate-spin" /> Syncing {table || "data"}...
+              </div>
+            )}
+            {!running && !error && progress === 100 && (
+              <div className="text-green-400 flex items-center gap-2 mt-2">
+                <MdCheckCircle /> Sync completed successfully
+              </div>
+            )}
           </div>
           <div>
-            <Button size="lg" variant="primary">
-              Sync data
+            <Button
+              size="lg"
+              variant="primary"
+              onClick={handleSync}
+              disabled={running}
+            >
+              {running ? "Syncing..." : "Sync data"}
             </Button>
           </div>
         </div>

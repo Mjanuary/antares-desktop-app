@@ -62,10 +62,12 @@ function callMain<T>(action: string, ...args: any[]): Promise<T> {
       branchId: deviceContext.branchId || "",
     });
 
-    // Relay logs to main
-    // engine.on("log", (msg) => console.log(msg));
+    // Relay status to main
+    engine.on("status", (status) => {
+      parentPort?.postMessage(status);
+    });
 
-    engine.run();
+    await engine.run();
   } catch (err: any) {
     parentPort?.postMessage({
       type: "error",

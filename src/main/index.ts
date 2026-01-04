@@ -6,11 +6,9 @@ import { setupIPC } from "./ipc";
 import { autoUpdater } from "electron-updater";
 import log from "electron-log";
 import { SyncEngine } from "./sync/sync-engine";
-import { registerAutoSync } from "./sync/sync-manager";
+import { registerAutoSync, startSync } from "./sync/sync-manager";
 import { registerSyncIPC } from "./ipc/sync.ipc";
 import { db } from "./ipc";
-
-
 
 // Configure logging
 log.transports.file.level = "info";
@@ -58,7 +56,7 @@ function createSplashWindow() {
 
     log.info("Checking possible splash screen paths:");
     possiblePaths.forEach((p) =>
-      log.info(`- ${p} (exists: ${fs.existsSync(p)})`)
+      log.info(`- ${p} (exists: ${fs.existsSync(p)})`),
     );
 
     // Use the first path that exists
@@ -126,18 +124,22 @@ function createWindow() {
 
   // ------------------------
   // Add periodic sync here
-  setInterval(() => {
-    if (mainWindow) {
-      mainWindow.webContents.send("sync:trigger-interval");
-    }
-  }, 5 * 60 * 1000);
+  setInterval(
+    () => {
+      if (mainWindow) {
+        log.info("[Main] Triggering periodic sync...");
+        startSync(mainWindow);
+      }
+    },
+    5 * 60 * 1000,
+  );
 
   // Listen for failures
   mainWindow.webContents.on(
     "did-fail-load",
     (event, errorCode, errorDescription) => {
       log.error("Failed to load main window:", errorCode, errorDescription);
-    }
+    },
   );
 }
 
@@ -185,7 +187,7 @@ function setupAutoUpdater() {
         mainWindow?.webContents.send(
           "update-status",
           "error",
-          "Failed to check for updates"
+          "Failed to check for updates",
         );
       }
     }
@@ -201,7 +203,7 @@ function setupAutoUpdater() {
         mainWindow?.webContents.send(
           "update-status",
           "error",
-          "Failed to download update"
+          "Failed to download update",
         );
       }
     }
@@ -217,7 +219,7 @@ function setupAutoUpdater() {
         mainWindow?.webContents.send(
           "update-status",
           "error",
-          "Failed to install update"
+          "Failed to install update",
         );
       }
     }

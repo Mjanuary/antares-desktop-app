@@ -14,9 +14,21 @@ let syncing = false;
  * Start a sync worker if one is not already running
  */
 export async function startSync(mainWindow: BrowserWindow) {
-  console.log("startSync() called");
+  console.log(
+    "startSync() called. mainWindow ID:",
+    mainWindow?.id,
+    "Is destroyed?",
+    mainWindow?.isDestroyed(),
+  );
   if (syncing) return;
-  if (!networkMonitor.isOnline()) return;
+  if (!networkMonitor.isOnline()) {
+    console.log("startSync() aborted: Offline");
+    mainWindow.webContents.send("sync:status", {
+      type: "error",
+      message: "No internet connection",
+    });
+    return;
+  }
 
   // ✅ Check active device via IPC
   // const deviceContext = await invoke("db:getActiveDeviceContext");
@@ -31,21 +43,32 @@ export async function startSync(mainWindow: BrowserWindow) {
     return;
   }
 
-  // Set the global base URL for the main process
-  if (deviceContext.baseUrl) {
-    setApiBaseUrl(deviceContext.baseUrl);
+  console.log("[]Starting sync... Resolving worker path...");
+  const workerPath = resolveSyncWorkerPath();
+  console.log("Worker path:", workerPath);
+
+  try {
+    worker = new Worker(workerPath, {
+      workerData: {
+        tables: appTableList,
+        deviceId: deviceContext.deviceId,
+        branchId: deviceContext.branchId,
+        baseUrl: deviceContext.baseUrl,
+      },
+      // Ensure stderr/stdout are piped so we can see them
+      stdout: true,
+      stderr: true,
+    });
+
+    worker.stdout.on("data", (data) => console.log(`[WORKER STDOUT]: ${data}`));
+    worker.stderr.on("data", (data) =>
+      console.error(`[WORKER STDERR]: ${data}`),
+    );
+  } catch (err) {
+    console.error("FAILED TO CREATE WORKER:", err);
+    return;
   }
-
-  console.log("[]Starting sync...");
-
-  worker = new Worker(resolveSyncWorkerPath(), {
-    workerData: {
-      tables: appTableList,
-      deviceId: deviceContext.deviceId,
-      branchId: deviceContext.branchId,
-      baseUrl: deviceContext.baseUrl,
-    },
-  });
+  console.log("Worker created with PID:", worker.threadId);
 
   syncing = true;
 
@@ -74,7 +97,14 @@ export async function startSync(mainWindow: BrowserWindow) {
 
     // 2️⃣ Handle Status/Logs
     console.log("[SYNC WORKER] message:", msg);
-    mainWindow.webContents.send("sync:status", msg);
+    if (!mainWindow || mainWindow.isDestroyed()) {
+      console.error(
+        "CRITICAL: mainWindow is missing or destroyed! Cannot send updates.",
+      );
+    } else {
+      console.log("Sending sync:status to renderer...");
+      mainWindow.webContents.send("sync:status", msg);
+    }
 
     if (msg.type === "done" || msg.type === "error") {
       syncing = false;
