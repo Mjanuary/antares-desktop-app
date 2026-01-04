@@ -476,6 +476,7 @@ export const migrations: Migration[] = [
             payload TEXT,
             retry_count INTEGER DEFAULT 0,
             last_error TEXT,
+            operation_type TEXT DEFAULT 'push',
             created_at  DATETIME DEFAULT CURRENT_TIMESTAMP
           );
     `,

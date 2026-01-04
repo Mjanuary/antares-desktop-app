@@ -5,7 +5,7 @@ import { app } from "electron";
 import * as path from "path";
 import * as fs from "fs";
 import { runMigrations } from "./database/migrations";
-import { appTableList, SettingsSeeds } from "./constants";
+import { appTableList, SettingsSeeds, SyncStatus } from "./constants";
 import { runSeeds } from "./database/seeds";
 import { UpsertManyOptions } from "../types/sync.types";
 
@@ -170,7 +170,7 @@ export class AppDatabase {
 
     return this.perform(async () => {
       return new Promise((resolve, reject) => {
-        const sql = `SELECT COUNT(*) AS c FROM ${table} WHERE sync_status != 'synced'`;
+        const sql = `SELECT COUNT(*) AS c FROM ${table} WHERE sync_status != '${SyncStatus.Synced}'`;
         this.db.get(sql, [], (err, row: { c: number } | undefined) => {
           if (err) reject(err);
           else resolve(row?.c ?? 0);
@@ -191,7 +191,7 @@ export class AppDatabase {
       return new Promise((resolve, reject) => {
         const sql = `
           SELECT * FROM ${table}
-          WHERE sync_status != 'synced'
+          WHERE sync_status != '${SyncStatus.Synced}'
           LIMIT ? OFFSET ?
         `;
         this.db.all(sql, [limit, offset], (err, rows: any[]) => {
@@ -210,10 +210,32 @@ export class AppDatabase {
       return new Promise((resolve, reject) => {
         const sql = `
           UPDATE ${table}
-          SET sync_status = 'synced'
-          WHERE sync_status != 'synced'
+          SET sync_status = '${SyncStatus.Synced}'
+          WHERE sync_status != '${SyncStatus.Synced}'
         `;
         this.db.run(sql, function (err) {
+          if (err) reject(err);
+          else resolve(this.changes);
+        });
+      });
+    });
+  }
+
+  async markRowsAsSynced(table: string, ids: string[]): Promise<number> {
+    if (!allowedTables.has(table))
+      throw new Error("Invalid table name: " + table);
+    if (!ids.length) return 0;
+
+    return this.perform(async () => {
+      return new Promise((resolve, reject) => {
+        const placeholders = ids.map(() => "?").join(", ");
+        const sql = `
+          UPDATE ${table}
+          SET sync_status = '${SyncStatus.Synced}'
+          WHERE id IN (${placeholders})
+            AND sync_status != '${SyncStatus.Synced}'
+        `;
+        this.db.run(sql, ids, function (err) {
           if (err) reject(err);
           else resolve(this.changes);
         });
@@ -376,19 +398,24 @@ export class AppDatabase {
      ================= RETRY QUEUE =======================
      ===================================================== */
 
-  async addRetry(table: string, payload: any, error: string): Promise<number> {
+  async addRetry(
+    table: string,
+    payload: any,
+    error: string,
+    type: SyncStatus,
+  ): Promise<number> {
     if (!allowedTables.has(table))
       throw new Error("Invalid table name: " + table);
 
     return this.perform(async () => {
       return new Promise((resolve, reject) => {
         const sql = `
-          INSERT INTO sync_retry_queue (table_name, payload, last_error)
-          VALUES (?, ?, ?)
+          INSERT INTO sync_retry_queue (table_name, payload, last_error, operation_type)
+          VALUES (?, ?, ?, ?)
         `;
         this.db.run(
           sql,
-          [table, JSON.stringify(payload), error],
+          [table, JSON.stringify(payload), error, type],
           function (err) {
             if (err) reject(err);
             else resolve(this.changes);

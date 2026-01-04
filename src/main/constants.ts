@@ -14,12 +14,10 @@ export const appTableList = [
 
 export const pushTableList = [
   "spendings",
-  "houses",
   "clients",
-  "spending_categories",
+  "deposit",
   "sales",
   "sales_items",
-  "deposit",
 ];
 
 export const SettingsSeeds = {
@@ -30,3 +28,13 @@ export const SettingsSeeds = {
 } as const;
 
 export type SettingsKey = keyof typeof SettingsSeeds;
+
+export enum SyncType {
+  Push = "push",
+  Pull = "pull",
+}
+
+export enum SyncStatus {
+  Synced = "SYNCED",
+  Pending = "PENDING",
+}

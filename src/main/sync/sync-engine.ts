@@ -32,6 +32,7 @@ type PullResponse<T = any> = {
 };
 
 import { UpsertManyOptions } from "../../types/sync.types";
+import { SyncType } from "../constants";
 
 /**
  * SyncEngine
@@ -45,9 +46,15 @@ type SyncDB = {
   getUnsyncedRows(table: string, limit: number, offset: number): Promise<any[]>;
   upsertMany(opts: UpsertManyOptions): Promise<number>;
   markTableAsSynced(table: string): Promise<number>;
+  markRowsAsSynced(table: string, ids: string[]): Promise<number>;
 
   // already used in your code ↓
-  addRetry(table: string, payload: any, error: string): Promise<void>;
+  addRetry(
+    table: string,
+    payload: any,
+    error: string,
+    type: SyncType,
+  ): Promise<void>;
   getRetries(table: string): Promise<{ id: number; payload: string }[]>;
   removeRetry(id: number): Promise<void>;
   incrementRetry(id: number): Promise<void>;
@@ -102,7 +109,7 @@ export class SyncEngine extends EventEmitter {
 
       // await this.processRetryQueue(table);
       await this.pullTable(table);
-      // await this.pushTable(table);
+      await this.pushTable(table);
     }
 
     this.emit("status", { type: "done" });
@@ -110,50 +117,79 @@ export class SyncEngine extends EventEmitter {
 
   /* ================= PUSH ================= */
   private async pushTable(table: string) {
-    let page = 0;
+    let offset = 0;
 
     const total = await this.db.countUnsyncedRows(table);
-    console.log({ total_xxxx: total });
+
     if (!total) return;
 
     const estimatedPages = Math.ceil(total / this.pageLimit);
     const tableWeight = 100 / this.tables.length;
-    const pageWeight = tableWeight / estimatedPages;
+    const pageWeight = estimatedPages > 0 ? tableWeight / estimatedPages : 0; // Avoid NaN
 
     while (!this.cancelled) {
-      const rows = await this.db.getUnsyncedRows(
-        table,
-        this.pageLimit,
-        page * this.pageLimit,
-      );
+      const rows = await this.db.getUnsyncedRows(table, this.pageLimit, offset);
 
       if (!rows.length) break;
 
       try {
         console.log(`[SyncEngine] PUSH ${table}: Sending ${rows.length} rows`);
-        const { data } = await this.api.post(`/${table}`, {
-          rows,
-          deviceId: this.deviceId,
-          branchId: this.branchId,
-        });
+        const response = await this.api.post<{
+          success: string[];
+          failed: { id: string | null; error: any }[];
+        }>(`/${table}`, rows);
+
+        const succeededIds = response.data.success;
+
         console.log(
           `[SyncEngine] PUSH ${table} Response:`,
-          JSON.stringify(data, null, 2),
+          Array.isArray(succeededIds)
+            ? `Synced ${succeededIds.length} rows`
+            : JSON.stringify(succeededIds),
         );
 
-        // for (const row of data) {
-        //   await this.db.upsert(table, row);
-        // }
-        // await this.db.upsertMany(table, data.rows);
-        await this.db.markTableAsSynced(table);
+        if (Array.isArray(succeededIds) && succeededIds.length > 0) {
+          await this.db.markRowsAsSynced(table, succeededIds);
+          this.updateProgress(
+            table,
+            (succeededIds.length / rows.length) * pageWeight,
+          );
+        }
 
-        this.updateProgress(table, pageWeight);
+        const failedItems = response.data.failed;
+        if (Array.isArray(failedItems) && failedItems.length > 0) {
+          console.warn(
+            `[SyncEngine] PUSH ${table} Partial/Batch Failure: ${failedItems.length} items failed.`,
+          );
+          // If "one fails, all fail", the API might return current batch rows in 'failed'
+          // We add the *original rows* (or the failed ones if specific) to retry queue.
+          // Since the user said "if one fails all will fail", we treat the whole batch as failed if there are *any* failures
+          // BUT check if succeededIds has anything.
+          // If succeededIds is empty and failedItems is not empty, it's a batch failure.
+
+          const errorMsg = failedItems
+            .map((f) => `ID ${f.id}: ${JSON.stringify(f.error)}`)
+            .join("; ");
+          await this.db.addRetry(table, rows, errorMsg, SyncType.Push);
+        }
+
+        // Pagination Logic:
+        // Succeeded rows are removed from "unsynced" set (offset stays 0 relative to them).
+        // Failed rows remain in "unsynced" set.
+        // We must increment offset by the number of FAILED rows to skip them in the next fetch
+        // so we can reach the next page of unsynced rows.
+
+        const successCount = Array.isArray(succeededIds)
+          ? succeededIds.length
+          : 0;
+        const failCount = rows.length - successCount;
+
+        offset += failCount;
       } catch (err: any) {
-        await this.db.addRetry(table, rows, err.message);
+        console.error(`[SyncEngine] PUSH ${table} Error:`, err.message);
+        await this.db.addRetry(table, rows, err.message, SyncType.Push);
         break;
       }
-
-      page++;
     }
   }
 
@@ -230,7 +266,7 @@ export class SyncEngine extends EventEmitter {
         console.error(`[SyncEngine] Error pulling ${table}:`, err);
         // "If fetching data fails, you should skip the whole process or that table"
         // We add retry record for visibility (optional per existing logic) but MUST break loop for this table.
-        await this.db.addRetry(table, { cursor }, err.message);
+        await this.db.addRetry(table, { cursor }, err.message, SyncType.Pull);
         break; // Stop processing this table, proceed to next in run()
       }
     }

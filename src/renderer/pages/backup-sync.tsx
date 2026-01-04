@@ -224,12 +224,20 @@ const backups = [
 ];
 
 const BackupSync = () => {
-  const { running, progress, table, error } = useSyncStore();
+  const { running, progress, table, error, phase, lastSyncTime } =
+    useSyncStore();
   const { online: isOnline } = useNetworkStore();
 
   const handleSync = async () => {
     // @ts-ignore
     await window.syncAPI?.start();
+  };
+
+  const getStatusText = () => {
+    if (phase === "push") return `Pushing ${table}...`;
+    if (phase === "pull") return `Pulling ${table}...`;
+    if (table) return `Syncing ${table}...`;
+    return "Syncing data...";
   };
 
   return (
@@ -253,12 +261,17 @@ const BackupSync = () => {
             )}
             {running && (
               <div className="text-blue-400 flex items-center gap-2 mt-2 animate-pulse">
-                <MdSync className="animate-spin" /> Syncing {table || "data"}...
+                <MdSync className="animate-spin" /> {getStatusText()}
               </div>
             )}
             {!running && !error && progress === 100 && (
               <div className="text-green-400 flex items-center gap-2 mt-2">
                 <MdCheckCircle /> Sync completed successfully
+              </div>
+            )}
+            {lastSyncTime && (
+              <div className="text-gray-400 text-sm mt-1">
+                Last updated: {lastSyncTime.toLocaleTimeString()}
               </div>
             )}
           </div>
@@ -276,8 +289,8 @@ const BackupSync = () => {
 
         <div className="bg-black rounded-xl p-1 mt-5">
           <div
-            className="h-10 bg-green-900 rounded-xl"
-            style={{ width: "87%" }}
+            className="h-10 bg-green-900 rounded-xl transition-all duration-300 ease-out"
+            style={{ width: `${progress}%` }}
           />
         </div>
       </div>
