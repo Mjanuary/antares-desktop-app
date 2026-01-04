@@ -14,6 +14,7 @@ import { RouterPages } from "../types/pages.types";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { authStore } from "../store/auth";
 import { useSyncStore } from "../store/sync-store";
+import { useNetworkStore } from "../store/network-store";
 
 const queryClient = new QueryClient();
 
@@ -31,10 +32,28 @@ function App() {
 
   // ✅ Global Sync Listener
   const { setStatus } = useSyncStore();
+  const { setOnline } = useNetworkStore();
+
   useEffect(() => {
-    const unsub = window.syncAPI?.onStatus(setStatus);
-    return unsub;
-  }, [setStatus]);
+    // Sync status listener
+    const unsubSync = window.syncAPI?.onStatus(setStatus);
+
+    // Network status listener
+    const handleOnline = () => setOnline(true);
+    const handleOffline = () => setOnline(false);
+
+    window.addEventListener("online", handleOnline);
+    window.addEventListener("offline", handleOffline);
+
+    // Initial check
+    setOnline(navigator.onLine);
+
+    return () => {
+      unsubSync();
+      window.removeEventListener("online", handleOnline);
+      window.removeEventListener("offline", handleOffline);
+    };
+  }, [setStatus, setOnline]);
 
   const [selectedNav, setSelectedNav] = useState("");
   const [appsOpen, setAppsOpen] = useState(false);

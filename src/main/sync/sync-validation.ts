@@ -80,7 +80,7 @@ const spendingSchema = z.object({
   updated_date: apiDateField,
   app_connection: z.string().nullable().optional(),
   row_version: z.number().optional(),
-  row_deleted: z.string().nullable().optional(),
+  row_deleted: apiJsonField,
   sync_status: apiSyncStatusField,
 });
 
@@ -94,7 +94,7 @@ const spendingCategorySchema = z.object({
   repeat: z.string().nullable().optional(),
   app_connection: z.string().nullable().optional(),
   row_version: z.number().optional(),
-  row_deleted: z.string().nullable().optional(),
+  row_deleted: apiJsonField,
   created_date: apiDateField,
   updated_date: apiDateField,
   sync_status: apiSyncStatusField,
@@ -112,7 +112,7 @@ const houseSchema = z.object({
   updated_date: apiDateField,
   app_connection: z.string().nullable().optional(),
   row_version: z.number().optional(),
-  row_deleted: z.string().nullable().optional(),
+  row_deleted: apiJsonField,
   sync_status: apiSyncStatusField,
 });
 
@@ -129,7 +129,7 @@ const clientSchema = z.object({
   created_date: apiDateField,
   app_connection: z.string().nullable().optional(),
   row_version: z.number().optional(),
-  row_deleted: z.string().nullable().optional(),
+  row_deleted: apiJsonField,
   sync_status: apiSyncStatusField,
 });
 
@@ -144,7 +144,7 @@ const categorySchema = z.object({
   updated_time: apiDateField,
   app_connection: z.string().nullable().optional(),
   row_version: z.number().optional(),
-  row_deleted: z.string().nullable().optional(),
+  row_deleted: apiJsonField,
   sync_status: apiSyncStatusField,
 });
 
@@ -159,7 +159,7 @@ const subCategorySchema = z.object({
   updated_time: apiDateField,
   app_connection: z.string().nullable().optional(),
   row_version: z.number().optional(),
-  row_deleted: z.string().nullable().optional(),
+  row_deleted: apiJsonField,
   sync_status: apiSyncStatusField,
 });
 
@@ -193,8 +193,8 @@ const productSchema = z.object({
   app_connection: z.string().nullable().optional(),
   product_row_version: z.number().optional(),
   branch_row_version: z.number().optional(),
-  product_row_deleted: z.string().nullable().optional(),
-  branch_row_deleted: z.string().nullable().optional(),
+  product_row_deleted: apiJsonField,
+  branch_row_deleted: apiJsonField,
   created_time: apiDateField,
   product_updated_time: apiDateField,
   branch_updated_time: apiDateField,
@@ -231,7 +231,7 @@ const saleSchema = z.object({
   recorded_by: z.string().nullable().optional(),
   app_connection: z.string().nullable().optional(),
   row_version: z.number().optional(),
-  row_deleted: z.string().nullable().optional(),
+  row_deleted: apiJsonField,
   created_time: apiDateField,
   updated_time: apiDateField,
   sync_status: apiSyncStatusField,
@@ -253,7 +253,7 @@ const salesItemSchema = z.object({
   designed_by: z.string().nullable().optional(),
   app_connection: z.string().nullable().optional(),
   row_version: z.number().optional(),
-  row_deleted: z.string().nullable().optional(),
+  row_deleted: apiJsonField,
   created_time: apiDateField,
   updated_time: apiDateField,
   sync_status: apiSyncStatusField,
@@ -280,7 +280,7 @@ const depositSchema = z.object({
   deposit_summary: apiJsonField,
   app_connection: z.string().nullable().optional(),
   row_version: z.number().optional(),
-  row_deleted: z.string().nullable().optional(),
+  row_deleted: apiJsonField,
   sync_status: apiSyncStatusField,
 });
 

@@ -1,5 +1,6 @@
 import { Button } from "../components/double-button";
 import { useSyncStore } from "../../store/sync-store";
+import { useNetworkStore } from "../../store/network-store";
 import { MdCheckCircle, MdError, MdSync } from "react-icons/md";
 import { Badge } from "../components/ui/badge";
 
@@ -224,6 +225,7 @@ const backups = [
 
 const BackupSync = () => {
   const { running, progress, table, error } = useSyncStore();
+  const { online: isOnline } = useNetworkStore();
 
   const handleSync = async () => {
     // @ts-ignore
@@ -244,6 +246,11 @@ const BackupSync = () => {
                 <MdError /> {error}
               </div>
             )}
+            {!isOnline && (
+              <div className="text-yellow-400 flex items-center gap-2 mt-2">
+                <MdError /> You are currently offline
+              </div>
+            )}
             {running && (
               <div className="text-blue-400 flex items-center gap-2 mt-2 animate-pulse">
                 <MdSync className="animate-spin" /> Syncing {table || "data"}...
@@ -260,9 +267,9 @@ const BackupSync = () => {
               size="lg"
               variant="primary"
               onClick={handleSync}
-              disabled={running}
+              disabled={running || !isOnline}
             >
-              {running ? "Syncing..." : "Sync data"}
+              {!isOnline ? "Offline" : running ? "Syncing..." : "Sync data"}
             </Button>
           </div>
         </div>
