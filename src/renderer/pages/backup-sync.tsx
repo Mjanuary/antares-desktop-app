@@ -3,6 +3,7 @@ import { useSyncStore } from "../../store/sync-store";
 import { useNetworkStore } from "../../store/network-store";
 import { MdCheckCircle, MdError, MdSync } from "react-icons/md";
 import { Badge } from "../components/ui/badge";
+import { useImageSync } from "../sync/hooks/useImageSync";
 
 const backups = [
   {
@@ -227,6 +228,12 @@ const BackupSync = () => {
   const { running, progress, table, error, phase, lastSyncTime } =
     useSyncStore();
   const { online: isOnline } = useNetworkStore();
+  const {
+    isRunning: imageSyncRunning,
+    progress: imageSyncProgress,
+    logs: imageSyncLogs,
+    startSync: startImageSync,
+  } = useImageSync();
 
   const handleSync = async () => {
     // @ts-ignore
@@ -332,6 +339,79 @@ const BackupSync = () => {
             </div>
           </div>
         ))}
+      </div>
+
+      {/* Image Sync Section */}
+      <div className="bg-overlay p-6 rounded-2xl mt-4">
+        <div className="flex items-start justify-between">
+          <div className="flex-1">
+            <h2 className="text-3xl">Image Synchronization</h2>
+            <p>Download missing product images from the server.</p>
+            {imageSyncRunning && (
+              <div className="text-blue-400 flex items-center gap-2 mt-2 animate-pulse">
+                <MdSync className="animate-spin" /> Syncing images...
+                {imageSyncProgress &&
+                  ` (${imageSyncProgress.processed}/${imageSyncProgress.total})`}
+              </div>
+            )}
+            {!imageSyncRunning &&
+              imageSyncLogs.length > 0 &&
+              imageSyncLogs.some((l) => l.level === "error") && (
+                <div className="text-red-400 flex items-center gap-2 mt-2">
+                  <MdError /> Completed with errors
+                </div>
+              )}
+            {!imageSyncRunning &&
+              imageSyncLogs.length > 0 &&
+              !imageSyncLogs.some((l) => l.level === "error") && (
+                <div className="text-green-400 flex items-center gap-2 mt-2">
+                  <MdCheckCircle /> Sync completed successfully
+                </div>
+              )}
+          </div>
+          <div>
+            <Button
+              size="lg"
+              variant="primary"
+              onClick={startImageSync}
+              disabled={imageSyncRunning || !isOnline}
+            >
+              {!isOnline
+                ? "Offline"
+                : imageSyncRunning
+                  ? "Syncing..."
+                  : "Sync Images"}
+            </Button>
+          </div>
+        </div>
+
+        {imageSyncRunning && imageSyncProgress && (
+          <div className="bg-black rounded-xl p-1 mt-5">
+            <div
+              className="h-10 bg-blue-900 rounded-xl transition-all duration-300 ease-out"
+              style={{
+                width: `${(imageSyncProgress.processed / imageSyncProgress.total) * 100}%`,
+              }}
+            />
+          </div>
+        )}
+
+        {/* Logs Viewer */}
+        <div className="mt-4 bg-black/50 rounded-lg p-4 h-64 overflow-y-auto font-mono text-sm">
+          {imageSyncLogs.length === 0 ? (
+            <div className="text-gray-500 italic">No logs available</div>
+          ) : (
+            imageSyncLogs.map((log, idx) => (
+              <div
+                key={idx}
+                className={`${log.level === "error" ? "text-red-400" : "text-gray-300"} mb-1`}
+              >
+                <span className="text-gray-500">[{log.timestamp}]</span>{" "}
+                {log.message}
+              </div>
+            ))
+          )}
+        </div>
       </div>
     </div>
   );

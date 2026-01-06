@@ -9,6 +9,7 @@ import { SyncEngine } from "./sync/sync-engine";
 import { registerAutoSync, startSync } from "./sync/sync-manager";
 import { registerSyncIPC } from "./ipc/sync.ipc";
 import { db } from "./ipc";
+import { ImageSyncController } from "./sync/imageSyncController";
 
 // Configure logging
 log.transports.file.level = "info";
@@ -261,6 +262,11 @@ app.whenReady().then(async () => {
       // 6. Register Sync IPC & Auto-Sync (Worker startup)
       registerSyncIPC(mainWindow!);
       registerAutoSync(mainWindow!);
+
+      // Image Sync
+      const imageSync = new ImageSyncController(db, mainWindow!);
+      imageSync.init();
+      imageSync.runSync();
     });
   }
 

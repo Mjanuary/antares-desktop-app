@@ -8,6 +8,10 @@ module.exports = {
   entry: {
     index: path.resolve(__dirname, "src/main/index.ts"),
     "sync.worker": path.resolve(__dirname, "src/main/sync/sync.worker.ts"),
+    "imageSync.worker": path.resolve(
+      __dirname,
+      "src/main/sync/imageSync.worker.ts",
+    ),
   },
 
   output: {

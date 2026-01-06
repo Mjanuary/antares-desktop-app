@@ -474,6 +474,43 @@ export class AppDatabase {
   }
 
   /* =====================================================
+     =============== IMAGE SYNC ==========================
+     ===================================================== */
+
+  async getProductsForImageSync(): Promise<
+    { productId: string; url: string; existingFilename: string | null }[]
+  > {
+    return this.perform(async () => {
+      return new Promise((resolve, reject) => {
+        const sql = `
+          SELECT product_id as productId, cover_image_url as url, local_image_filename as existingFilename
+          FROM products
+          WHERE cover_image_url IS NOT NULL AND cover_image_url != ''
+        `;
+        this.db.all(sql, [], (err, rows: any[]) => {
+          if (err) reject(err);
+          else resolve(rows ?? []);
+        });
+      });
+    });
+  }
+
+  async updateProductLocalImage(
+    productId: string,
+    filename: string,
+  ): Promise<void> {
+    return this.perform(async () => {
+      return new Promise((resolve, reject) => {
+        const sql = `UPDATE products SET local_image_filename = ? WHERE product_id = ?`;
+        this.db.run(sql, [filename, productId], (err) => {
+          if (err) reject(err);
+          else resolve();
+        });
+      });
+    });
+  }
+
+  /* =====================================================
      =============== EXISTING METHODS ====================
      ===================================================== */
 

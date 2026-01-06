@@ -38,3 +38,5 @@ export enum SyncStatus {
   Synced = "SYNCED",
   Pending = "PENDING",
 }
+
+export const IMAGE_STORAGE_FOLDER = "product_images";

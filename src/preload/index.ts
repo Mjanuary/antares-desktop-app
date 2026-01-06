@@ -42,3 +42,25 @@ contextBridge.exposeInMainWorld("syncAPI", {
     return () => ipcRenderer.removeListener("sync:status", handler);
   },
 });
+
+contextBridge.exposeInMainWorld("imageSyncAPI", {
+  start: () => ipcRenderer.invoke("image-sync:manual-trigger"),
+
+  onStatus: (cb: (status: { status: string }) => void) => {
+    const handler = (_: any, data: any) => cb(data);
+    ipcRenderer.on("image-sync:status", handler);
+    return () => ipcRenderer.removeListener("image-sync:status", handler);
+  },
+
+  onProgress: (cb: (data: { processed: number; total: number }) => void) => {
+    const handler = (_: any, data: any) => cb(data);
+    ipcRenderer.on("image-sync:progress", handler);
+    return () => ipcRenderer.removeListener("image-sync:progress", handler);
+  },
+
+  onLog: (cb: (log: { message: string; level: string }) => void) => {
+    const handler = (_: any, data: any) => cb(data);
+    ipcRenderer.on("image-sync:log", handler);
+    return () => ipcRenderer.removeListener("image-sync:log", handler);
+  },
+});

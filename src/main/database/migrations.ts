@@ -506,6 +506,12 @@ export const migrations: Migration[] = [
       );
     `,
   },
+  {
+    name: "add_local_image_filename_to_products",
+    sql: `
+      ALTER TABLE products ADD COLUMN local_image_filename TEXT;
+    `,
+  },
 ];
 
 export async function runMigrations(db: Database): Promise<void> {
