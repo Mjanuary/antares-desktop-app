@@ -207,7 +207,6 @@ export class SyncEngine extends EventEmitter {
         cursor = lastSync.last_sync;
         lastId = lastSync.next_id;
       }
-      console.log("last sync db ==========================> ", lastSync);
     } catch (err) {
       console.error(`[SyncEngine] Failed to get last sync for ${table}:`, err);
       // If we can't get the last sync, we probably shouldn't proceed with this table

@@ -302,7 +302,7 @@ const BackupSync = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-4 mt-4">
+      <div className="grid grid-cols-2 gap-4 mt-4 hidden">
         {backups.map((backup, index) => (
           <div
             className="bg-overlay p-3 rounded-xl border border-transparent hover:border-gray-500 transition-colors duration-200 cursor-pointer"
