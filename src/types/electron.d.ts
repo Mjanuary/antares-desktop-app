@@ -7,7 +7,7 @@ declare global {
     electronAPI: {
       // Todo operations
       createTodo: (
-        todo: Omit<Todo, "id" | "createdAt" | "updatedAt">
+        todo: Omit<Todo, "id" | "createdAt" | "updatedAt">,
       ) => Promise<Todo>;
       getTodos: () => Promise<Todo[]>;
       updateTodo: (id: number, todo: Partial<Todo>) => Promise<void>;
@@ -15,10 +15,24 @@ declare global {
 
       // Auth operation
       createAppConnection: (
-        data: DeviceConnection
+        data: DeviceConnection,
       ) => Promise<DeviceConnection>;
       getConnection: () => Promise<DeviceConnection>;
       removeConnection: () => Promise<void>;
+
+      // Clients
+      createClient: (client: any) => Promise<any>;
+      getClients: (
+        page?: number,
+        pageSize?: number,
+        search?: string,
+        filters?: any,
+      ) => Promise<{
+        data: any[];
+        total: number;
+        page: number;
+        pageSize: number;
+      }>;
 
       // Window operations
       minimize: () => void;
@@ -32,8 +46,8 @@ declare global {
       onUpdateStatus: (
         callback: (
           status: UpdateStatus,
-          data?: UpdateInfo | DownloadProgress | string
-        ) => void
+          data?: UpdateInfo | DownloadProgress | string,
+        ) => void,
       ) => void;
     };
 

@@ -1,0 +1,168 @@
+import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { FaPlus, FaSync } from "react-icons/fa";
+import CustomTable, { ColumnType } from "../../components/custom-table";
+import { Badge } from "../../components/ui/badge";
+import { SelectInput } from "../../components/select-input";
+import { Button } from "../../components/ui/button";
+import { CreateClientForm } from "./components/create-client";
+import { Modal } from "../../components/ui/modal";
+import { ClientRecordType_Zod } from "../../../types/app.logic.types";
+
+const ClientsPage = () => {
+  const { t } = useTranslation();
+  const [clients, setClients] = useState<ClientRecordType_Zod[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  // Form State
+  const [showCreateForm, setShowCreateForm] = useState(false);
+
+  // Pagination & Filtering State
+  const [page, setPage] = useState(1);
+  const [pageSize] = useState(40);
+  const [total, setTotal] = useState(0);
+  const [searchText, setSearchText] = useState("");
+  const [sortBy, setSortBy] = useState("created_date DESC");
+  const [dateFilter] = useState({ from: "", to: "" });
+
+  const fetchClients = async () => {
+    setLoading(true);
+    try {
+      const response = await window.electronAPI.getClients(
+        page,
+        pageSize,
+        searchText,
+        {
+          sortBy,
+          dateFrom: dateFilter.from,
+          dateTo: dateFilter.to,
+        },
+      );
+      setClients(response.data);
+      setTotal(response.total);
+    } catch (error) {
+      console.error("Failed to fetch clients", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchClients();
+  }, [page, searchText, sortBy, dateFilter]);
+
+  const columns: ColumnType<ClientRecordType_Zod>[] = [
+    { key: "names", label: "Name" },
+    { key: "phone_number", label: "Phone" },
+    { key: "gender", label: "Gender" },
+    { key: "email", label: "Email" },
+    { key: "address", label: "Address" },
+    {
+      width: "10px",
+      tdClassName: "w-[10px] whitespace-nowrap",
+      key: "",
+      label: "Status",
+      render: (row) => <Badge variant="outline">{row.sync_status}</Badge>,
+    },
+  ];
+
+  return (
+    <>
+      {showCreateForm && (
+        <Modal>
+          <CreateClientForm
+            onSuccess={() => {
+              setShowCreateForm(false);
+              fetchClients();
+            }}
+            onClose={() => setShowCreateForm(false)}
+          />
+        </Modal>
+      )}
+      <div className="p-6 h-full flex flex-col gap-4 text-white">
+        <div className="flex-1 overflow-auto">
+          <CustomTable
+            useIndexNumbering
+            columns={columns}
+            data={clients}
+            rowId={(row) => row.id!}
+            loading={loading}
+            onSearch={(term) => {
+              setSearchText(term);
+              setPage(1);
+            }}
+            searchKeys={{
+              names: true,
+              phone_number: true,
+              gender: true,
+              address: true,
+              email: true,
+            }}
+            paginationControls={{
+              onSelectPage: (p) => setPage(p),
+              pages: (() => {
+                const totalPages = Math.ceil(total / pageSize);
+                const p = [];
+                for (let i = 1; i <= totalPages; i++) p.push(i);
+                return p;
+              })(),
+              selected: page,
+            }}
+            filtersDisplay={[
+              {
+                key: "filter",
+                text: `Name: ${searchText}`,
+                showClose: false,
+              },
+            ]}
+            header={{
+              title: "Clients",
+              description: "Manage your client database",
+              sideContent: (
+                <div className="flex items-center gap-2">
+                  <SelectInput
+                    options={[
+                      {
+                        groupTitle: "Sort By",
+                        options: [
+                          { label: "Newest First", value: "created_date DESC" },
+                          { label: "Oldest First", value: "created_date ASC" },
+                          { label: "Name (A-Z)", value: "names ASC" },
+                          { label: "Name (Z-A)", value: "names DESC" },
+                        ],
+                      },
+                    ]}
+                    value={sortBy}
+                    onValueChange={setSortBy}
+                    placeholder="Sort By"
+                    title="Sort By"
+                    inputVariant="default"
+                    classNameParent="flex items-center"
+                  />
+
+                  <Button
+                    onClick={fetchClients}
+                    size="icon"
+                    variant="secondary"
+                  >
+                    <FaSync />
+                  </Button>
+
+                  <Button
+                    onClick={() => setShowCreateForm(true)}
+                    icon={<FaPlus />}
+                    variant="primary"
+                  >
+                    Add Client
+                  </Button>
+                </div>
+              ),
+            }}
+          />
+        </div>
+      </div>
+    </>
+  );
+};
+
+export default ClientsPage;

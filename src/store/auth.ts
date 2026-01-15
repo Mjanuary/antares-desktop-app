@@ -12,7 +12,16 @@ interface UserAuthType {
 
 export const authStore = create<UserAuthType>((set) => ({
   account: null,
-  setAccount: (user) => set((state) => ({ account: user })),
+  setAccount: (user) =>
+    set((state) => ({
+      account: user
+        ? {
+            ...user,
+            user_id: user.user_info.user.id,
+            branch_id: user.user_info.branch.branch.id,
+          }
+        : null,
+    })),
   // used during app connection approval
   connection: null,
   setConnection: (user) => set((state) => ({ connection: user })),

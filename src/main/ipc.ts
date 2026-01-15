@@ -46,6 +46,15 @@ export function setupIPC() {
 
   // other operations ------------------------------------------------
 
+  // Clients operations ----------------------------------------------
+  ipcMain.handle("create-client", async (_, client) => {
+    return await db.createClient(client);
+  });
+
+  ipcMain.handle("get-clients", async (_, page, pageSize, search, filters) => {
+    return await db.getClients(page, pageSize, search, filters);
+  });
+
   // Todo operations
   ipcMain.handle("create-todo", async (_, todo) => {
     return await db.createTodo(todo);

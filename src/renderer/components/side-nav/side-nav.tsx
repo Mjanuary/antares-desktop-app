@@ -58,13 +58,19 @@ const SideNavigation: FunctionComponent<{
             label: "Spending",
             nav: "spending",
           },
+          {
+            icon: <FaCartShopping />,
+            label: "Clients",
+            nav: RouterPages.Clients,
+          },
         ].map((item, index) => (
           <NavButton
             key={index}
             icon={item.icon}
             label={item.label}
             isActive={selected === item.nav}
-            onClick={() => onSelect(item.nav)}
+            // onClick={() => onSelect(item.nav)}
+            pageUrl={item.nav as RouterPages}
           />
         ))}
       </div>

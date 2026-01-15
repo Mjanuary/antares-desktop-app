@@ -609,6 +609,113 @@ export class AppDatabase {
   }
 
   // ********************************************
+  // CLIENTS
+  // ********************************************
+
+  async createClient(client: any): Promise<any> {
+    return this.perform(async () => {
+      return new Promise((resolve, reject) => {
+        const sql = `
+          INSERT INTO clients (
+            id, names, phone_number, gender, address, email,
+            other_phone_numbers, recorded_by, recorded_branch,
+            app_connection, sync_status, row_deleted
+          ) VALUES (?, ?, ?, ?, ?, ?, NULL, ?, ?, ?, 'PENDING', NULL)
+        `;
+
+        this.db.run(
+          sql,
+          [
+            client.id,
+            client.names,
+            client.phone_number,
+            client.gender,
+            client.address,
+            client.email,
+            client.recorded_by,
+            client.recorded_branch,
+            client.app_connection,
+          ],
+          function (err) {
+            if (err) reject(err);
+            else resolve(client);
+          },
+        );
+      });
+    });
+  }
+
+  async getClients(
+    page: number = 1,
+    pageSize: number = 40,
+    search: string = "",
+    filters: {
+      dateFrom?: string;
+      dateTo?: string;
+      sortBy?: string; // e.g. "names ASC"
+    } = {},
+  ): Promise<{ data: any[]; total: number; page: number; pageSize: number }> {
+    return this.perform(async () => {
+      return new Promise((resolve, reject) => {
+        const offset = (page - 1) * pageSize;
+        const validSorts = [
+          "names ASC",
+          "names DESC",
+          "created_date DESC",
+          "created_date ASC",
+        ];
+        const sortBy = validSorts.includes(filters.sortBy || "")
+          ? filters.sortBy
+          : "created_date DESC";
+
+        let whereClause = "WHERE row_deleted IS NULL";
+        const params: any[] = [];
+
+        if (search) {
+          whereClause += " AND (names LIKE ? OR phone_number LIKE ?)";
+          params.push(`%${search}%`, `%${search}%`);
+        }
+
+        if (filters.dateFrom) {
+          whereClause += " AND created_date >= ?";
+          params.push(filters.dateFrom);
+        }
+
+        if (filters.dateTo) {
+          whereClause += " AND created_date <= ?";
+          params.push(filters.dateTo);
+        }
+
+        // Count Query
+        const countSql = `SELECT COUNT(*) as total FROM clients ${whereClause}`;
+
+        // Data Query
+        const dataSql = `
+          SELECT * FROM clients 
+          ${whereClause} 
+          ORDER BY ${sortBy} 
+          LIMIT ? OFFSET ?
+        `;
+
+        this.db.get(countSql, params, (err, countRow: any) => {
+          if (err) return reject(err);
+          const total = countRow?.total || 0;
+
+          this.db.all(dataSql, [...params, pageSize, offset], (err, rows) => {
+            if (err) return reject(err);
+            resolve({
+              data: rows ?? [],
+              total,
+              page,
+              pageSize,
+            });
+          });
+        });
+      });
+    });
+  }
+
+  // ********************************************
 
   async createTodo(
     todo: Omit<Todo, "id" | "createdAt" | "updatedAt">,

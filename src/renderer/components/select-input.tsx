@@ -34,6 +34,7 @@ export interface Props extends VariantProps<typeof inputVariants> {
   title?: string | ReactNode;
   lastCustomOption?: React.ReactNode;
   size?: "md" | "sm" | "lg";
+  classNameParent?: string;
 }
 
 const inputVariants = cva(
@@ -60,7 +61,7 @@ const inputVariants = cva(
       inputVariant: "default",
       inputSize: "default",
     },
-  }
+  },
 );
 
 export const SelectInput: FunctionComponent<Props> = ({
@@ -76,15 +77,16 @@ export const SelectInput: FunctionComponent<Props> = ({
   inputSize,
   title,
   lastCustomOption,
+  classNameParent,
   // size,
 }) => {
   return (
-    <div className="w-full">
+    <div className={classNames("w-full", classNameParent)}>
       {title && (
         <span
           className={cn(
             "mb-1 block text-sm capitalize text-base-color ",
-            titleClassName
+            titleClassName,
           )}
         >
           {title}
@@ -101,7 +103,7 @@ export const SelectInput: FunctionComponent<Props> = ({
             cn(inputVariants({ inputVariant, inputSize, className })),
             {
               "!border-red-500": error,
-            }
+            },
           )}
         >
           <SelectValue placeholder={placeholder} />

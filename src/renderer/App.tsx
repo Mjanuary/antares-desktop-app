@@ -10,11 +10,13 @@ import AppsMenu from "./components/side-nav/apps-menu";
 import BackupSync from "./pages/backup-sync";
 import ProfilePage from "./pages/profile/profile.page";
 import AuthScreen from "./pages/auth-screens/auth-screen";
+import ClientsPage from "./pages/clients/clients";
 import { RouterPages } from "../types/pages.types";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { authStore } from "../store/auth";
 import { useSyncStore } from "../store/sync-store";
 import { useNetworkStore } from "../store/network-store";
+import { Toaster } from "./components/ui/toaster";
 
 const queryClient = new QueryClient();
 
@@ -59,40 +61,52 @@ function App() {
   const [appsOpen, setAppsOpen] = useState(false);
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <Router>
-        {!!account && (
-          <SideNavigation
-            onSelect={setSelectedNav}
-            selected={selectedNav}
-            onAppsOpen={() => setAppsOpen(!appsOpen)}
-          />
-        )}
+    <>
+      <QueryClientProvider client={queryClient}>
+        <Router>
+          {!!account && (
+            <SideNavigation
+              onSelect={setSelectedNav}
+              selected={selectedNav}
+              onAppsOpen={() => setAppsOpen(!appsOpen)}
+            />
+          )}
 
-        {appsOpen && <AppsMenu onClose={() => setAppsOpen(false)} />}
+          {appsOpen && <AppsMenu onClose={() => setAppsOpen(false)} />}
 
-        {!!account ? (
-          <div className="bg-black" style={{ marginLeft: "70px" }}>
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path={`/${RouterPages.Settings}`} element={<Settings />} />
-              <Route
-                path={`/${RouterPages.BackupSync}`}
-                element={<BackupSync />}
-              />
-              <Route
-                path={`/${RouterPages.Profile}`}
-                element={<ProfilePage />}
-              />
-            </Routes>
-          </div>
-        ) : (
-          <AuthScreen />
-        )}
+          {!!account ? (
+            <div className="bg-black" style={{ marginLeft: "70px" }}>
+              <Routes>
+                <Route path="/" element={<Home />} />
+                <Route
+                  path={`/${RouterPages.Settings}`}
+                  element={<Settings />}
+                />
+                <Route
+                  path={`/${RouterPages.BackupSync}`}
+                  element={<BackupSync />}
+                />
+                <Route
+                  path={`/${RouterPages.Profile}`}
+                  element={<ProfilePage />}
+                />
 
-        <UpdateNotification />
-      </Router>
-    </QueryClientProvider>
+                <Route
+                  path={`/${RouterPages.Clients}`}
+                  element={<ClientsPage />}
+                />
+              </Routes>
+            </div>
+          ) : (
+            <AuthScreen />
+          )}
+
+          <UpdateNotification />
+        </Router>
+      </QueryClientProvider>
+
+      <Toaster />
+    </>
   );
 }
 

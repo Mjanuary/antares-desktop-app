@@ -12,13 +12,16 @@ export const NavButton: FunctionComponent<{
 }> = ({ icon, label, isActive, onClick, pageUrl }) => {
   if (pageUrl)
     return (
-      <NavLink to={`/${pageUrl}`}>
+      <NavLink
+        to={`/${pageUrl}`}
+        className="w-full flex items-center justify-center hover:bg-[#3A3C44]"
+      >
         <button
           className={classNames(
             "flex items-center py-2 flex-col gap-0.5 justify-center hover:bg-[#3A3C44] cursor-pointer outline-none",
             {
-              "bg-[#3A3C44]": isActive,
-            }
+              "text-primary-100": isActive,
+            },
           )}
           title={label}
           style={{ outline: "none" }}
@@ -41,7 +44,7 @@ export const NavButton: FunctionComponent<{
         "flex items-center py-2 flex-col gap-0.5 justify-center hover:bg-[#3A3C44] cursor-pointer outline-none",
         {
           "bg-[#3A3C44]": isActive,
-        }
+        },
       )}
       title={label}
       style={{ outline: "none" }}
@@ -78,7 +81,7 @@ export const NavButtonIcon: FunctionComponent<{
             "text-xl w-8 h-8 rounded-full overflow-hidden flex items-center justify-center  bg-black border-2 border-solid-- border-transparent hover:border-gray-500",
             {
               "border border-gray-400": isActive,
-            }
+            },
           )}
         >
           {profileUrl && (
