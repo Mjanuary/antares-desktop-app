@@ -715,6 +715,65 @@ export class AppDatabase {
     });
   }
 
+  async getHouses(
+    page: number = 1,
+    pageSize: number = 40,
+    search: string = "",
+    filters: {
+      sortBy?: string; // e.g. "name ASC"
+    } = {},
+  ): Promise<{ data: any[]; total: number; page: number; pageSize: number }> {
+    return this.perform(async () => {
+      return new Promise((resolve, reject) => {
+        const offset = (page - 1) * pageSize;
+        const validSorts = [
+          "name ASC",
+          "name DESC",
+          "created_date DESC",
+          "created_date ASC",
+        ];
+        const sortBy = validSorts.includes(filters.sortBy || "")
+          ? filters.sortBy
+          : "created_date DESC";
+
+        let whereClause = "WHERE row_deleted IS NULL";
+        const params: any[] = [];
+
+        if (search) {
+          whereClause +=
+            " AND (name LIKE ? OR address LIKE ? OR country LIKE ?)";
+          params.push(`%${search}%`, `%${search}%`, `%${search}%`);
+        }
+
+        // Count Query
+        const countSql = `SELECT COUNT(*) as total FROM houses ${whereClause}`;
+
+        // Data Query
+        const dataSql = `
+        SELECT * FROM houses 
+        ${whereClause} 
+        ORDER BY ${sortBy} 
+        LIMIT ? OFFSET ?
+      `;
+
+        this.db.get(countSql, params, (err, countRow: any) => {
+          if (err) return reject(err);
+          const total = countRow?.total || 0;
+
+          this.db.all(dataSql, [...params, pageSize, offset], (err, rows) => {
+            if (err) return reject(err);
+            resolve({
+              data: rows ?? [],
+              total,
+              page,
+              pageSize,
+            });
+          });
+        });
+      });
+    });
+  }
+
   // ********************************************
 
   async createTodo(

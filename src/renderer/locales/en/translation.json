@@ -62,6 +62,17 @@
       "status": "Status"
     }
   },
+  "houses": {
+    "page_title": "Houses",
+    "page_description": "Manage your houses list",
+    "columns": {
+      "name": "Name",
+      "country": "Country",
+      "address": "Address",
+      "contacts": "Contacts",
+      "status": "Status"
+    }
+  },
   "validation": {
     "required": "Required",
     "no_branch": "No branch selected",

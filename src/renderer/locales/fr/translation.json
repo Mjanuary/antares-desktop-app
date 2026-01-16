@@ -62,6 +62,17 @@
       "status": "Statut"
     }
   },
+  "houses": {
+    "page_title": "Maisons",
+    "page_description": "Gérer votre liste de maisons",
+    "columns": {
+      "name": "Nom",
+      "country": "Pays",
+      "address": "Adresse",
+      "contacts": "Contacts",
+      "status": "Statut"
+    }
+  },
   "validation": {
     "required": "Requis",
     "no_branch": "Aucune succursale sélectionnée",

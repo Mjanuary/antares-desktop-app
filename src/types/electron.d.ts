@@ -34,6 +34,19 @@ declare global {
         pageSize: number;
       }>;
 
+      // Houses
+      getHouses: (
+        page?: number,
+        pageSize?: number,
+        search?: string,
+        filters?: any,
+      ) => Promise<{
+        data: any[];
+        total: number;
+        page: number;
+        pageSize: number;
+      }>;
+
       // Window operations
       minimize: () => void;
       maximize: () => void;

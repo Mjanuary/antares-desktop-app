@@ -23,6 +23,14 @@ contextBridge.exposeInMainWorld("electronAPI", {
     filters?: any,
   ) => ipcRenderer.invoke("get-clients", page, pageSize, search, filters),
 
+  // House operations
+  getHouses: (
+    page?: number,
+    pageSize?: number,
+    search?: string,
+    filters?: any,
+  ) => ipcRenderer.invoke("get-houses", page, pageSize, search, filters),
+
   // Window operations
   minimize: () => ipcRenderer.send("minimize-window"),
   maximize: () => ipcRenderer.send("maximize-window"),

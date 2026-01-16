@@ -11,6 +11,7 @@ import BackupSync from "./pages/backup-sync";
 import ProfilePage from "./pages/profile/profile.page";
 import AuthScreen from "./pages/auth-screens/auth-screen";
 import ClientsPage from "./pages/clients/clients";
+import HousesPage from "./pages/houses/houses";
 import { RouterPages } from "../types/pages.types";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { authStore } from "../store/auth";
@@ -118,6 +119,10 @@ function App() {
                 <Route
                   path={`/${RouterPages.Clients}`}
                   element={<ClientsPage />}
+                />
+                <Route
+                  path={`/${RouterPages.Houses}`}
+                  element={<HousesPage />}
                 />
               </Routes>
             </div>

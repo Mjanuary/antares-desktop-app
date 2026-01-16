@@ -55,6 +55,11 @@ export function setupIPC() {
     return await db.getClients(page, pageSize, search, filters);
   });
 
+  // Houses operations ----------------------------------------------
+  ipcMain.handle("get-houses", async (_, page, pageSize, search, filters) => {
+    return await db.getHouses(page, pageSize, search, filters);
+  });
+
   // Todo operations
   ipcMain.handle("create-todo", async (_, todo) => {
     return await db.createTodo(todo);
