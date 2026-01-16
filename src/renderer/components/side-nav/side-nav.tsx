@@ -16,9 +16,10 @@ const SideNavigation: FunctionComponent<{
   const { running } = useSyncStore();
   return (
     <div
-      className="bg-overlay fixed top-0 left-0 bottom-0 flex flex-col justify-between text-white "
+      className="bg-overlay z-40 fixed top-0 left-0 bottom-0 flex flex-col justify-between text-white border-r border-gray-700"
       style={{
         width: "70px",
+        backgroundColor: "#0c4824",
       }}
     >
       <div className="m-2 pl-2 rounded-md mb-2 w-fit text-center">

@@ -14,4 +14,7 @@ export enum RouterPages {
   DiversStock = "divers-stock",
   // Clients
   Clients = "clients",
+  Houses = "houses",
+  Products = "products",
+  Sales = "sales",
 }

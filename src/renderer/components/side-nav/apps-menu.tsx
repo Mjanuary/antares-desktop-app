@@ -1,6 +1,16 @@
 import { FunctionComponent } from "react";
 import { Input } from "../ui/input";
-import { TbReport } from "react-icons/tb";
+import { NavLink } from "react-router-dom";
+import { MdOutlineStore } from "react-icons/md";
+import { RouterPages } from "../../../types/pages.types";
+
+const menuApps = [
+  {
+    icon: <MdOutlineStore />,
+    label: "Houses",
+    nav: RouterPages.Houses,
+  },
+];
 
 const AppsMenu: FunctionComponent<{ onClose: () => void }> = ({ onClose }) => {
   return (
@@ -21,21 +31,26 @@ const AppsMenu: FunctionComponent<{ onClose: () => void }> = ({ onClose }) => {
         </div>
 
         <div className="flex-1 overflow-y-auto p-4 grid grid-cols-3  pb-8 gap-8">
-          {[1, 2, 3, 4, 5, 6, 7, 8, 11, 121, 3, 13].map((item) => (
-            <button
-              key={item}
-              className="  m-2 flex items-center justify-center"
+          {menuApps.map(({ icon, label, nav }, index) => (
+            <NavLink
+              to={`/${nav}`}
+              className="w-full flex items-center justify-center hover:bg-[#3A3C44]"
             >
-              <div className=" text-white font-semibold flex items-center justify-center">
-                <div className="flex flex-col items-center justify-center gap-2">
-                  <div className="p-6 rounded-lg bg-white/10 text-4xl">
-                    <TbReport />
-                  </div>
+              <button
+                key={index}
+                className="  m-2 flex items-center justify-center"
+              >
+                <div className=" text-white font-semibold flex items-center justify-center">
+                  <div className="flex flex-col items-center justify-center gap-2">
+                    <div className="p-6 rounded-lg bg-white/10 text-4xl">
+                      {icon}
+                    </div>
 
-                  <span>Report here</span>
+                    <span>{label}</span>
+                  </div>
                 </div>
-              </div>
-            </button>
+              </button>
+            </NavLink>
           ))}
         </div>
       </div>

@@ -17,6 +17,7 @@ import { authStore } from "../store/auth";
 import { useSyncStore } from "../store/sync-store";
 import { useNetworkStore } from "../store/network-store";
 import { Toaster } from "./components/ui/toaster";
+import AppTopBar from "./components/app-top-bar/app-top-bar";
 
 const queryClient = new QueryClient();
 
@@ -65,11 +66,34 @@ function App() {
       <QueryClientProvider client={queryClient}>
         <Router>
           {!!account && (
-            <SideNavigation
-              onSelect={setSelectedNav}
-              selected={selectedNav}
-              onAppsOpen={() => setAppsOpen(!appsOpen)}
-            />
+            <>
+              <SideNavigation
+                onSelect={setSelectedNav}
+                selected={selectedNav}
+                onAppsOpen={() => setAppsOpen(!appsOpen)}
+              />
+
+              <AppTopBar
+                onBack={() => setSelectedNav("")}
+                title="Roles Management"
+                onSaleClick={() => console.log("Sale clicked here")}
+                onSubmitSearch={(e) => console.log(e)}
+                tabs={[
+                  {
+                    title: "Products",
+                    onClick: () => {},
+                    subTitle: "12 products",
+                    active: true,
+                  },
+                  {
+                    title: "Products",
+                    onClick: () => {},
+                    subTitle: "12 products",
+                    active: false,
+                  },
+                ]}
+              />
+            </>
           )}
 
           {appsOpen && <AppsMenu onClose={() => setAppsOpen(false)} />}
