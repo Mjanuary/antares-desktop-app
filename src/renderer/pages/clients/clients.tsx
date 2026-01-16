@@ -52,16 +52,16 @@ const ClientsPage = () => {
   }, [page, searchText, sortBy, dateFilter]);
 
   const columns: ColumnType<ClientRecordType_Zod>[] = [
-    { key: "names", label: "Name" },
-    { key: "phone_number", label: "Phone" },
-    { key: "gender", label: "Gender" },
-    { key: "email", label: "Email" },
-    { key: "address", label: "Address" },
+    { key: "names", label: t("clients.columns.name") },
+    { key: "phone_number", label: t("clients.columns.phone") },
+    { key: "gender", label: t("clients.columns.gender") },
+    { key: "email", label: t("clients.columns.email") },
+    { key: "address", label: t("clients.columns.address") },
     {
       width: "10px",
       tdClassName: "w-[10px] whitespace-nowrap",
       key: "",
-      label: "Status",
+      label: t("clients.columns.status"),
       render: (row) => <Badge variant="outline">{row.sync_status}</Badge>,
     },
   ];
@@ -111,31 +111,43 @@ const ClientsPage = () => {
             filtersDisplay={[
               {
                 key: "filter",
-                text: `Name: ${searchText}`,
+                text: `${t("clients.columns.name")}: ${searchText}`,
                 showClose: false,
               },
             ]}
             header={{
-              title: "Clients",
-              description: "Manage your client database",
+              title: t("clients.page_title"),
+              description: t("clients.page_description"),
               sideContent: (
                 <div className="flex items-center gap-2">
                   <SelectInput
                     options={[
                       {
-                        groupTitle: "Sort By",
+                        groupTitle: t("common.sort_by"),
                         options: [
-                          { label: "Newest First", value: "created_date DESC" },
-                          { label: "Oldest First", value: "created_date ASC" },
-                          { label: "Name (A-Z)", value: "names ASC" },
-                          { label: "Name (Z-A)", value: "names DESC" },
+                          {
+                            label: t("common.sort.newest"),
+                            value: "created_date DESC",
+                          },
+                          {
+                            label: t("common.sort.oldest"),
+                            value: "created_date ASC",
+                          },
+                          {
+                            label: t("common.sort.name_asc"),
+                            value: "names ASC",
+                          },
+                          {
+                            label: t("common.sort.name_desc"),
+                            value: "names DESC",
+                          },
                         ],
                       },
                     ]}
                     value={sortBy}
                     onValueChange={setSortBy}
-                    placeholder="Sort By"
-                    title="Sort By"
+                    placeholder={t("common.sort_by")}
+                    title={t("common.sort_by")}
                     inputVariant="default"
                     classNameParent="flex items-center"
                   />
@@ -153,7 +165,7 @@ const ClientsPage = () => {
                     icon={<FaPlus />}
                     variant="primary"
                   >
-                    Add Client
+                    {t("clients.add_client")}
                   </Button>
                 </div>
               ),

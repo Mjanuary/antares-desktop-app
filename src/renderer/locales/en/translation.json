@@ -4,7 +4,15 @@
     "english": "English",
     "french": "French",
     "home": "Home",
-    "settings": "Settings"
+    "settings": "Settings",
+    "sort_by": "Sort By",
+    "status": "Status",
+    "sort": {
+      "newest": "Newest First",
+      "oldest": "Oldest First",
+      "name_asc": "Name (A-Z)",
+      "name_desc": "Name (Z-A)"
+    }
   },
   "todo": {
     "add": "Add Todo",
@@ -28,5 +36,35 @@
     "error": "Error checking for updates. Please try again later.",
     "download": "Download Update",
     "install": "Restart to Update"
+  },
+  "clients": {
+    "title": "Create Client",
+    "create": "Create",
+    "names": "Full Names",
+    "phone": "Phone Number",
+    "email": "Email",
+    "gender": "Gender",
+    "address": "Address",
+    "select_gender": "Select Gender",
+    "male": "Male",
+    "female": "Female",
+    "success": "Client created successfully",
+    "error": "Failed to create client",
+    "page_title": "Clients",
+    "page_description": "Manage your client database",
+    "add_client": "Add Client",
+    "columns": {
+      "name": "Name",
+      "phone": "Phone",
+      "gender": "Gender",
+      "email": "Email",
+      "address": "Address",
+      "status": "Status"
+    }
+  },
+  "validation": {
+    "required": "Required",
+    "no_branch": "No branch selected",
+    "invalid_user": "User ID is invalid"
   }
 }

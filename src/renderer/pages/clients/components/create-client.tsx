@@ -11,6 +11,7 @@ import { FunctionComponent, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { v4 as uuidv4 } from "uuid";
 import { authStore } from "../../../../store/auth";
+import { useTranslation } from "react-i18next";
 
 export const CreateClientForm: FunctionComponent<{
   onSuccess: (data: {
@@ -21,7 +22,7 @@ export const CreateClientForm: FunctionComponent<{
   defaultName?: string;
   onClose: () => void;
 }> = ({ onSuccess, onClose, defaultName }) => {
-  const t = (key: string) => key; // Dummy translation function
+  const { t } = useTranslation();
   const { account } = authStore();
 
   const [isPending, setIsPending] = useState(false);
@@ -39,29 +40,29 @@ export const CreateClientForm: FunctionComponent<{
     e.preventDefault();
 
     if (!names) {
-      setError({ target: "names", message: "required" });
+      setError({ target: "names", message: t("validation.required") });
       return;
     }
 
     if (!phoneNumber) {
-      setError({ target: "phone_number", message: "required" });
+      setError({ target: "phone_number", message: t("validation.required") });
       return;
     }
 
     if (!gender) {
-      setError({ target: "gender", message: "required" });
+      setError({ target: "gender", message: t("validation.required") });
       return;
     }
 
     if (!account?.branch_id) {
-      toast.error("No branch selected");
+      toast.error(t("validation.no_branch"));
       return;
     }
 
     console.log({ account });
 
     if (!account?.user_id) {
-      toast.error("User id is invalid");
+      toast.error(t("validation.invalid_user"));
       return;
     }
 
@@ -90,7 +91,7 @@ export const CreateClientForm: FunctionComponent<{
     setIsPending(true);
     try {
       await window.electronAPI.createClient(newClient);
-      toast.success("client-created-successfully");
+      toast.success(t("clients.success"));
 
       onClose();
       onSuccess({
@@ -100,52 +101,20 @@ export const CreateClientForm: FunctionComponent<{
       });
     } catch (error) {
       console.error("Failed to create client", error);
-      toast.error("failed to create client");
+      toast.error(t("clients.error"));
     } finally {
       setIsPending(false);
     }
   };
 
-  // const { mutate: server_createClient, isPending } = useMutation({
-  //   mutationFn: createClient_action,
-  //   onSuccess: () => {
-  //     onSuccess({
-  //       id: clientId,
-  //       names,
-  //       phone_number: phoneNumber,
-  //     });
-
-  //     toast.success("client-created-successfully");
-  //   },
-  //   onError: (error) => {
-  //     console.error(error);
-  //     toast.error("failed to create client");
-  //   },
-  // });
-
-  // const onSubmit = () => {
-
-  //   // if (!branch?.branch?.id) {
-  //   //   toast.error("No branch selected");
-  //   //   return;
-  //   // }
-
-  //   // if (!session?.user.id) {
-  //   //   toast.error("User id is invalid");
-  //   //   return;
-  //   // }
-
-  //   // server_createClient(newClient);
-  // };
-
   return (
     <form onSubmit={handleSubmit}>
       <div className="pb-3 pt-2 border-b border-color-theme mb-3">
-        <h2 className="text-xl">{t("create-client")}</h2>
+        <h2 className="text-xl">{t("clients.title")}</h2>
       </div>
       <div className="grid lg:grid-cols-2 gap-4">
         <Input
-          label={t("names")}
+          label={t("clients.names")}
           value={names}
           onChange={(e) => setNames(e.target.value)}
           disabled={isPending}
@@ -153,7 +122,7 @@ export const CreateClientForm: FunctionComponent<{
         />
 
         <Input
-          label={t("phone")}
+          label={t("clients.phone")}
           value={phoneNumber}
           onChange={(e) => setPhoneNumber(e.target.value)}
           disabled={isPending}
@@ -161,7 +130,7 @@ export const CreateClientForm: FunctionComponent<{
         />
 
         <Input
-          label={t("email")}
+          label={t("clients.email")}
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           disabled={isPending}
@@ -170,30 +139,30 @@ export const CreateClientForm: FunctionComponent<{
         <SelectInput
           options={[
             {
-              groupTitle: t("chose-gender"),
+              groupTitle: t("clients.select_gender"),
               options: [
                 {
-                  label: t("male"),
+                  label: t("clients.male"),
                   value: GenderClientEnum.male,
                 },
                 {
-                  label: t("female"),
+                  label: t("clients.female"),
                   value: GenderClientEnum.female,
                 },
               ],
             },
           ]}
           onValueChange={(el) => setGender(el as GenderClientEnum)}
-          title={t("gender")}
+          title={t("clients.gender")}
           value={gender || ""}
-          placeholder={t("chose-gender")}
+          placeholder={t("clients.select_gender")}
           disabled={isPending}
         />
 
         <div className="col-span-2">
           <Textarea
-            title={t("address")}
-            label={t("address")}
+            title={t("clients.address")}
+            label={t("clients.address")}
             value={address}
             onChange={(e) => setAddress(e.target.value)}
             disabled={isPending}
@@ -207,10 +176,10 @@ export const CreateClientForm: FunctionComponent<{
             variant="destructive"
             disabled={isPending}
           >
-            {t("cancel")}
+            {t("actions.cancel")}
           </Button>
           <Button type="submit" variant="primary" loading={isPending}>
-            {t("create")}
+            {t("clients.create")}
           </Button>
         </div>
       </div>
