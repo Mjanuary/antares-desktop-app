@@ -24,6 +24,16 @@
       "lte": "Inférieur ou égal",
       "gt": "Supérieur à",
       "lt": "Inférieur à"
+    },
+    "table": {
+      "filters": "Filtres :",
+      "clear_filters": "Effacer les filtres",
+      "loading": "Chargement...",
+      "no_results": "Aucun résultat trouvé.",
+      "no_data": "Aucune donnée disponible.",
+      "error": "Erreur : {{error}}",
+      "load_more": "Charger plus...",
+      "search_placeholder": "Rechercher"
     }
   },
   "todo": {

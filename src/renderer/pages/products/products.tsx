@@ -242,6 +242,60 @@ const ProductsPage = () => {
                 </div>
               ),
             }}
+            onClearFilters={() => {
+              setFilters({});
+              setPage(1);
+            }}
+            filtersDisplay={[
+              {
+                key: "price_CDF",
+                text: `${t("products.columns.price_CDF")}: ${filters.price_CDF?.op} ${filters.price_CDF?.value}`,
+                showClose: false,
+                visible: !!filters.price_CDF,
+              },
+              {
+                key: "price_USD",
+                text: `${t("products.columns.price_USD")}: ${filters.price_USD?.value}`,
+                showClose: false,
+                visible: !!filters.price_USD,
+              },
+              {
+                key: "price_RWF",
+                text: `${t("products.columns.price_RWF")}: ${filters.price_RWF?.value}`,
+                showClose: false,
+                visible: !!filters.price_RWF,
+              },
+              {
+                key: "category_id",
+                text: `${t("products.columns.category")}`,
+                showClose: false,
+                visible: !!filters.category_id,
+              },
+              {
+                key: "colors",
+                text: `${t("products.columns.colors")}: ${filters.colors}`,
+                showClose: false,
+                visible: !!filters.colors,
+              },
+              {
+                key: "stock_quantity",
+                text: `${t("products.columns.stock")}: ${filters.stock_quantity?.value}`,
+                showClose: false,
+                visible: !!filters.stock_quantity,
+              },
+              {
+                key: "custom_divers",
+                text: t("products.columns.custom"),
+                showClose: false,
+                visible: !!filters.custom_divers,
+              },
+              {
+                key: "is_printable",
+                text: t("products.columns.is_printable"),
+                showClose: false,
+                visible: !!filters.is_printable,
+              },
+            ]}
           />
         </div>
       </div>

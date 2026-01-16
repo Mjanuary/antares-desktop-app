@@ -85,7 +85,7 @@ export const SelectInput: FunctionComponent<Props> = ({
       {title && (
         <span
           className={cn(
-            "mb-1 block text-sm capitalize text-base-color ",
+            "mb-1 block text-sm capitalize text-base-color whitespace-nowrap",
             titleClassName,
           )}
         >

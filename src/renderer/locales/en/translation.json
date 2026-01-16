@@ -24,6 +24,16 @@
       "lte": "Less or Equal",
       "gt": "Greater than",
       "lt": "Less than"
+    },
+    "table": {
+      "filters": "Filters:",
+      "clear_filters": "Clear filters",
+      "loading": "Loading...",
+      "no_results": "No results found.",
+      "no_data": "No data available.",
+      "error": "Error: {{error}}",
+      "load_more": "Load more...",
+      "search_placeholder": "Search"
     }
   },
   "todo": {

@@ -1,4 +1,5 @@
 import classNames from "classnames";
+import { useTranslation } from "react-i18next";
 import React, {
   FunctionComponent,
   ReactNode,
@@ -43,7 +44,8 @@ export type ColumnType<T> = {
 interface FilterDisplay {
   key: string;
   text: string;
-  showClose: boolean;
+  showClose?: boolean;
+  visible?: boolean;
 }
 
 interface PaginationControlProps {
@@ -102,7 +104,7 @@ export function CustomTable<T>(props: CustomTableProps<T>) {
     emptyState,
     header,
     searchKeys: searchProps,
-    filtersDisplay,
+    filtersDisplay: allFiltersDisplay,
     onClickFilter,
     onClearFilters,
     onLoadMore,
@@ -111,6 +113,10 @@ export function CustomTable<T>(props: CustomTableProps<T>) {
     paginationControls,
     onSearch,
   } = props;
+
+  const { t } = useTranslation();
+
+  const filtersDisplay = allFiltersDisplay?.filter((el) => el.visible);
 
   const [searchText, setSearchText] = useState("");
 
@@ -175,7 +181,7 @@ export function CustomTable<T>(props: CustomTableProps<T>) {
                   <Input
                     type="search"
                     inputClassName="pl-10"
-                    placeholder="Search"
+                    placeholder={t("common.table.search_placeholder")}
                     value={searchText}
                     onChange={(e) => {
                       setSearchText(e.target.value);
@@ -198,29 +204,36 @@ export function CustomTable<T>(props: CustomTableProps<T>) {
           {filtersDisplay && filtersDisplay?.length >= 1 && (
             <div className="flex justify-between p-2 bg-gray-600 items-center">
               <div className="flex-1 flex gap-1">
-                {filtersDisplay?.map((el) => (
-                  <button onClick={() => onClickFilter?.(el)}>
-                    <Badge
-                      variant="info"
-                      className={classNames("flex items-center gap-1", {
-                        "pr-1": el.showClose,
-                      })}
-                    >
-                      <span>{el.text}</span>{" "}
-                      {el.showClose && (
-                        <IoMdCloseCircle className="text-lg text-red-600" />
-                      )}
-                    </Badge>
-                  </button>
-                ))}
+                <span className="text-sm opacity-50">
+                  {t("common.table.filters")}
+                </span>
+                {filtersDisplay?.map((el) => {
+                  if (!el.visible) return null;
+                  return (
+                    <button onClick={() => onClickFilter?.(el)}>
+                      <Badge
+                        variant="info"
+                        className={classNames("flex items-center gap-1", {
+                          "pr-1": el.showClose,
+                        })}
+                      >
+                        <span>{el.text}</span>{" "}
+                        {el.showClose && (
+                          <IoMdCloseCircle className="text-lg text-red-600" />
+                        )}
+                      </Badge>
+                    </button>
+                  );
+                })}
               </div>
               {!!onClearFilters && (
                 <Button
                   variant="destructive"
-                  size="icon-sm-rounded"
+                  size="sm"
                   onClick={onClearFilters}
+                  icon={<MdClose />}
                 >
-                  <MdClose />
+                  {t("common.table.clear_filters")}
                 </Button>
               )}
             </div>
@@ -276,9 +289,9 @@ export function CustomTable<T>(props: CustomTableProps<T>) {
               <tr>
                 <td
                   colSpan={columns.length + (useIndexNumbering ? 1 : 0)}
-                  className="py-8"
+                  className="py-8 text-center"
                 >
-                  Loading...
+                  {t("common.table.loading")}
                 </td>
               </tr>
             )}
@@ -290,7 +303,7 @@ export function CustomTable<T>(props: CustomTableProps<T>) {
                   colSpan={columns.length + (useIndexNumbering ? 1 : 0)}
                   className="py-8 text-center"
                 >
-                  {emptyState ?? "No results found."}
+                  {emptyState ?? t("common.table.no_results")}
                 </td>
               </tr>
             )}
@@ -299,9 +312,9 @@ export function CustomTable<T>(props: CustomTableProps<T>) {
               <tr>
                 <td
                   colSpan={columns.length + (useIndexNumbering ? 1 : 0)}
-                  className="py-8"
+                  className="py-8 text-center"
                 >
-                  {emptyState ?? "No data available."}
+                  {emptyState ?? t("common.table.no_data")}
                 </td>
               </tr>
             )}
@@ -311,9 +324,9 @@ export function CustomTable<T>(props: CustomTableProps<T>) {
               <tr>
                 <td
                   colSpan={columns.length + (useIndexNumbering ? 1 : 0)}
-                  className="py-8"
+                  className="py-8 text-center"
                 >
-                  Error: {error}
+                  {t("common.table.error", { error })}
                 </td>
               </tr>
             )}
@@ -376,7 +389,7 @@ export function CustomTable<T>(props: CustomTableProps<T>) {
                 onClick={onLoadMore}
                 className="p-1 text-sm hover:bg-primary-300/30 px-4 rounded-lg text-primary-100"
               >
-                Load more...
+                {t("common.table.load_more")}
               </button>
             )}
             <PaginationControls paginationControls={paginationControls} />
