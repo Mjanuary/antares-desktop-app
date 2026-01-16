@@ -47,6 +47,21 @@ declare global {
         pageSize: number;
       }>;
 
+      // Products
+      getProducts: (
+        page?: number,
+        pageSize?: number,
+        search?: string,
+        filters?: any,
+      ) => Promise<{
+        data: any[];
+        total: number;
+        page: number;
+        pageSize: number;
+      }>;
+
+      getCategories: () => Promise<any[]>;
+
       // Window operations
       minimize: () => void;
       maximize: () => void;

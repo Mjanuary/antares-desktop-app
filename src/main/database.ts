@@ -775,6 +775,149 @@ export class AppDatabase {
   }
 
   // ********************************************
+  // PRODUCTS
+  // ********************************************
+
+  async getProducts(
+    page: number = 1,
+    pageSize: number = 40,
+    search: string = "",
+    filters: {
+      category_id?: string;
+      is_printable?: boolean;
+      custom_divers?: boolean;
+      price_CDF?: { op: string; value: number };
+      price_USD?: { op: string; value: number };
+      price_RWF?: { op: string; value: number };
+      stock_quantity?: { op: string; value: number };
+      colors?: string;
+      sortBy?: string;
+    } = {},
+  ): Promise<{ data: any[]; total: number; page: number; pageSize: number }> {
+    return this.perform(async () => {
+      return new Promise((resolve, reject) => {
+        const offset = (page - 1) * pageSize;
+        const validSorts = [
+          "p.name ASC",
+          "p.name DESC",
+          "p.created_time DESC",
+          "p.created_time ASC",
+          "p.price_USD ASC",
+          "p.price_USD DESC",
+          "p.stock_quantity ASC",
+          "p.stock_quantity DESC",
+        ];
+        const sortBy = validSorts.includes(filters.sortBy || "")
+          ? filters.sortBy
+          : "p.created_time DESC";
+
+        let whereClause = "WHERE p.product_row_deleted IS NULL";
+        const params: any[] = [];
+
+        // Search
+        if (search) {
+          whereClause += ` AND (
+            p.name LIKE ? OR 
+            p.code LIKE ? OR 
+            p.qr_code LIKE ? OR 
+            p.bar_code LIKE ? OR
+            p.colors LIKE ?
+          )`;
+          const term = `%${search}%`;
+          params.push(term, term, term, term, term);
+        }
+
+        // Filters
+        if (filters.category_id) {
+          whereClause += " AND p.diver_category_id = ?";
+          params.push(filters.category_id);
+        }
+
+        if (filters.is_printable !== undefined) {
+          whereClause += " AND p.is_printable = ?";
+          params.push(filters.is_printable ? 1 : 0);
+        }
+
+        if (filters.custom_divers !== undefined) {
+          whereClause += " AND p.custom_diver = ?";
+          params.push(filters.custom_divers ? 1 : 0);
+        }
+
+        if (filters.colors) {
+          whereClause += " AND p.colors LIKE ?";
+          params.push(`%${filters.colors}%`);
+        }
+
+        // Comparison Filters
+        const addComparison = (
+          field: string,
+          filter?: { op: string; value: number },
+        ) => {
+          if (filter && filter.op && filter.value !== undefined) {
+            const op = ["=", ">=", "<=", ">", "<"].includes(filter.op)
+              ? filter.op
+              : "=";
+            whereClause += ` AND ${field} ${op} ?`;
+            params.push(filter.value);
+          }
+        };
+
+        addComparison("p.stock_quantity", filters.stock_quantity);
+        addComparison("p.price_USD", filters.price_USD);
+        addComparison("p.price_CDF", filters.price_CDF);
+        addComparison("p.price_RWF", filters.price_RWF);
+
+        // Count Query
+        const countSql = `
+          SELECT COUNT(*) as total 
+          FROM products p 
+          LEFT JOIN categories c ON p.diver_category_id = c.id
+          ${whereClause}
+        `;
+
+        // Data Query
+        const dataSql = `
+          SELECT p.*, c.name as category_name
+          FROM products p
+          LEFT JOIN categories c ON p.diver_category_id = c.id
+          ${whereClause}
+          ORDER BY ${sortBy}
+          LIMIT ? OFFSET ?
+        `;
+
+        this.db.get(countSql, params, (err, countRow: any) => {
+          if (err) return reject(err);
+          const total = countRow?.total || 0;
+
+          this.db.all(dataSql, [...params, pageSize, offset], (err, rows) => {
+            if (err) return reject(err);
+            resolve({
+              data: rows ?? [],
+              total,
+              page,
+              pageSize,
+            });
+          });
+        });
+      });
+    });
+  }
+
+  async getCategories(): Promise<any[]> {
+    return this.perform(async () => {
+      return new Promise((resolve, reject) => {
+        this.db.all(
+          "SELECT * FROM categories WHERE active = 1 ORDER BY name ASC",
+          (err, rows) => {
+            if (err) reject(err);
+            else resolve(rows ?? []);
+          },
+        );
+      });
+    });
+  }
+
+  // ********************************************
 
   async createTodo(
     todo: Omit<Todo, "id" | "createdAt" | "updatedAt">,

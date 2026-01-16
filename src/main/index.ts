@@ -1,6 +1,7 @@
-import { app, BrowserWindow, ipcMain } from "electron";
+import { app, BrowserWindow, ipcMain, protocol, net } from "electron";
 import * as path from "path";
 import * as fs from "fs";
+import * as url from "url";
 import isDev from "electron-is-dev";
 import { setupIPC } from "./ipc";
 import { autoUpdater } from "electron-updater";
@@ -10,6 +11,7 @@ import { registerAutoSync, startSync } from "./sync/sync-manager";
 import { registerSyncIPC } from "./ipc/sync.ipc";
 import { db } from "./ipc";
 import { ImageSyncController } from "./sync/imageSyncController";
+import { IMAGE_STORAGE_FOLDER } from "./constants";
 
 // Configure logging
 log.transports.file.level = "info";
@@ -228,6 +230,22 @@ function setupAutoUpdater() {
 }
 
 app.whenReady().then(async () => {
+  // Register 'media' protocol for accessing local images
+  protocol.handle("media", (request) => {
+    const filePath = request.url.slice("media://".length);
+    const decodedPath = decodeURIComponent(filePath);
+    const fileUrl = path.join(
+      app.getPath("userData"),
+      IMAGE_STORAGE_FOLDER,
+      decodedPath,
+    );
+
+    // Safer to just use pathToFileURL but I didn't import 'url'.
+    // Robust cross-platform way to convert path to file URL (handles Windows backslashes etc.)
+    const fsUrl = url.pathToFileURL(fileUrl).toString();
+    return net.fetch(fsUrl);
+  });
+
   // 1. Show Splash Immediately
   createSplashWindow();
 

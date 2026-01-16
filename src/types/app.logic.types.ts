@@ -542,6 +542,24 @@ export interface DiverSearchSellType {
   stock_quantity: number | null;
 }
 
+export interface ProductListType {
+  product_id: string;
+  name: string;
+  code: string | null;
+  qr_code: string | null;
+  bar_code: string | null;
+  colors: string | null; // JSON string from DB
+  price_CDF: number;
+  price_RWF: number;
+  price_USD: number;
+  stock_quantity: number;
+  local_image_filename: string | null;
+  category_name: string | null;
+  is_printable: boolean | number;
+  custom_diver: boolean | number;
+  sync_status: string;
+}
+
 export type DiversSaleItemType_Details = DiversSaleItemType &
   DiverSearchSellType;
 
@@ -573,4 +591,21 @@ export interface DepositReport {
 export interface FormError {
   target: string;
   message: string;
+}
+// Product Filters
+export interface ComparisonFilterValue {
+  op: string;
+  value: number;
+}
+
+export interface ProductFilters {
+  category_id?: string;
+  is_printable?: boolean;
+  custom_divers?: boolean;
+  price_CDF?: ComparisonFilterValue;
+  price_USD?: ComparisonFilterValue;
+  price_RWF?: ComparisonFilterValue;
+  stock_quantity?: ComparisonFilterValue;
+  colors?: string;
+  sortBy?: string;
 }

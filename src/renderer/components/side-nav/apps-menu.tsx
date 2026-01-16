@@ -10,6 +10,11 @@ const menuApps = [
     label: "Houses",
     nav: RouterPages.Houses,
   },
+  {
+    icon: <MdOutlineStore />, // Maybe find a better icon?
+    label: "Products",
+    nav: RouterPages.Products,
+  },
 ];
 
 const AppsMenu: FunctionComponent<{ onClose: () => void }> = ({ onClose }) => {

@@ -7,11 +7,23 @@
     "settings": "Settings",
     "sort_by": "Sort By",
     "status": "Status",
+    "filter": "Filter",
     "sort": {
       "newest": "Newest First",
       "oldest": "Oldest First",
       "name_asc": "Name (A-Z)",
-      "name_desc": "Name (Z-A)"
+      "name_desc": "Name (Z-A)",
+      "price_asc": "Price (Low -> High)",
+      "price_desc": "Price (High -> Low)",
+      "stock_asc": "Stock (Low -> High)",
+      "stock_desc": "Stock (High -> Low)"
+    },
+    "op": {
+      "eq": "Equal to",
+      "gte": "Greater or Equal",
+      "lte": "Less or Equal",
+      "gt": "Greater than",
+      "lt": "Less than"
     }
   },
   "todo": {
@@ -77,5 +89,34 @@
     "required": "Required",
     "no_branch": "No branch selected",
     "invalid_user": "User ID is invalid"
+  },
+  "products": {
+    "page_title": "Products",
+    "page_description": "Manage your products list",
+    "columns": {
+      "name": "Name",
+      "code": "Code",
+      "category": "Category",
+      "price": "Price",
+      "stock": "Stock",
+      "options": "Options",
+      "status": "Sync Status"
+    },
+    "filters": {
+      "title": "Filter Products",
+      "clear": "Clear Filters",
+      "done": "Done",
+      "category": "Category",
+      "select_category": "Select Category",
+      "colors_label": "Colors (Search)",
+      "colors_placeholder": "e.g. Red, Blue",
+      "printable": "Printable",
+      "custom_divers": "Custom/Divers",
+      "stock_quantity": "Stock Quantity",
+      "price_usd": "Price USD",
+      "price_cdf": "Price CDF",
+      "price_rwf": "Price RWF",
+      "all": "All"
+    }
   }
 }

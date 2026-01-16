@@ -60,6 +60,15 @@ export function setupIPC() {
     return await db.getHouses(page, pageSize, search, filters);
   });
 
+  // Products operations ----------------------------------------------
+  ipcMain.handle("get-products", async (_, page, pageSize, search, filters) => {
+    return await db.getProducts(page, pageSize, search, filters);
+  });
+
+  ipcMain.handle("get-categories", async () => {
+    return await db.getCategories();
+  });
+
   // Todo operations
   ipcMain.handle("create-todo", async (_, todo) => {
     return await db.createTodo(todo);

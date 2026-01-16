@@ -7,11 +7,23 @@
     "settings": "Paramètres",
     "sort_by": "Trier par",
     "status": "Statut",
+    "filter": "Filtrer",
     "sort": {
       "newest": "Les plus récents",
       "oldest": "Les plus anciens",
       "name_asc": "Nom (A-Z)",
-      "name_desc": "Nom (Z-A)"
+      "name_desc": "Nom (Z-A)",
+      "price_asc": "Prix (Croissant)",
+      "price_desc": "Prix (Décroissant)",
+      "stock_asc": "Stock (Croissant)",
+      "stock_desc": "Stock (Décroissant)"
+    },
+    "op": {
+      "eq": "Égal à",
+      "gte": "Supérieur ou égal",
+      "lte": "Inférieur ou égal",
+      "gt": "Supérieur à",
+      "lt": "Inférieur à"
     }
   },
   "todo": {
@@ -77,5 +89,34 @@
     "required": "Requis",
     "no_branch": "Aucune succursale sélectionnée",
     "invalid_user": "L'ID utilisateur est invalide"
+  },
+  "products": {
+    "page_title": "Produits",
+    "page_description": "Gérer votre liste de produits",
+    "columns": {
+      "name": "Nom",
+      "code": "Code",
+      "category": "Catégorie",
+      "price": "Prix",
+      "stock": "Stock",
+      "options": "Options",
+      "status": "Statut Sync"
+    },
+    "filters": {
+      "title": "Filtrer les produits",
+      "clear": "Effacer les filtres",
+      "done": "Terminé",
+      "category": "Catégorie",
+      "select_category": "Sélectionner une catégorie",
+      "colors_label": "Couleurs (Recherche)",
+      "colors_placeholder": "ex. Rouge, Bleu",
+      "printable": "Imprimable",
+      "custom_divers": "Personnalisé/Divers",
+      "stock_quantity": "Quantité en stock",
+      "price_usd": "Prix USD",
+      "price_cdf": "Prix CDF",
+      "price_rwf": "Prix RWF",
+      "all": "Tout"
+    }
   }
 }
