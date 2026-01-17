@@ -20,6 +20,11 @@ const menuApps = [
     label: "Sales",
     nav: RouterPages.Sales,
   },
+  {
+    icon: <MdOutlinePointOfSale />,
+    label: "Clients",
+    nav: RouterPages.Clients,
+  },
 ];
 
 const AppsMenu: FunctionComponent<{ onClose: () => void }> = ({ onClose }) => {
@@ -44,7 +49,8 @@ const AppsMenu: FunctionComponent<{ onClose: () => void }> = ({ onClose }) => {
           {menuApps.map(({ icon, label, nav }, index) => (
             <NavLink
               to={`/${nav}`}
-              className="w-full flex items-center justify-center hover:bg-[#3A3C44]"
+              className="w-full flex items-center justify-center hover:bg-[#3A3C44] h-fit"
+              onClick={onClose}
             >
               <button
                 key={index}
