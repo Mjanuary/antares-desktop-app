@@ -60,6 +60,28 @@ declare global {
         pageSize: number;
       }>;
 
+      // Balances
+      getBalances: (
+        page?: number,
+        pageSize?: number,
+        search?: string,
+        filters?: {
+          dateFrom?: string;
+          dateTo?: string;
+          balance_status?: string;
+          amount?: { op: string; value: number };
+          amount_bc?: { op: string; value: number };
+          total_payed?: { op: string; value: number };
+          total_payed_bc?: { op: string; value: number };
+          sortBy?: string;
+        },
+      ) => Promise<{
+        data: any[];
+        total: number;
+        page: number;
+        pageSize: number;
+      }>;
+
       // Sales
       getSales: (
         page?: number,

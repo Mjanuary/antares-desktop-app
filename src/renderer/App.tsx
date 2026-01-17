@@ -14,6 +14,7 @@ import ClientsPage from "./pages/clients/clients";
 import HousesPage from "./pages/houses/houses";
 import ProductsPage from "./pages/products/products";
 import SalesPage from "./pages/sales/sales";
+import BalancesPage from "./pages/balances";
 import { RouterPages } from "../types/pages.types";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { authStore } from "../store/auth";
@@ -131,6 +132,7 @@ function App() {
                   element={<ProductsPage />}
                 />
                 <Route path="/sales" element={<SalesPage />} />
+                <Route path="/balances" element={<BalancesPage />} />
               </Routes>
             </div>
           ) : (

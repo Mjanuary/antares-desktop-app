@@ -51,9 +51,33 @@
   },
   "actions": {
     "save": "Save",
-    "cancel": "Cancel",
-    "delete": "Delete",
-    "edit": "Edit"
+    "paid": "Paid",
+    "partially_paid": "Partially Paid",
+    "unpaid": "Unpaid"
+  },
+  "balances": {
+    "page_title": "Balances List",
+    "page_description": "Manage and view all client balances",
+    "columns": {
+      "pay_date": "Pay Date",
+      "client": "Client",
+      "house": "House",
+      "amount": "Amount",
+      "amount_bc": "Amount BC",
+      "total_payed": "Total Paid",
+      "total_payed_bc": "Total Paid BC",
+      "remaining": "Remaining",
+      "recorded_by": "Recorded By",
+      "status": "Status"
+    },
+    "filter_modal": {
+      "title": "Filter Balances",
+      "description": "Apply advanced filters to the balances list"
+    },
+    "sort": {
+      "pay_date_desc": "Pay Date (Newest)",
+      "pay_date_asc": "Pay Date (Oldest)"
+    }
   },
   "updates": {
     "newVersionAvailable": "New version {{version}} is available!",

@@ -104,6 +104,11 @@ export function setupIPC() {
     return await db.deleteAllDeviceConnections();
   });
 
+  // Balances opertations ----------------------------------------------
+  ipcMain.handle("get-balances", async (_, page, pageSize, search, filters) => {
+    return await db.getBalances(page, pageSize, search, filters);
+  });
+
   // Window operations
   ipcMain.on("minimize-window", (event) => {
     const window = BrowserWindow.fromWebContents(event.sender);

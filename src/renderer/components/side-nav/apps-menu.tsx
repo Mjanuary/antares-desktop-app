@@ -25,6 +25,11 @@ const menuApps = [
     label: "Clients",
     nav: RouterPages.Clients,
   },
+  {
+    icon: <MdOutlinePointOfSale />,
+    label: "Balances",
+    nav: "balances",
+  },
 ];
 
 const AppsMenu: FunctionComponent<{ onClose: () => void }> = ({ onClose }) => {

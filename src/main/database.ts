@@ -1060,6 +1060,162 @@ export class AppDatabase {
   }
 
   // ********************************************
+  // BALANCES
+  // ********************************************
+
+  async getBalances(
+    page: number = 1,
+    pageSize: number = 40,
+    search: string = "",
+    filters: {
+      dateFrom?: string;
+      dateTo?: string;
+      balance_status?: string;
+      amount?: { op: string; value: number };
+      amount_bc?: { op: string; value: number };
+      total_payed?: { op: string; value: number };
+      total_payed_bc?: { op: string; value: number };
+      sortBy?: string;
+    } = {},
+  ): Promise<{ data: any[]; total: number; page: number; pageSize: number }> {
+    return this.perform(async () => {
+      return new Promise((resolve, reject) => {
+        const offset = (page - 1) * pageSize;
+        const validSorts = [
+          "recorded_date DESC",
+          "recorded_date ASC",
+          "pay_date DESC",
+          "pay_date ASC",
+          "amount DESC",
+          "amount ASC",
+          "client_name ASC",
+          "client_name DESC",
+        ];
+
+        let sortBy = filters.sortBy || "recorded_date DESC";
+        // Remove table aliases if present (e.g. 'b.recorded_date' -> 'recorded_date')
+        if (sortBy.includes(".")) {
+          sortBy = sortBy.split(".").pop()!;
+          // Re-append DESC/ASC if it was part of the split, handling simple case
+          const parts = filters.sortBy?.split(" ") || [];
+          if (parts.length > 1) {
+            const dir = parts[1];
+            const col = parts[0].split(".").pop();
+            sortBy = `${col} ${dir}`;
+          }
+        }
+
+        // Just enforce valid list strict matching after cleanup
+        if (!validSorts.includes(sortBy)) {
+          // Fallback if strict match fails (try to match roughly or just default)
+          // Let's just default to safe value
+          sortBy = "recorded_date DESC";
+        }
+
+        const cteParams: any[] = [];
+        let cteWhere = "WHERE 1=1";
+
+        if (search) {
+          cteWhere += ` AND (
+            client_name LIKE ? OR 
+            house_name LIKE ? OR 
+            recorder_name LIKE ?
+          )`;
+          const term = `%${search}%`;
+          cteParams.push(term, term, term);
+        }
+
+        if (filters.dateFrom) {
+          cteWhere += " AND date(pay_date) >= date(?)";
+          cteParams.push(filters.dateFrom);
+        }
+        if (filters.dateTo) {
+          cteWhere += " AND date(pay_date) <= date(?)";
+          cteParams.push(filters.dateTo);
+        }
+
+        if (filters.balance_status && filters.balance_status !== "ALL") {
+          cteWhere += " AND balance_status = ?";
+          cteParams.push(filters.balance_status);
+        }
+
+        const addComparison = (
+          field: string,
+          filter?: { op: string; value: number },
+        ) => {
+          if (filter && filter.op && filter.value !== undefined) {
+            const op = ["=", ">=", "<=", ">", "<"].includes(filter.op)
+              ? filter.op
+              : "=";
+            cteWhere += ` AND ${field} ${op} ?`;
+            cteParams.push(filter.value);
+          }
+        };
+
+        addComparison("amount", filters.amount);
+        addComparison("amount_bc", filters.amount_bc);
+        addComparison("total_payed", filters.total_payed);
+        addComparison("total_payed_bc", filters.total_payed_bc);
+
+        const fullSql = `
+          WITH BalanceStats AS (
+            SELECT 
+              b.*,
+              h.name as house_name,
+              u.name as recorder_name,
+              (SELECT COALESCE(SUM(total_payed), 0) FROM balance_payments bp WHERE bp.balance_id = b.id AND bp.row_deleted IS NULL) as total_payed,
+              (SELECT COALESCE(SUM(total_payed_bc), 0) FROM balance_payments bp WHERE bp.balance_id = b.id AND bp.row_deleted IS NULL) as total_payed_bc
+            FROM balances b
+            LEFT JOIN houses h ON b.house_id = h.id
+            LEFT JOIN users u ON b.recorded_by = u.id
+            WHERE b.row_deleted IS NULL
+          )
+          SELECT * FROM BalanceStats
+          ${cteWhere}
+          ORDER BY ${sortBy}
+          LIMIT ? OFFSET ?
+        `;
+
+        const countSql = `
+          WITH BalanceStats AS (
+            SELECT 
+              b.*,
+              h.name as house_name,
+              u.name as recorder_name,
+              (SELECT COALESCE(SUM(total_payed), 0) FROM balance_payments bp WHERE bp.balance_id = b.id AND bp.row_deleted IS NULL) as total_payed,
+              (SELECT COALESCE(SUM(total_payed_bc), 0) FROM balance_payments bp WHERE bp.balance_id = b.id AND bp.row_deleted IS NULL) as total_payed_bc
+            FROM balances b
+            LEFT JOIN houses h ON b.house_id = h.id
+            LEFT JOIN users u ON b.recorded_by = u.id
+            WHERE b.row_deleted IS NULL
+          )
+          SELECT COUNT(*) as total FROM BalanceStats
+          ${cteWhere}
+        `;
+
+        this.db.get(countSql, cteParams, (err, countRow: any) => {
+          if (err) return reject(err);
+          const total = countRow?.total || 0;
+
+          this.db.all(
+            fullSql,
+            [...cteParams, pageSize, offset],
+            (err, rows) => {
+              if (err) return reject(err);
+              resolve({
+                data: rows ?? [],
+                total,
+                page,
+                pageSize,
+              });
+            },
+          );
+        });
+      });
+    });
+  }
+
+  // ********************************************
 
   async createTodo(
     todo: Omit<Todo, "id" | "createdAt" | "updatedAt">,
