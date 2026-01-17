@@ -284,6 +284,106 @@ const depositSchema = z.object({
   sync_status: apiSyncStatusField,
 });
 
+// --- New Schemas ---
+
+const branchSchema = z.object({
+  id: z.string(),
+  name: z.string().nullable().optional(),
+  country: z.string().nullable().optional(),
+  address: z.string().nullable().optional(),
+  contacts: z.string().nullable().optional(),
+  branch_currency: z.string().nullable().optional(),
+  supported_currency: z.string().nullable().optional(),
+  rate_in: apiJsonField,
+  rate_out: apiJsonField,
+  active: apiBooleanField,
+  active_store: apiBooleanField,
+  show_rate_card: apiBooleanField,
+  remember_rate_on_sale: apiBooleanField,
+  remember_price_on_re_sale: apiBooleanField,
+  show_rate_on_all_forms: apiBooleanField,
+  created_date: apiDateField,
+  updated_date: apiDateField,
+  app_connection: z.string().nullable().optional(),
+  row_version: z.number().optional(),
+  row_deleted: apiJsonField,
+  sync_status: apiSyncStatusField,
+});
+
+const usersToHousesSchema = z.object({
+  user_id: z.string(),
+  house_id: z.string(),
+  role_id: z.string().nullable().optional(),
+  created_date: apiDateField,
+  update_date: apiDateField,
+  active: apiBooleanField,
+  app_connection: z.string().nullable().optional(),
+  row_version: z.number().optional(),
+  row_deleted: apiJsonField,
+  sync_status: apiSyncStatusField,
+});
+
+const balanceSchema = z.object({
+  id: z.string(),
+  balance_parent_id: z.string().nullable().optional(),
+  client_name: z.string().nullable().optional(),
+  product_id: z.string().nullable().optional(),
+  product_type: z.string().nullable().optional(),
+  payment_currency: z.string().nullable().optional(),
+  branch_currency: z.string().nullable().optional(),
+  rate_RWF: apiNumberField,
+  rate_CDF: apiNumberField,
+  amount: apiNumberField,
+  amount_bc: apiNumberField,
+  payed_amount: apiNumberField,
+  payed_amount_bc: apiNumberField,
+  sale_id: z.string().nullable().optional(),
+  parent_sale_id: z.string().nullable().optional(),
+  recorded_date: apiDateField,
+  recorded_by: z.string().nullable().optional(),
+  pay_date: apiDateField,
+  branch_id: z.string().nullable().optional(),
+  house_id: z.string().nullable().optional(),
+  active: apiBooleanField,
+  balance_status: z.string().nullable().optional(),
+  created_date: apiDateField,
+  updated_date: apiDateField,
+  payment_date_history: apiJsonField,
+  balance_contacts: z.string().nullable().optional(),
+  app_connection: z.string().nullable().optional(),
+  row_version: z.number().optional(),
+  row_deleted: apiJsonField,
+  sync_status: apiSyncStatusField,
+});
+
+const balancePaymentSchema = z.object({
+  id: z.string(),
+  balance_id: z.string().nullable().optional(),
+  sale_id: z.string().nullable().optional(),
+  product_type: z.string().nullable().optional(),
+  branch_id: z.string().nullable().optional(),
+  house_id: z.string().nullable().optional(),
+  recorded_date: apiDateField,
+  recorded_by: z.string().nullable().optional(),
+  active: apiBooleanField,
+  payment_currency: z.string().nullable().optional(),
+  branch_currency: z.string().nullable().optional(),
+  rate_RWF: apiNumberField,
+  rate_CDF: apiNumberField,
+  payed_USD: apiNumberField,
+  payed_CDF: apiNumberField,
+  payed_RWF: apiNumberField,
+  total_payed: apiNumberField,
+  total_payed_bc: apiNumberField,
+  created_date: apiDateField,
+  updated_date: apiDateField,
+  deposit_id: z.string().nullable().optional(),
+  app_connection: z.string().nullable().optional(),
+  row_version: z.number().optional(),
+  row_deleted: apiJsonField,
+  sync_status: apiSyncStatusField,
+});
+
 // --- Map Table Names to Schemas ---
 
 const schemas: Record<string, z.ZodType<any>> = {
@@ -298,6 +398,10 @@ const schemas: Record<string, z.ZodType<any>> = {
   sales: saleSchema,
   sales_items: salesItemSchema,
   deposit: depositSchema,
+  branch: branchSchema,
+  users_to_houses: usersToHousesSchema,
+  balances: balanceSchema,
+  balance_payments: balancePaymentSchema,
 };
 
 // --- Validation Function ---

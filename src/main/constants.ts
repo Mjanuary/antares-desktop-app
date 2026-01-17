@@ -10,6 +10,10 @@ export const appTableList = [
   "sales",
   "sales_items",
   "deposit",
+  "branch",
+  "users_to_houses",
+  "balances",
+  "balance_payments",
 ];
 
 export const pushTableList = [
@@ -18,6 +22,8 @@ export const pushTableList = [
   "deposit",
   "sales",
   "sales_items",
+  "balances",
+  "balance_payments",
 ];
 
 export const SettingsSeeds = {

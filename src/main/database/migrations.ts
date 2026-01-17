@@ -307,6 +307,7 @@ export const migrations: Migration[] = [
           branch_updated_time DATETIME,
           latest_update DATETIME,
           sync_status TEXT DEFAULT 'PENDING',
+          local_image_filename TEXT,
 
           FOREIGN KEY(diver_category_id) REFERENCES categories(id) ON DELETE SET NULL,
           FOREIGN KEY(diver_sub_category_id) REFERENCES sub_categories(id) ON DELETE SET NULL
@@ -507,9 +508,167 @@ export const migrations: Migration[] = [
     `,
   },
   {
-    name: "add_local_image_filename_to_products",
+    name: "create_users_to_houses_table",
     sql: `
-      ALTER TABLE products ADD COLUMN local_image_filename TEXT;
+      CREATE TABLE IF NOT EXISTS users_to_houses (
+        user_id TEXT NOT NULL,
+        house_id TEXT NOT NULL,
+        role_id TEXT,
+        created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+        update_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+        active BOOLEAN DEFAULT 1,
+        app_connection TEXT,
+        row_version INTEGER DEFAULT 1,
+        row_deleted TEXT DEFAULT 'null',
+        sync_status TEXT DEFAULT 'PENDING',
+
+        PRIMARY KEY (user_id, house_id),
+        FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE,
+        FOREIGN KEY(house_id) REFERENCES houses(id) ON DELETE CASCADE
+      );
+
+      CREATE INDEX IF NOT EXISTS users_to_houses_user_id_idx ON users_to_houses (user_id);
+      CREATE INDEX IF NOT EXISTS users_to_houses_house_id_idx ON users_to_houses (house_id);
+    `,
+  },
+  {
+    name: "create_branch_table",
+    sql: `
+      CREATE TABLE IF NOT EXISTS branch (
+        id TEXT PRIMARY KEY,
+        name TEXT,
+        country TEXT,
+        address TEXT,
+        contacts TEXT,
+        branch_currency TEXT,
+        supported_currency TEXT,
+        rate_in TEXT DEFAULT '{}',
+        rate_out TEXT DEFAULT '{}',
+        
+        active BOOLEAN DEFAULT 1,
+        active_store BOOLEAN DEFAULT 1,
+        
+        show_rate_card BOOLEAN DEFAULT 0,
+        remember_rate_on_sale BOOLEAN DEFAULT 0,
+        remember_price_on_re_sale BOOLEAN DEFAULT 0,
+        show_rate_on_all_forms BOOLEAN DEFAULT 0,
+
+        created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+
+        app_connection TEXT,
+        row_version INTEGER DEFAULT 1,
+        row_deleted TEXT DEFAULT 'null',
+        sync_status TEXT DEFAULT 'PENDING'
+      );
+
+      CREATE INDEX IF NOT EXISTS branch_active_idx ON branch (active);
+    `,
+  },
+  {
+    name: "create_balances_table",
+    sql: `
+      CREATE TABLE IF NOT EXISTS balances (
+        id TEXT PRIMARY KEY,
+        balance_parent_id TEXT,
+        client_name TEXT,
+        product_id TEXT,
+        product_type TEXT,
+        payment_currency TEXT,
+        branch_currency TEXT,
+        
+        rate_RWF NUMERIC DEFAULT 0,
+        rate_CDF NUMERIC DEFAULT 0,
+        amount NUMERIC DEFAULT 0,
+        amount_bc NUMERIC DEFAULT 0,
+        payed_amount NUMERIC DEFAULT 0,
+        payed_amount_bc NUMERIC DEFAULT 0,
+        
+        sale_id TEXT,
+        parent_sale_id TEXT,
+        recorded_date DATETIME,
+        recorded_by TEXT,
+        pay_date DATETIME,
+        branch_id TEXT,
+        house_id TEXT,
+        
+        active BOOLEAN DEFAULT 1,
+        balance_status TEXT,
+        
+        created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+        
+        payment_date_history TEXT DEFAULT '[]',
+        balance_contacts TEXT,
+        
+        app_connection TEXT,
+        row_version INTEGER DEFAULT 1,
+        row_deleted TEXT DEFAULT 'null',
+        sync_status TEXT DEFAULT 'PENDING',
+
+        FOREIGN KEY(sale_id) REFERENCES sales(id) ON DELETE CASCADE,
+        FOREIGN KEY(parent_sale_id) REFERENCES sales(id) ON DELETE CASCADE,
+        FOREIGN KEY(product_id) REFERENCES products(product_id) ON DELETE SET NULL,
+        FOREIGN KEY(branch_id) REFERENCES branch(id) ON DELETE CASCADE,
+        FOREIGN KEY(house_id) REFERENCES houses(id) ON DELETE SET NULL,
+        FOREIGN KEY(recorded_by) REFERENCES users(id) ON DELETE SET NULL
+      );
+
+      CREATE INDEX IF NOT EXISTS balances_sale_id_idx ON balances (sale_id);
+      CREATE INDEX IF NOT EXISTS balances_branch_id_idx ON balances (branch_id);
+      CREATE INDEX IF NOT EXISTS balances_active_idx ON balances (active);
+      CREATE INDEX IF NOT EXISTS balances_status_idx ON balances (balance_status);
+    `,
+  },
+  {
+    name: "create_balance_payments_table",
+    sql: `
+      CREATE TABLE IF NOT EXISTS balance_payments (
+        id TEXT PRIMARY KEY,
+        balance_id TEXT,
+        sale_id TEXT,
+        product_type TEXT,
+        
+        branch_id TEXT,
+        house_id TEXT,
+        recorded_date DATETIME,
+        recorded_by TEXT,
+        
+        active BOOLEAN DEFAULT 1,
+        
+        payment_currency TEXT,
+        branch_currency TEXT,
+        
+        rate_RWF NUMERIC DEFAULT 0,
+        rate_CDF NUMERIC DEFAULT 0,
+        
+        payed_USD NUMERIC DEFAULT 0,
+        payed_CDF NUMERIC DEFAULT 0,
+        payed_RWF NUMERIC DEFAULT 0,
+        total_payed NUMERIC DEFAULT 0,
+        total_payed_bc NUMERIC DEFAULT 0,
+        
+        created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+        
+        deposit_id TEXT,
+        app_connection TEXT,
+        row_version INTEGER DEFAULT 1,
+        row_deleted TEXT DEFAULT 'null',
+        sync_status TEXT DEFAULT 'PENDING',
+
+        FOREIGN KEY(balance_id) REFERENCES balances(id) ON DELETE CASCADE,
+        FOREIGN KEY(sale_id) REFERENCES sales(id) ON DELETE CASCADE,
+        FOREIGN KEY(branch_id) REFERENCES branch(id) ON DELETE CASCADE,
+        FOREIGN KEY(house_id) REFERENCES houses(id) ON DELETE SET NULL,
+        FOREIGN KEY(recorded_by) REFERENCES users(id) ON DELETE SET NULL,
+        FOREIGN KEY(deposit_id) REFERENCES deposit(id) ON DELETE SET NULL
+      );
+
+      CREATE INDEX IF NOT EXISTS balance_payments_balance_id_idx ON balance_payments (balance_id);
+      CREATE INDEX IF NOT EXISTS balance_payments_sale_id_idx ON balance_payments (sale_id);
+      CREATE INDEX IF NOT EXISTS balance_payments_active_idx ON balance_payments (active);
+      CREATE INDEX IF NOT EXISTS balance_payments_recorded_date_idx ON balance_payments (recorded_date);
     `,
   },
 ];
