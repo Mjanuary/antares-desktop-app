@@ -39,6 +39,14 @@ contextBridge.exposeInMainWorld("electronAPI", {
     filters?: any,
   ) => ipcRenderer.invoke("get-products", page, pageSize, search, filters),
 
+  // Sales operations
+  getSales: (
+    page?: number,
+    pageSize?: number,
+    search?: string,
+    filters?: any,
+  ) => ipcRenderer.invoke("get-sales", page, pageSize, search, filters),
+
   getCategories: () => ipcRenderer.invoke("get-categories"),
 
   // Window operations

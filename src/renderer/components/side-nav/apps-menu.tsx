@@ -1,7 +1,7 @@
 import { FunctionComponent } from "react";
 import { Input } from "../ui/input";
 import { NavLink } from "react-router-dom";
-import { MdOutlineStore } from "react-icons/md";
+import { MdOutlineStore, MdOutlinePointOfSale } from "react-icons/md";
 import { RouterPages } from "../../../types/pages.types";
 
 const menuApps = [
@@ -14,6 +14,11 @@ const menuApps = [
     icon: <MdOutlineStore />, // Maybe find a better icon?
     label: "Products",
     nav: RouterPages.Products,
+  },
+  {
+    icon: <MdOutlinePointOfSale />,
+    label: "Sales",
+    nav: RouterPages.Sales,
   },
 ];
 

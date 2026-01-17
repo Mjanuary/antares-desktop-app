@@ -60,6 +60,26 @@ declare global {
         pageSize: number;
       }>;
 
+      // Sales
+      getSales: (
+        page?: number,
+        pageSize?: number,
+        search?: string,
+        filters?: {
+          dateFrom?: string;
+          dateTo?: string;
+          payment_currency?: string;
+          client_id?: string;
+          house_id?: string;
+          [key: string]: any;
+        },
+      ) => Promise<{
+        data: any[];
+        total: number;
+        page: number;
+        pageSize: number;
+      }>;
+
       getCategories: () => Promise<any[]>;
 
       // Window operations

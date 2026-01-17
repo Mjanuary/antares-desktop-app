@@ -25,6 +25,10 @@
       "gt": "Greater than",
       "lt": "Less than"
     },
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "this_week": "This Week",
+    "all_sales": "All Sales",
     "table": {
       "filters": "Filters:",
       "clear_filters": "Clear filters",
@@ -127,6 +131,19 @@
       "price_cdf": "Price CDF",
       "price_rwf": "Price RWF",
       "all": "All"
+    }
+  },
+  "sales": {
+    "page_title": "Sales",
+    "page_description": "View and manage sales transactions",
+    "columns": {
+      "date": "Date",
+      "client": "Client",
+      "house": "House",
+      "items": "Items",
+      "total": "Total",
+      "paid": "Paid",
+      "balance": "Balance"
     }
   }
 }

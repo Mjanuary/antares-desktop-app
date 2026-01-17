@@ -86,6 +86,7 @@ export type CustomTableProps<T> = {
   onOpenFilters?: () => void;
   paginationControls?: PaginationControlProps;
   onSearch?: (term: string) => void;
+  subHeader?: ReactNode;
 };
 
 export function CustomTable<T>(props: CustomTableProps<T>) {
@@ -112,6 +113,7 @@ export function CustomTable<T>(props: CustomTableProps<T>) {
     onOpenFilters,
     paginationControls,
     onSearch,
+    subHeader,
   } = props;
 
   const { t } = useTranslation();
@@ -240,6 +242,8 @@ export function CustomTable<T>(props: CustomTableProps<T>) {
           )}
         </div>
       )}
+
+      {subHeader && <div className="p-2 bg-black">{subHeader}</div>}
 
       <div
         className={classNames("", {

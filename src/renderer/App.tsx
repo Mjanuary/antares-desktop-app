@@ -13,6 +13,7 @@ import AuthScreen from "./pages/auth-screens/auth-screen";
 import ClientsPage from "./pages/clients/clients";
 import HousesPage from "./pages/houses/houses";
 import ProductsPage from "./pages/products/products";
+import SalesPage from "./pages/sales/sales";
 import { RouterPages } from "../types/pages.types";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { authStore } from "../store/auth";
@@ -129,6 +130,7 @@ function App() {
                   path={`/${RouterPages.Products}`}
                   element={<ProductsPage />}
                 />
+                <Route path="/sales" element={<SalesPage />} />
               </Routes>
             </div>
           ) : (

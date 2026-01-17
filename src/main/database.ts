@@ -775,6 +775,148 @@ export class AppDatabase {
   }
 
   // ********************************************
+  // SALES
+  // ********************************************
+
+  async getSales(
+    page: number = 1,
+    pageSize: number = 40,
+    search: string = "",
+    filters: {
+      dateFrom?: string;
+      dateTo?: string;
+      payment_currency?: string;
+      client_id?: string;
+      house_id?: string;
+      price_total?: { op: string; value: number };
+      price_total_bc?: { op: string; value: number };
+      total_payed_cash?: { op: string; value: number };
+      total_payed_cash_bc?: { op: string; value: number };
+      balance?: { op: string; value: number };
+      balance_bc?: { op: string; value: number };
+      total_products?: { op: string; value: number };
+      payed_USD?: { op: string; value: number };
+      payed_CDF?: { op: string; value: number };
+      payed_RWF?: { op: string; value: number };
+      sortBy?: string;
+    } = {},
+  ): Promise<{ data: any[]; total: number; page: number; pageSize: number }> {
+    return this.perform(async () => {
+      return new Promise((resolve, reject) => {
+        const offset = (page - 1) * pageSize;
+        const validSorts = [
+          "s.transaction_date DESC",
+          "s.transaction_date ASC",
+          "s.price_total DESC",
+          "s.price_total ASC",
+          "s.client_name ASC",
+          "s.client_name DESC",
+        ];
+        const sortBy = validSorts.includes(filters.sortBy || "")
+          ? filters.sortBy
+          : "s.transaction_date DESC";
+
+        let whereClause = "WHERE s.row_deleted IS NULL";
+        const params: any[] = [];
+
+        // Search
+        if (search) {
+          whereClause += ` AND (
+              s.client_name LIKE ? OR 
+              s.client_phone LIKE ? OR 
+              h.name LIKE ? OR 
+              s.receipt_id LIKE ?
+            )`;
+          const term = `%${search}%`;
+          params.push(term, term, term, term);
+        }
+
+        // Date Filters
+        if (filters.dateFrom) {
+          whereClause += " AND date(s.transaction_date) >= date(?)";
+          params.push(filters.dateFrom);
+        }
+        if (filters.dateTo) {
+          whereClause += " AND date(s.transaction_date) <= date(?)";
+          params.push(filters.dateTo);
+        }
+
+        // Exact Match Filters
+        if (filters.payment_currency) {
+          whereClause += " AND s.payment_currency = ?";
+          params.push(filters.payment_currency);
+        }
+        if (filters.client_id) {
+          whereClause += " AND s.client_id = ?";
+          params.push(filters.client_id);
+        }
+        if (filters.house_id) {
+          whereClause += " AND s.house_id = ?";
+          params.push(filters.house_id);
+        }
+
+        // Comparison Filters
+        const addComparison = (
+          field: string,
+          filter?: { op: string; value: number },
+        ) => {
+          if (filter && filter.op && filter.value !== undefined) {
+            const op = ["=", ">=", "<=", ">", "<"].includes(filter.op)
+              ? filter.op
+              : "=";
+            whereClause += ` AND ${field} ${op} ?`;
+            params.push(filter.value);
+          }
+        };
+
+        addComparison("s.price_total", filters.price_total);
+        addComparison("s.price_total_bc", filters.price_total_bc);
+        addComparison("s.total_payed_cash", filters.total_payed_cash);
+        addComparison("s.total_payed_cash_bc", filters.total_payed_cash_bc);
+        addComparison("s.balance", filters.balance);
+        addComparison("s.balance_bc", filters.balance_bc);
+        addComparison("s.total_products", filters.total_products);
+        addComparison("s.payed_USD", filters.payed_USD);
+        addComparison("s.payed_CDF", filters.payed_CDF);
+        addComparison("s.payed_RWF", filters.payed_RWF);
+
+        // Count Query
+        const countSql = `
+          SELECT COUNT(*) as total 
+          FROM sales s 
+          LEFT JOIN houses h ON s.house_id = h.id
+          ${whereClause}
+        `;
+
+        // Data Query
+        const dataSql = `
+          SELECT s.*, h.name as house_name
+          FROM sales s
+          LEFT JOIN houses h ON s.house_id = h.id
+          ${whereClause}
+          ORDER BY ${sortBy}
+          LIMIT ? OFFSET ?
+        `;
+
+        this.db.get(countSql, params, (err, countRow: any) => {
+          if (err) return reject(err);
+          const total = countRow?.total || 0;
+
+          this.db.all(dataSql, [...params, pageSize, offset], (err, rows) => {
+            if (err) return reject(err);
+            resolve({
+              data: rows ?? [],
+              total,
+              page,
+              pageSize,
+            });
+          });
+        });
+      });
+    });
+  }
+
+  // ********************************************
   // PRODUCTS
   // ********************************************
 

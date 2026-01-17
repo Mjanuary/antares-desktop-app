@@ -25,6 +25,10 @@
       "gt": "Supérieur à",
       "lt": "Inférieur à"
     },
+    "today": "Aujourd'hui",
+    "yesterday": "Hier",
+    "this_week": "Cette semaine",
+    "all_sales": "Toutes les ventes",
     "table": {
       "filters": "Filtres :",
       "clear_filters": "Effacer les filtres",
@@ -127,6 +131,19 @@
       "price_cdf": "Prix CDF",
       "price_rwf": "Prix RWF",
       "all": "Tout"
+    }
+  },
+  "sales": {
+    "page_title": "Ventes",
+    "page_description": "Voir et gérer les transactions de vente",
+    "columns": {
+      "date": "Date",
+      "client": "Client",
+      "house": "Maison",
+      "items": "Articles",
+      "total": "Total",
+      "paid": "Payé",
+      "balance": "Solde"
     }
   }
 }

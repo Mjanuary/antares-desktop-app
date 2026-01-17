@@ -65,6 +65,11 @@ export function setupIPC() {
     return await db.getProducts(page, pageSize, search, filters);
   });
 
+  // Sales operations ----------------------------------------------
+  ipcMain.handle("get-sales", async (_, page, pageSize, search, filters) => {
+    return await db.getSales(page, pageSize, search, filters);
+  });
+
   ipcMain.handle("get-categories", async () => {
     return await db.getCategories();
   });

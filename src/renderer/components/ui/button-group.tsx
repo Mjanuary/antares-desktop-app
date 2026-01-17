@@ -24,13 +24,14 @@ const ButtonGroup: FunctionComponent<Props> = ({
           <Button
             className={`${
               active === button.value
-                ? "font-bold border border-white"
+                ? "font-bold border border-white/40 text-primary-100"
                 : "bg-transparent !border-none"
             }  ${button.className} flex-1`}
             key={key}
-            variant={active === button.value ? "primary-light" : "ghost"}
+            variant={active === button.value ? "secondary" : "ghost"}
             {...button}
             type="button"
+            size="sm"
           />
         ))}
       </div>
