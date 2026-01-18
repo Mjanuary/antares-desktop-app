@@ -35,6 +35,11 @@ const menuApps = [
     label: "Expenses",
     nav: "expenses",
   },
+  {
+    icon: <MdOutlinePointOfSale />,
+    label: "Deposits",
+    nav: "deposits",
+  },
 ];
 
 const AppsMenu: FunctionComponent<{ onClose: () => void }> = ({ onClose }) => {

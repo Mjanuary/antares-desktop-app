@@ -1376,6 +1376,120 @@ export class AppDatabase {
     });
   }
 
+  async getDeposits(
+    page: number = 1,
+    pageSize: number = 40,
+    search: string = "",
+    filters: {
+      dateFrom?: string;
+      dateTo?: string;
+      decision?: string; // PENDING, APPROVED, REJECTED
+      amount?: { op: string; value: number };
+      sortBy?: string; // e.g. "created_date DESC"
+    } = {},
+  ): Promise<{ data: any[]; total: number; page: number; pageSize: number }> {
+    return this.perform(async () => {
+      return new Promise((resolve, reject) => {
+        const offset = (page - 1) * pageSize;
+        const validSorts = [
+          "created_date ASC",
+          "created_date DESC",
+          "amount DESC",
+          "amount ASC",
+        ];
+
+        let sortBy = "created_date DESC";
+        if (filters.sortBy) {
+          if (filters.sortBy === "amount DESC") {
+            sortBy = "total_bc DESC";
+          } else if (filters.sortBy === "amount ASC") {
+            sortBy = "total_bc ASC";
+          } else if (validSorts.includes(filters.sortBy)) {
+            sortBy = filters.sortBy;
+          }
+        }
+
+        let whereClause = "WHERE d.row_deleted IS NULL";
+        const params: any[] = [];
+
+        if (search) {
+          // search recorded_by (need join) or just comment?
+          // We'll join users to get recorded_by name
+          whereClause += " AND (u.name LIKE ? OR d.comment LIKE ?)";
+          params.push(`%${search}%`, `%${search}%`);
+        }
+
+        if (filters.dateFrom) {
+          whereClause += " AND DATE(d.created_date) >= ?";
+          params.push(filters.dateFrom);
+        }
+
+        if (filters.dateTo) {
+          whereClause += " AND DATE(d.created_date) <= ?";
+          params.push(filters.dateTo);
+        }
+
+        if (filters.decision) {
+          whereClause += " AND d.decision = ?";
+          params.push(filters.decision);
+        }
+
+        if (filters.amount) {
+          const { op, value } = filters.amount;
+          const validOps = [
+            "=",
+            ">",
+            "<",
+            ">=",
+            "<=",
+            "!=",
+            "IS",
+            "IS NOT",
+            "LIKE",
+          ];
+          if (validOps.includes(op)) {
+            // Check major currency fields
+            whereClause += ` AND (d.cash_USD ${op} ? OR d.cash_CDF ${op} ? OR d.cash_RWF ${op} ? OR d.total_bc ${op} ?)`;
+            params.push(value, value, value, value);
+          }
+        }
+
+        const dataSql = `
+          SELECT 
+            d.*,
+            u.name as recorder_name
+          FROM deposit d
+          LEFT JOIN users u ON d.recorded_by = u.id
+          ${whereClause}
+          ORDER BY ${sortBy} 
+          LIMIT ? OFFSET ?
+        `;
+
+        const countSql = `
+          SELECT COUNT(*) as total 
+          FROM deposit d
+          LEFT JOIN users u ON d.recorded_by = u.id
+          ${whereClause}
+        `;
+
+        this.db.get(countSql, params, (err, countRow: any) => {
+          if (err) return reject(err);
+          const total = countRow?.total || 0;
+
+          this.db.all(dataSql, [...params, pageSize, offset], (err, rows) => {
+            if (err) return reject(err);
+            resolve({
+              data: rows ?? [],
+              total,
+              page,
+              pageSize,
+            });
+          });
+        });
+      });
+    });
+  }
+
   async createTodo(
     todo: Omit<Todo, "id" | "createdAt" | "updatedAt">,
   ): Promise<Todo> {

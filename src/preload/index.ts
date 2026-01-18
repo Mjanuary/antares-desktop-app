@@ -63,6 +63,13 @@ contextBridge.exposeInMainWorld("electronAPI", {
     filters?: any,
   ) => ipcRenderer.invoke("get-spendings", page, pageSize, search, filters),
 
+  getDeposits: (
+    page?: number,
+    pageSize?: number,
+    search?: string,
+    filters?: any,
+  ) => ipcRenderer.invoke("get-deposits", page, pageSize, search, filters),
+
   getCategories: () => ipcRenderer.invoke("get-categories"),
   getSpendingCategories: () => ipcRenderer.invoke("get-spending-categories"),
 

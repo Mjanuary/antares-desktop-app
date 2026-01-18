@@ -121,6 +121,24 @@ declare global {
         pageSize: number;
       }>;
 
+      getDeposits: (
+        page?: number,
+        pageSize?: number,
+        search?: string,
+        filters?: {
+          dateFrom?: string;
+          dateTo?: string;
+          decision?: string;
+          amount?: { op: string; value: number };
+          sortBy?: string;
+        },
+      ) => Promise<{
+        data: any[];
+        total: number;
+        page: number;
+        pageSize: number;
+      }>;
+
       getCategories: () => Promise<any[]>;
       getSpendingCategories: () => Promise<any[]>;
 

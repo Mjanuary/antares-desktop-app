@@ -38,6 +38,7 @@
     "amount": "Amount",
     "approved": "Approved",
     "pending": "Pending",
+    "rejected": "Rejected",
     "active": "Active",
     "filter_options": "Filter Options",
     "select_category": "Select Category",
@@ -77,6 +78,10 @@
     "description": "Manage your expenses",
     "page_title": "Expenses",
     "page_description": "Manage your expenses and spendings"
+  },
+  "deposits": {
+    "page_title": "Deposits",
+    "page_description": "View and manage deposits"
   },
   "balances": {
     "page_title": "Balances List",

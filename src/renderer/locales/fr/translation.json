@@ -38,6 +38,7 @@
     "amount": "Montant",
     "approved": "Approuvé",
     "pending": "En attente",
+    "rejected": "Rejeté",
     "active": "Actif",
     "filter_options": "Options de filtre",
     "select_category": "Sélectionner une catégorie",
@@ -85,6 +86,10 @@
     "description": "Gérez vos dépenses",
     "page_title": "Dépenses",
     "page_description": "Gérez vos dépenses et frais"
+  },
+  "deposits": {
+    "page_title": "Dépôts",
+    "page_description": "Voir et gérer les dépôts"
   },
   "clients": {
     "title": "Créer un client",

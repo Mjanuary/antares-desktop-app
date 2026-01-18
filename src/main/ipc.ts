@@ -118,6 +118,10 @@ export function setupIPC() {
     },
   );
 
+  ipcMain.handle("get-deposits", async (_, page, pageSize, search, filters) => {
+    return await db.getDeposits(page, pageSize, search, filters);
+  });
+
   ipcMain.handle("get-spending-categories", async () => {
     return await db.getSpendingCategories();
   });
