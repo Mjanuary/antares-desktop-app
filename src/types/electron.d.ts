@@ -102,7 +102,27 @@ declare global {
         pageSize: number;
       }>;
 
+      getSpendings: (
+        page?: number,
+        pageSize?: number,
+        search?: string,
+        filters?: {
+          dateFrom?: string;
+          dateTo?: string;
+          status?: string;
+          amount?: { op: string; value: number };
+          spending_category_id?: string;
+          sortBy?: string;
+        },
+      ) => Promise<{
+        data: any[];
+        total: number;
+        page: number;
+        pageSize: number;
+      }>;
+
       getCategories: () => Promise<any[]>;
+      getSpendingCategories: () => Promise<any[]>;
 
       // Window operations
       minimize: () => void;

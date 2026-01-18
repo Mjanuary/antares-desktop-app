@@ -105,8 +105,21 @@ export function setupIPC() {
   });
 
   // Balances opertations ----------------------------------------------
+
   ipcMain.handle("get-balances", async (_, page, pageSize, search, filters) => {
     return await db.getBalances(page, pageSize, search, filters);
+  });
+
+  // Spendings operations ----------------------------------------------
+  ipcMain.handle(
+    "get-spendings",
+    async (_, page, pageSize, search, filters) => {
+      return await db.getSpendings(page, pageSize, search, filters);
+    },
+  );
+
+  ipcMain.handle("get-spending-categories", async () => {
+    return await db.getSpendingCategories();
   });
 
   // Window operations

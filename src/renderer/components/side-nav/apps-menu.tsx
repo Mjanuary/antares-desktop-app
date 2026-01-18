@@ -30,6 +30,11 @@ const menuApps = [
     label: "Balances",
     nav: "balances",
   },
+  {
+    icon: <MdOutlinePointOfSale />,
+    label: "Expenses",
+    nav: "expenses",
+  },
 ];
 
 const AppsMenu: FunctionComponent<{ onClose: () => void }> = ({ onClose }) => {

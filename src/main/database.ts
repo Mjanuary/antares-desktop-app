@@ -1059,6 +1059,20 @@ export class AppDatabase {
     });
   }
 
+  async getSpendingCategories(): Promise<any[]> {
+    return this.perform(async () => {
+      return new Promise((resolve, reject) => {
+        this.db.all(
+          "SELECT * FROM spending_categories WHERE status = 1 ORDER BY name ASC",
+          (err, rows) => {
+            if (err) reject(err);
+            else resolve(rows ?? []);
+          },
+        );
+      });
+    });
+  }
+
   // ********************************************
   // BALANCES
   // ********************************************
@@ -1216,6 +1230,151 @@ export class AppDatabase {
   }
 
   // ********************************************
+
+  // ********************************************
+  // SPENDINGS
+  // ********************************************
+
+  async getSpendings(
+    page: number = 1,
+    pageSize: number = 40,
+    search: string = "",
+    filters: {
+      dateFrom?: string;
+      dateTo?: string;
+      status?: string; // approved/pending etc
+      amount?: { op: string; value: number };
+      spending_category_id?: string;
+      sortBy?: string;
+    } = {},
+  ): Promise<{ data: any[]; total: number; page: number; pageSize: number }> {
+    return this.perform(async () => {
+      return new Promise((resolve, reject) => {
+        const offset = (page - 1) * pageSize;
+        const validSorts = [
+          "created_date DESC",
+          "created_date ASC",
+          "amount DESC", // mapped to total_bc usually or specific cash
+          "amount ASC",
+          "title ASC",
+          "title DESC",
+        ];
+
+        let sortBy = filters.sortBy || "created_date DESC";
+        if (sortBy.includes(".")) {
+          sortBy = sortBy.split(".").pop()!;
+          const parts = filters.sortBy?.split(" ") || [];
+          if (parts.length > 1) {
+            const dir = parts[1];
+            const col = parts[0].split(".").pop();
+            sortBy = `${col} ${dir}`;
+          }
+        }
+
+        if (sortBy.includes("amount")) {
+          sortBy = sortBy.replace("amount", "total_bc");
+        }
+
+        if (!validSorts.includes(sortBy) && !sortBy.includes("total_bc")) {
+          sortBy = "created_date DESC";
+        }
+
+        const params: any[] = [];
+        let whereClause = "WHERE s.row_deleted IS NULL";
+
+        if (search) {
+          whereClause += ` AND (
+            s.title LIKE ? OR 
+            c.name LIKE ? OR 
+            s.recorded_by LIKE ?
+          )`;
+          const term = `%${search}%`;
+          params.push(term, term, term);
+        }
+
+        if (filters.dateFrom) {
+          whereClause += " AND date(s.created_date) >= date(?)";
+          params.push(filters.dateFrom);
+        }
+        if (filters.dateTo) {
+          whereClause += " AND date(s.created_date) <= date(?)";
+          params.push(filters.dateTo);
+        }
+
+        if (filters.status) {
+          // Assuming 'status' maps to 'approved' boolean or similar?
+          // In schema: approved: boolean.
+          // If UI sends "APPROVED", "PENDING"
+          if (filters.status === "APPROVED") {
+            whereClause += " AND s.approved = 1";
+          } else if (filters.status === "PENDING") {
+            whereClause += " AND s.approved = 0";
+          }
+        }
+
+        if (filters.spending_category_id) {
+          whereClause += " AND s.spending_category_id = ?";
+          params.push(filters.spending_category_id);
+        }
+
+        const addComparison = (
+          field: string,
+          filter?: { op: string; value: number },
+        ) => {
+          if (filter && filter.op && filter.value !== undefined) {
+            const op = ["=", ">=", "<=", ">", "<"].includes(filter.op)
+              ? filter.op
+              : "=";
+            whereClause += ` AND ${field} ${op} ?`;
+            params.push(filter.value);
+          }
+        };
+
+        // Schema has cash_USD, cash_CDF, cash_RWF, total_bc.
+        // Let's assume filter 'amount' refers to total_bc (base currency) for simplicity or we might need specific currency filters.
+        // For now, mapping 'amount' to 'total_bc' seems most logical for a general filter.
+        addComparison("s.total_bc", filters.amount);
+
+        const fullSql = `
+          SELECT 
+            s.*,
+            c.name as category_name,
+            u.name as recorder_name,
+            b.name as branch_name
+          FROM spendings s
+          LEFT JOIN spending_categories c ON s.spending_category_id = c.id
+          LEFT JOIN users u ON s.recorded_by = u.id
+          LEFT JOIN branch b ON s.branch_id = b.id
+          ${whereClause}
+          ORDER BY ${sortBy}
+          LIMIT ? OFFSET ?
+        `;
+
+        const countSql = `
+          SELECT COUNT(*) as total 
+          FROM spendings s
+          LEFT JOIN spending_categories c ON s.spending_category_id = c.id
+          LEFT JOIN users u ON s.recorded_by = u.id
+          ${whereClause}
+        `;
+
+        this.db.get(countSql, params, (err, countRow: any) => {
+          if (err) return reject(err);
+          const total = countRow?.total || 0;
+
+          this.db.all(fullSql, [...params, pageSize, offset], (err, rows) => {
+            if (err) return reject(err);
+            resolve({
+              data: rows ?? [],
+              total,
+              page,
+              pageSize,
+            });
+          });
+        });
+      });
+    });
+  }
 
   async createTodo(
     todo: Omit<Todo, "id" | "createdAt" | "updatedAt">,

@@ -16,7 +16,9 @@
       "price_asc": "Prix (Croissant)",
       "price_desc": "Prix (Décroissant)",
       "stock_asc": "Stock (Croissant)",
-      "stock_desc": "Stock (Décroissant)"
+      "stock_desc": "Stock (Décroissant)",
+      "amount_asc": "Montant (Croissant)",
+      "amount_desc": "Montant (Décroissant)"
     },
     "op": {
       "eq": "Égal à",
@@ -28,7 +30,22 @@
     "today": "Aujourd'hui",
     "yesterday": "Hier",
     "this_week": "Cette semaine",
+    "this_month": "Ce mois-ci",
+    "all": "Tout",
     "all_sales": "Toutes les ventes",
+    "category": "Catégorie",
+    "recorded_by": "Enregistré par",
+    "amount": "Montant",
+    "approved": "Approuvé",
+    "pending": "En attente",
+    "active": "Actif",
+    "filter_options": "Options de filtre",
+    "select_category": "Sélectionner une catégorie",
+    "select_status": "Sélectionner un statut",
+    "clear": "Effacer",
+    "apply": "Appliquer",
+    "date": "Date",
+    "title": "Titre",
     "table": {
       "filters": "Filtres :",
       "clear_filters": "Effacer les filtres",
@@ -62,6 +79,12 @@
     "error": "Erreur lors de la vérification des mises à jour. Veuillez réessayer plus tard.",
     "download": "Télécharger la mise à jour",
     "install": "Redémarrer pour mettre à jour"
+  },
+  "expenses": {
+    "title": "Dépenses",
+    "description": "Gérez vos dépenses",
+    "page_title": "Dépenses",
+    "page_description": "Gérez vos dépenses et frais"
   },
   "clients": {
     "title": "Créer un client",

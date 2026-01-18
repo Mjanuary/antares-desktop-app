@@ -16,7 +16,9 @@
       "price_asc": "Price (Low -> High)",
       "price_desc": "Price (High -> Low)",
       "stock_asc": "Stock (Low -> High)",
-      "stock_desc": "Stock (High -> Low)"
+      "stock_desc": "Stock (High -> Low)",
+      "amount_asc": "Amount (Low -> High)",
+      "amount_desc": "Amount (High -> Low)"
     },
     "op": {
       "eq": "Equal to",
@@ -28,7 +30,22 @@
     "today": "Today",
     "yesterday": "Yesterday",
     "this_week": "This Week",
+    "this_month": "This Month",
+    "all": "All",
     "all_sales": "All Sales",
+    "category": "Category",
+    "recorded_by": "Recorded By",
+    "amount": "Amount",
+    "approved": "Approved",
+    "pending": "Pending",
+    "active": "Active",
+    "filter_options": "Filter Options",
+    "select_category": "Select Category",
+    "select_status": "Select Status",
+    "clear": "Clear",
+    "apply": "Apply",
+    "date": "Date",
+    "title": "Title",
     "table": {
       "filters": "Filters:",
       "clear_filters": "Clear filters",
@@ -54,6 +71,12 @@
     "paid": "Paid",
     "partially_paid": "Partially Paid",
     "unpaid": "Unpaid"
+  },
+  "expenses": {
+    "title": "Expenses",
+    "description": "Manage your expenses",
+    "page_title": "Expenses",
+    "page_description": "Manage your expenses and spendings"
   },
   "balances": {
     "page_title": "Balances List",
