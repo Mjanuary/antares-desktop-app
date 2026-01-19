@@ -58,15 +58,7 @@
       "search_placeholder": "Rechercher"
     }
   },
-  "todo": {
-    "add": "Ajouter une tâche",
-    "edit": "Modifier la tâche",
-    "delete": "Supprimer la tâche",
-    "completed": "Terminé",
-    "pending": "En attente",
-    "placeholder": "Qu'est-ce qui doit être fait ?",
-    "empty": "Aucune tâche pour le moment. Ajoutez-en une ci-dessus !"
-  },
+
   "actions": {
     "save": "Enregistrer",
     "cancel": "Annuler",

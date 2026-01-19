@@ -58,15 +58,7 @@
       "search_placeholder": "Search"
     }
   },
-  "todo": {
-    "add": "Add Todo",
-    "edit": "Edit Todo",
-    "delete": "Delete Todo",
-    "completed": "Completed",
-    "pending": "Pending",
-    "placeholder": "What needs to be done?",
-    "empty": "No todos yet. Add one above!"
-  },
+
   "actions": {
     "save": "Save",
     "paid": "Paid",

@@ -18,21 +18,6 @@ export const migrations: Migration[] = [
     `,
   },
   {
-    name: "create_todos_table",
-    sql: `
-      CREATE TABLE IF NOT EXISTS todos (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        title TEXT NOT NULL,
-        description TEXT,
-        completed BOOLEAN DEFAULT 0,
-        createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
-        updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP
-      );
-      
-      CREATE INDEX IF NOT EXISTS todos_completed_idx ON todos (completed);
-    `,
-  },
-  {
     name: "app_connect_table",
     sql: `
     CREATE TABLE IF NOT EXISTS app_connect (

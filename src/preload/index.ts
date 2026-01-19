@@ -1,13 +1,6 @@
 import { contextBridge, ipcRenderer } from "electron";
 
 contextBridge.exposeInMainWorld("electronAPI", {
-  // Todo operations
-  createTodo: (todo: any) => ipcRenderer.invoke("create-todo", todo),
-  getTodos: () => ipcRenderer.invoke("get-todos"),
-  updateTodo: (id: number, todo: any) =>
-    ipcRenderer.invoke("update-todo", id, todo),
-  deleteTodo: (id: number) => ipcRenderer.invoke("delete-todo", id),
-
   // Auth operation
   createAppConnection: (data: any) =>
     ipcRenderer.invoke("create-app-connection", data),

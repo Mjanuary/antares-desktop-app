@@ -1,5 +1,5 @@
 import { Database } from "sqlite3";
-import { Todo } from "../types/Todo";
+
 import { DeviceConnection } from "../types/auth.types";
 import { app } from "electron";
 import * as path from "path";
@@ -1485,96 +1485,6 @@ export class AppDatabase {
               pageSize,
             });
           });
-        });
-      });
-    });
-  }
-
-  async createTodo(
-    todo: Omit<Todo, "id" | "createdAt" | "updatedAt">,
-  ): Promise<Todo> {
-    return this.perform(async () => {
-      return new Promise((resolve, reject) => {
-        this.db.run(
-          "INSERT INTO todos (title, description, completed) VALUES (?, ?, ?)",
-          [todo.title, todo.description, todo.completed ? 1 : 0],
-          function (err) {
-            if (err) reject(err);
-            else
-              resolve({
-                id: this.lastID,
-                ...todo,
-                createdAt: new Date(),
-                updatedAt: new Date(),
-              });
-          },
-        );
-      });
-    });
-  }
-
-  async getTodos(): Promise<Todo[]> {
-    return this.perform(async () => {
-      return new Promise((resolve, reject) => {
-        this.db.all(
-          "SELECT * FROM todos ORDER BY createdAt DESC",
-          (err, rows) => {
-            if (err) reject(err);
-            else {
-              const todos = rows.map((row: any) => ({
-                ...row,
-                completed: Boolean(row.completed),
-                createdAt: new Date(row.createdAt),
-                updatedAt: new Date(row.updatedAt),
-              }));
-              resolve(todos as Todo[]);
-            }
-          },
-        );
-      });
-    });
-  }
-
-  async updateTodo(id: number, todo: Partial<Todo>): Promise<void> {
-    return this.perform(async () => {
-      const updates: string[] = [];
-      const values: any[] = [];
-
-      if (todo.title !== undefined) {
-        updates.push("title = ?");
-        values.push(todo.title);
-      }
-      if (todo.description !== undefined) {
-        updates.push("description = ?");
-        values.push(todo.description);
-      }
-      if (todo.completed !== undefined) {
-        updates.push("completed = ?");
-        values.push(todo.completed ? 1 : 0);
-      }
-
-      updates.push("updatedAt = CURRENT_TIMESTAMP");
-      values.push(id);
-
-      return new Promise((resolve, reject) => {
-        this.db.run(
-          `UPDATE todos SET ${updates.join(", ")} WHERE id = ?`,
-          values,
-          (err) => {
-            if (err) reject(err);
-            else resolve();
-          },
-        );
-      });
-    });
-  }
-
-  async deleteTodo(id: number): Promise<void> {
-    return this.perform(async () => {
-      return new Promise((resolve, reject) => {
-        this.db.run("DELETE FROM todos WHERE id = ?", [id], (err) => {
-          if (err) reject(err);
-          else resolve();
         });
       });
     });

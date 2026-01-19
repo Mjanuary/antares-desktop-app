@@ -74,23 +74,6 @@ export function setupIPC() {
     return await db.getCategories();
   });
 
-  // Todo operations
-  ipcMain.handle("create-todo", async (_, todo) => {
-    return await db.createTodo(todo);
-  });
-
-  ipcMain.handle("get-todos", async () => {
-    return await db.getTodos();
-  });
-
-  ipcMain.handle("update-todo", async (_, id, todo) => {
-    return await db.updateTodo(id, todo);
-  });
-
-  ipcMain.handle("delete-todo", async (_, id) => {
-    return await db.deleteTodo(id);
-  });
-
   // Connections operations ----------------------------------------------
   ipcMain.handle("create-app-connection", async (_, data) => {
     return await db.createDeviceConnection(data);

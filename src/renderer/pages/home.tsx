@@ -1,8 +1,4 @@
-import React, { useState, useEffect } from "react";
-import { Todo } from "@/types/Todo";
-import { Input } from "../components/ui/input";
-import { Textarea } from "../components/ui/textarea";
-import { Button } from "../components/ui/button";
+import React from "react";
 
 const MinimizeIcon = () => (
   <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
@@ -31,43 +27,6 @@ const CloseIcon = () => (
 );
 
 export const Home: React.FC = () => {
-  const [todos, setTodos] = useState<Todo[]>([]);
-  const [newTodo, setNewTodo] = useState({ title: "", description: "" });
-
-  useEffect(() => {
-    loadTodos();
-  }, []);
-
-  const loadTodos = async () => {
-    const todos = await window.electronAPI.getTodos();
-    console.log("Loaded todos:", todos);
-    setTodos(todos);
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newTodo.title.trim()) return;
-
-    await window.electronAPI.createTodo({
-      ...newTodo,
-      completed: false,
-    });
-    setNewTodo({ title: "", description: "" });
-    loadTodos();
-  };
-
-  const toggleTodo = async (todo: Todo) => {
-    await window.electronAPI.updateTodo(todo.id, {
-      completed: !todo.completed,
-    });
-    loadTodos();
-  };
-
-  const deleteTodo = async (id: number) => {
-    await window.electronAPI.deleteTodo(id);
-    loadTodos();
-  };
-
   return (
     <div className="flex-grow">
       {/* AppBar */}
@@ -101,97 +60,13 @@ export const Home: React.FC = () => {
       </header>
 
       {/* Container */}
-      <main className="max-w-sm mx-auto mt-4 px-4">
-        <form onSubmit={handleSubmit}>
-          <div className="mb-4">
-            <label
-              htmlFor="title"
-              className="block text-sm font-medium text-gray-700 mb-1"
-            >
-              Title
-            </label>
-
-            <Input
-              id="title"
-              value={newTodo.title}
-              onChange={(e) =>
-                setNewTodo({ ...newTodo, title: e.target.value })
-              }
-            />
-          </div>
-
-          <div className="mb-4">
-            <label
-              htmlFor="description"
-              className="block text-sm font-medium text-gray-700 mb-1"
-            >
-              Description
-            </label>
-
-            <Textarea
-              id="description"
-              value={newTodo.description}
-              onChange={(e) =>
-                setNewTodo({ ...newTodo, description: e.target.value })
-              }
-            />
-          </div>
-
-          <Button
-            type="submit"
-            variant="primary"
-            // className="mt-2 w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-          >
-            Add Todo
-          </Button>
-        </form>
-
-        {/* List */}
-        <ul className="mt-8 space-y-3">
-          {todos.map((todo) => (
-            <li
-              key={todo.id}
-              className="flex items-center justify-between p-3 bg-white-- shadow rounded-md"
-            >
-              <div className="flex items-center">
-                <input
-                  type="checkbox"
-                  id={`todo-${todo.id}`}
-                  className="h-5 w-5 text-blue-600 bg-transparent border-gray-300 rounded focus:ring-blue-500 mr-3"
-                  checked={todo.completed}
-                  onChange={() => toggleTodo(todo)}
-                />
-
-                <div>
-                  <label
-                    htmlFor={`todo-${todo.id}`}
-                    className={`block text-lg font-medium text-gray-900 cursor-pointer ${
-                      todo.completed ? "line-through text-gray-500" : ""
-                    }`}
-                  >
-                    {todo.title}
-                  </label>
-                  {todo.description && (
-                    <p
-                      className={`text-sm text-gray-600 ${
-                        todo.completed ? "line-through text-gray-400" : ""
-                      }`}
-                    >
-                      {todo.description}
-                    </p>
-                  )}
-                </div>
-              </div>
-              <button
-                onClick={() => deleteTodo(todo.id)}
-                className="ml-4 px-3 py-1 text-sm font-medium text-red-600 hover:text-red-800 hover:bg-red-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-red-500"
-                aria-label={`Delete todo: ${todo.title}`}
-              >
-                Delete
-              </button>
-            </li>
-          ))}
-        </ul>
+      <main className="max-w-7xl mx-auto mt-4 px-4">
+        <div className="p-4">
+          <h2 className="text-2xl font-bold mb-4">Welcome to Antares</h2>
+          <p className="text-gray-600">
+            Select an app from the sidebar to get started.
+          </p>
+        </div>
       </main>
     </div>
   );
