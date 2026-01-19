@@ -17,4 +17,8 @@ export enum RouterPages {
   Houses = "houses",
   Products = "products",
   Sales = "sales",
+  Expenses = "expenses",
+  Deposits = "deposits",
+  Sync = "sync",
+  Balances = "balances",
 }

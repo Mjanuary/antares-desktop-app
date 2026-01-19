@@ -28,17 +28,27 @@ const menuApps = [
   {
     icon: <MdOutlinePointOfSale />,
     label: "Balances",
-    nav: "balances",
+    nav: RouterPages.Balances,
   },
   {
     icon: <MdOutlinePointOfSale />,
     label: "Expenses",
-    nav: "expenses",
+    nav: RouterPages.Expenses,
   },
   {
     icon: <MdOutlinePointOfSale />,
     label: "Deposits",
-    nav: "deposits",
+    nav: RouterPages.Deposits,
+  },
+  {
+    icon: <MdOutlinePointOfSale />,
+    label: "Sync",
+    nav: RouterPages.Sync,
+  },
+  {
+    icon: <MdOutlinePointOfSale />,
+    label: "Settings",
+    nav: RouterPages.Settings,
   },
 ];
 
@@ -49,8 +59,8 @@ const AppsMenu: FunctionComponent<{ onClose: () => void }> = ({ onClose }) => {
         className="fixed top-0 bottom-0 right-2 left-[70px] z-[11111] backdrop-blur-sm bg-gray-900/10"
         onClick={onClose}
       />
-      <div className="fixed max-w-[500px] h-[70vh] bottom-4 left-[80px] border border-white/30 rounded-lg z-[1111111] flex bg-overlay backdrop-blur-lg flex-col">
-        <div className="flex items-center justify-between px-4 border-b gap-2 py-2 border-b-white/10">
+      <div className="fixed max-w-[500px] h-[70vh] max-h-[500px] bottom-4 left-[80px] border border-white/30 rounded-lg z-[1111111] flex bg-overlay backdrop-blur-lg flex-col">
+        <div className="flex items-center justify-between px-4 border-b gap-4 py-2 border-b-white/10">
           <div className="flex items-center gap-2">
             <h2 className="text-lg font-semibold">Apps Menu</h2>
           </div>
