@@ -189,5 +189,18 @@
       "paid": "Paid",
       "balance": "Balance"
     }
+  },
+  "sidebar": {
+    "sales": "Sales",
+    "products": "Products",
+    "balance": "Balance",
+    "spending": "Spending",
+    "profile": "Profile",
+    "sync": "Sync",
+    "houses": "Houses",
+    "clients": "Clients",
+    "deposits": "Deposits",
+    "settings": "Settings",
+    "apps_menu": "Apps Menu"
   }
 }

@@ -80,8 +80,7 @@ function App() {
               />
 
               <AppTopBar
-                onBack={() => setSelectedNav("")}
-                title="Roles Management"
+                title="Antares"
                 onSaleClick={() => console.log("Sale clicked here")}
                 onSubmitSearch={(e) => console.log(e)}
                 tabs={[
@@ -133,10 +132,19 @@ function App() {
                   path={`/${RouterPages.Products}`}
                   element={<ProductsPage />}
                 />
-                <Route path="/sales" element={<SalesPage />} />
-                <Route path="/balances" element={<BalancesPage />} />
-                <Route path="/expenses" element={<ExpensesPage />} />
-                <Route path="/deposits" element={<DepositsPage />} />
+                <Route path={`/${RouterPages.Sales}`} element={<SalesPage />} />
+                <Route
+                  path={`/${RouterPages.Balances}`}
+                  element={<BalancesPage />}
+                />
+                <Route
+                  path={`/${RouterPages.Expenses}`}
+                  element={<ExpensesPage />}
+                />
+                <Route
+                  path={`/${RouterPages.Deposits}`}
+                  element={<DepositsPage />}
+                />
               </Routes>
             </div>
           ) : (

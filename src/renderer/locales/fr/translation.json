@@ -165,5 +165,18 @@
       "paid": "Payé",
       "balance": "Solde"
     }
+  },
+  "sidebar": {
+    "sales": "Ventes",
+    "products": "Produits",
+    "balance": "Solde",
+    "spending": "Dépenses",
+    "profile": "Profil",
+    "sync": "Sync",
+    "houses": "Maisons",
+    "clients": "Clients",
+    "deposits": "Dépôts",
+    "settings": "Paramètres",
+    "apps_menu": "Menu Applications"
   }
 }

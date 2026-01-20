@@ -1,6 +1,6 @@
 import { FunctionComponent, useState } from "react";
 import {
-  MdArrowBack,
+  // MdArrowBack,
   MdBarcodeReader,
   MdShoppingBasket,
   MdOutlineOpenInFull,
@@ -20,20 +20,20 @@ const AppTopBar: FunctionComponent<{
   }[];
   onSubmitSearch?: (query: string) => void;
   onSaleClick?: () => void;
-}> = ({ onBack, title, tabs, onSubmitSearch, onSaleClick }) => {
+}> = ({ title, tabs, onSubmitSearch, onSaleClick }) => {
   const [search, setSearch] = useState("");
   return (
     <div className="bg-overlay pl-16 border-b justify-between sticky top-0 z-30 border-gray-700 flex items-center h-[50px]">
       <div className="flex items-center gap-2 pr-3 pl-2">
-        <div className="py-2 pl-2">
+        {/* <div className="py-2 pl-2">
           <Button size="icon-sm-rounded" variant="secondary" onClick={onBack}>
             <>
               <MdArrowBack className="text-lg" />
             </>
           </Button>
-        </div>
+        </div> */}
         <div>
-          <h2 className="text-lg">{title}</h2>
+          <h2 className="text-lg pl-3">{title}</h2>
         </div>
       </div>
 
