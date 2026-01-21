@@ -1,12 +1,12 @@
 import { useEffect, useState, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { FaFilter, FaSync, FaArrowLeft, FaArrowRight } from "react-icons/fa";
-import CustomTable, { ColumnType } from "../components/custom-table";
-import { Badge } from "../components/ui/badge";
-import { SelectInput } from "../components/select-input";
-import { Button } from "../components/ui/button";
+import CustomTable, { ColumnType } from "../../components/custom-table";
+import { Badge } from "../../components/ui/badge";
+import { SelectInput } from "../../components/select-input";
+import { Button } from "../../components/ui/button";
 import { format } from "date-fns";
-import { ExpensesFilterModal } from "./components/expense-filter-modal";
+import { ExpensesFilterModal } from "./expense-filter-modal";
 
 interface SpendingType {
   id: string;

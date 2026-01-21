@@ -15,7 +15,7 @@ import HousesPage from "./pages/houses/houses";
 import ProductsPage from "./pages/products/products";
 import SalesPage from "./pages/sales/sales";
 import BalancesPage from "./pages/balances";
-import ExpensesPage from "./pages/expenses";
+import ExpensesPage from "./pages/expences/expenses";
 import DepositsPage from "./pages/deposits";
 import { RouterPages } from "../types/pages.types";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
