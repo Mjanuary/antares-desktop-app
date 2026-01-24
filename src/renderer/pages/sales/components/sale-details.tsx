@@ -3,7 +3,6 @@ import { MdAccountCircle, MdPrint } from "react-icons/md";
 import { RiBankFill } from "react-icons/ri";
 import { useState } from "react";
 import { Badge } from "../../../components/ui/badge";
-// import { numberReadFormat, dateFormat } from "../../utils";
 import { Button } from "../../../components/ui/button";
 import { SaleBalanceCard } from "../../../components/sales-components/balance-sales-card";
 import { DeleteDiverSale } from "../../../components/sales-components/delete-diver-sale";

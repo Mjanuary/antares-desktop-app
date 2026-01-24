@@ -778,6 +778,73 @@ export class AppDatabase {
   // SALES
   // ********************************************
 
+  async getSaleDetails(saleId: string): Promise<{
+    sale_details: any;
+    products: any[];
+    balances: any[];
+  } | null> {
+    return this.perform(async () => {
+      // 1. Get Sale Details + Joins
+      const saleDetails = await new Promise<any>((resolve, reject) => {
+        const sql = `
+          SELECT 
+            s.*,
+            c.names as client_name,
+            c.phone_number as client_phone,
+            u.name as recorded_by_name,
+            h.name as house_name,
+            h.address as house_address,
+            h.country as house_location
+          FROM sales s
+          LEFT JOIN clients c ON s.client_id = c.id
+          LEFT JOIN users u ON s.recorded_by = u.id
+          LEFT JOIN houses h ON s.house_id = h.id
+          WHERE s.id = ?
+        `;
+        this.db.get(sql, [saleId], (err, row) => {
+          if (err) reject(err);
+          else resolve(row);
+        });
+      });
+
+      if (!saleDetails) return null;
+
+      // 2. Get Products (Sales Items + Products Join)
+      const products = await new Promise<any[]>((resolve, reject) => {
+        const sql = `
+          SELECT 
+            si.*,
+            p.name as product_name,
+            p.local_image_filename
+          FROM sales_items si
+          LEFT JOIN products p ON si.product_id = p.product_id
+          WHERE si.sale_id = ?
+        `;
+        this.db.all(sql, [saleId], (err, rows) => {
+          if (err) reject(err);
+          else resolve(rows ?? []);
+        });
+      });
+
+      // 3. Get Balances
+      const balances = await new Promise<any[]>((resolve, reject) => {
+        const sql = `
+          SELECT * FROM balances WHERE sale_id = ?
+        `;
+        this.db.all(sql, [saleId], (err, rows) => {
+          if (err) reject(err);
+          else resolve(rows ?? []);
+        });
+      });
+
+      return {
+        sale_details: saleDetails,
+        products,
+        balances,
+      };
+    });
+  }
+
   async getSales(
     page: number = 1,
     pageSize: number = 40,

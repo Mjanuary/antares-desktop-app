@@ -93,6 +93,12 @@ declare global {
         pageSize: number;
       }>;
 
+      getSaleDetails: (saleId: string) => Promise<{
+        sale_details: any;
+        products: any[];
+        balances: any[];
+      } | null>;
+
       getSpendings: (
         page?: number,
         pageSize?: number,

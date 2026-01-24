@@ -70,6 +70,10 @@ export function setupIPC() {
     return await db.getSales(page, pageSize, search, filters);
   });
 
+  ipcMain.handle("get-sale-details", async (_, saleId) => {
+    return await db.getSaleDetails(saleId);
+  });
+
   ipcMain.handle("get-categories", async () => {
     return await db.getCategories();
   });

@@ -7,6 +7,7 @@ import { SelectInput } from "../../components/select-input";
 import { Button } from "../../components/ui/button";
 import { format } from "date-fns";
 import { SalesFilterModal } from "./components/sales-filter-modal";
+import { SaleDetails } from "./components/sale-details";
 
 // We can define types locally or in a shared types file
 // For now, let's define them here based on the schema
@@ -67,6 +68,9 @@ const SalesPage = () => {
   const [total, setTotal] = useState(0);
   const [searchText, setSearchText] = useState("");
   const [sortBy, setSortBy] = useState("s.transaction_date DESC");
+
+  // sale selected id
+  const [selectedSaleId, setSelectedSaleId] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchDropdownData = async () => {
@@ -253,7 +257,25 @@ const SalesPage = () => {
       label: t("common.status"),
       render: (row) => <Badge variant="outline">{row.sync_status}</Badge>,
     },
+    {
+      key: "",
+      render: (row) => (
+        <Button
+          onClick={() => setSelectedSaleId(row.id)}
+          variant="outline"
+          size="sm"
+        >
+          {t("common.view")}
+        </Button>
+      ),
+    },
   ];
+
+  // sale details
+
+  if (selectedSaleId) {
+    return <SaleDetails saleId={selectedSaleId} />;
+  }
 
   return (
     <>
