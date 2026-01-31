@@ -156,8 +156,16 @@
       "code": "Code",
       "category": "Category",
       "price": "Price",
+      "price_usd": "Price USD",
+      "price_cdf": "Price CDF",
+      "price_rwf": "Price RWF",
       "stock": "Stock",
       "options": "Options",
+      "sale_product": "Sale",
+      "view": "View",
+      "custom": "Custom",
+      "is_printable": "Printable",
+      "colors": "Colors",
       "status": "Sync Status"
     },
     "filters": {
@@ -175,6 +183,29 @@
       "price_cdf": "Price CDF",
       "price_rwf": "Price RWF",
       "all": "All"
+    },
+    "details": {
+      "prices": "Prices",
+      "price_usd": "Price USD",
+      "price_cdf": "Price CDF",
+      "price_rwf": "Price RWF",
+      "product_colors": "Product Colors",
+      "paper_color": "Paper Color",
+      "name": "Product Name",
+      "category": "Product Category",
+      "sub_category": "Product Sub Category",
+      "code": "Product Code",
+      "style": "Product Style",
+      "status": "Product Status",
+      "created_at": "Created Date",
+      "description": "Description",
+      "notes": "Notes",
+      "paper_sizes": "Paper Sizes",
+      "custom": "Custom",
+      "default": "Default",
+      "active": "Active",
+      "disabled": "Disabled",
+      "na": "N/A"
     }
   },
   "sales": {

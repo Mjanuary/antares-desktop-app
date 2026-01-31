@@ -132,8 +132,16 @@
       "code": "Code",
       "category": "Catégorie",
       "price": "Prix",
+      "price_usd": "Prix USD",
+      "price_cdf": "Prix CDF",
+      "price_rwf": "Prix RWF",
       "stock": "Stock",
       "options": "Options",
+      "sale_product": "Vente",
+      "view": "Voir",
+      "custom": "Personnalisé",
+      "is_printable": "Imprimable",
+      "colors": "Couleurs",
       "status": "Statut Sync"
     },
     "filters": {
@@ -151,6 +159,29 @@
       "price_cdf": "Prix CDF",
       "price_rwf": "Prix RWF",
       "all": "Tout"
+    },
+    "details": {
+      "prices": "Prix",
+      "price_usd": "Prix USD",
+      "price_cdf": "Prix CDF",
+      "price_rwf": "Prix RWF",
+      "product_colors": "Couleurs du produit",
+      "paper_color": "Couleur du papier",
+      "name": "Nom du produit",
+      "category": "Catégorie du produit",
+      "sub_category": "Sous-catégorie du produit",
+      "code": "Code produit",
+      "style": "Style du produit",
+      "status": "Statut du produit",
+      "created_at": "Date de création",
+      "description": "Description",
+      "notes": "Notes",
+      "paper_sizes": "Tailles de papier",
+      "custom": "Personnalisé",
+      "default": "Défaut",
+      "active": "Actif",
+      "disabled": "Désactivé",
+      "na": "N/A"
     }
   },
   "sales": {

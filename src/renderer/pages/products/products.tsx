@@ -93,57 +93,58 @@ const ProductsPage = () => {
           </div>
         ) : null,
     },
-    { key: "name", label: t("products.columns.name") },
     {
-      key: "code",
-      label: t("products.columns.code"),
+      key: "name",
+      label: t("products.columns.name"),
       render: (row) => (
-        <div className="flex flex-col text-xs">
-          {row.code && <span>C: {row.code}</span>}
-          {row.bar_code && <span>B: {row.bar_code}</span>}
+        <div className="flex flex-col gap-1">
+          <span>{row.name}</span>
+          <span className="text-xs text-gray-200">{row.code}</span>
         </div>
       ),
     },
     { key: "category_name", label: t("products.columns.category") },
     {
       key: "price_USD",
-      label: t("products.columns.price"),
+      label: t("products.columns.price_usd"),
       render: (row) => (
-        <div className="flex flex-col text-xs whitespace-nowrap">
+        <div className="flex whitespace-nowrap">
           <span>{row.price_USD} $</span>
-          <span>{row.price_RWF} RWF</span>
+        </div>
+      ),
+    },
+    {
+      key: "price_CDF",
+      label: t("products.columns.price_cdf"),
+      render: (row) => (
+        <div className="flex whitespace-nowrap">
           <span>{row.price_CDF} FC</span>
         </div>
       ),
     },
-    { key: "stock_quantity", label: t("products.columns.stock") },
     {
-      key: "is_printable",
-      label: t("products.columns.options"),
+      key: "price_RWF",
+      label: t("products.columns.price_rwf"),
       render: (row) => (
-        <div className="flex gap-1">
-          {row.is_printable ? (
-            <Badge variant="default" className="text-[10px]">
-              Print
-            </Badge>
-          ) : null}
-          {row.custom_diver ? (
-            <Badge variant="default" className="text-[10px]">
-              Custom
-            </Badge>
-          ) : null}
+        <div className="flex whitespace-nowrap">
+          <span>{row.price_RWF} RWF</span>
         </div>
       ),
     },
+
+    { key: "stock_quantity", label: t("products.columns.stock") },
     {
-      width: "10px",
-      tdClassName: "w-[10px] whitespace-nowrap",
       key: "",
-      label: t("products.columns.status"),
-      render: (row) => <Badge variant="outline">{row.sync_status}</Badge>,
+      width: "10px",
+      render: (row) => (
+        <Button variant="outline" size="sm">
+          {t("products.columns.sale_product")}
+        </Button>
+      ),
     },
     {
       key: "",
+      width: "10px",
       render: (row) => (
         <Button
           variant="primary-light"
@@ -275,19 +276,19 @@ const ProductsPage = () => {
             filtersDisplay={[
               {
                 key: "price_CDF",
-                text: `${t("products.columns.price_CDF")}: ${filters.price_CDF?.op} ${filters.price_CDF?.value}`,
+                text: `${t("products.columns.price_cdf")}: ${filters.price_CDF?.op} ${filters.price_CDF?.value}`,
                 showClose: false,
                 visible: !!filters.price_CDF,
               },
               {
                 key: "price_USD",
-                text: `${t("products.columns.price_USD")}: ${filters.price_USD?.value}`,
+                text: `${t("products.columns.price_usd")}: ${filters.price_USD?.value}`,
                 showClose: false,
                 visible: !!filters.price_USD,
               },
               {
                 key: "price_RWF",
-                text: `${t("products.columns.price_RWF")}: ${filters.price_RWF?.value}`,
+                text: `${t("products.columns.price_rwf")}: ${filters.price_RWF?.value}`,
                 showClose: false,
                 visible: !!filters.price_RWF,
               },

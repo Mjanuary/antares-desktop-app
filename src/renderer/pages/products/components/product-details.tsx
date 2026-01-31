@@ -111,19 +111,21 @@ export const ProductDetails: React.FC<{
           </div>
           <div className="flex-1 p-4">
             {/* // product prices */}
-            <h2 className="text-md px-2 pt-2 opacity-70">{t("prices")}</h2>
+            <h2 className="text-md px-2 pt-2 opacity-70">
+              {t("products.details.prices")}
+            </h2>
             <div className="mx-2 border overflow-hidden border-color-theme rounded-xl">
               {[
                 {
-                  label: t("price-usd"),
+                  label: t("products.details.price_usd"),
                   value: product.price_USD,
                 },
                 {
-                  label: t("price-cdf"),
+                  label: t("products.details.price_cdf"),
                   value: product.price_CDF,
                 },
                 {
-                  label: t("price-rwf"),
+                  label: t("products.details.price_rwf"),
                   value: product.price_RWF,
                 },
               ].map(({ label, value }) => {
@@ -149,7 +151,7 @@ export const ProductDetails: React.FC<{
               {productColors?.length > 0 && (
                 <div className="border-b border-color-theme flex items-center gap-2 px-2 pl-3">
                   <div className="text-sm opacity-70">
-                    {t("product-colors")}
+                    {t("products.details.product_colors")}
                   </div>
                   <div className="flex gap-2 p-2">
                     {productColors?.map((el) => {
@@ -163,7 +165,9 @@ export const ProductDetails: React.FC<{
 
               {paperColors?.length > 0 && (
                 <div className=" flex items-center gap-2 px-2 pl-3">
-                  <div className="text-sm opacity-70">{t("paper-color")}</div>
+                  <div className="text-sm opacity-70">
+                    {t("products.details.paper_color")}
+                  </div>
                   <div className="flex gap-2 p-2">
                     {paperColors?.map((el) => {
                       const color = getColorByKeyword(el);
@@ -180,31 +184,35 @@ export const ProductDetails: React.FC<{
           <div className="mx-2 border  border-color-theme rounded-xl">
             {[
               {
-                label: t("product-name"),
-                value: product.name || "N/A",
+                label: t("products.details.name"),
+                value: product.name || t("products.details.na"),
               },
               {
-                label: t("product-category"),
+                label: t("products.details.category"),
                 value: product.category_name,
               },
               {
-                label: t("product-sub-category"),
+                label: t("products.details.sub_category"),
                 value: product.sub_category_name,
               },
               {
-                label: t("product-code"),
+                label: t("products.details.code"),
                 value: product.code,
               },
               {
-                label: t("product-style"),
-                value: product?.custom_diver ? "Custom" : "Default",
+                label: t("products.details.style"),
+                value: product?.custom_diver
+                  ? t("products.details.custom")
+                  : t("products.details.default"),
               },
               {
-                label: t("product-status"),
-                value: product?.product_active ? "Active" : "Disabled",
+                label: t("products.details.status"),
+                value: product?.product_active
+                  ? t("products.details.active")
+                  : t("products.details.disabled"),
               },
               {
-                label: t("c-date"),
+                label: t("products.details.created_at"),
                 value: dateFormat(product.created_time),
               },
             ].map(({ label, value }) => {
@@ -224,16 +232,16 @@ export const ProductDetails: React.FC<{
 
             <div className="p-2 lg:px-4 border-b border-color-theme">
               <label className=" block m-0 text-xs opacity-60">
-                {t("desc")}:
+                {t("products.details.description")}:
               </label>
-              <p>{product.description || "N/A"}</p>
+              <p>{product.description || t("products.details.na")}</p>
             </div>
 
             <div className="p-2 lg:px-4">
               <label className=" block m-0 text-xs opacity-50">
-                {t("nt")}:
+                {t("products.details.notes")}:
               </label>
-              <p>{product.notes || "N/A"}</p>
+              <p>{product.notes || t("products.details.na")}</p>
             </div>
           </div>
         </div>
@@ -244,7 +252,7 @@ export const ProductDetails: React.FC<{
         </div>
 
         <div className="pt-2 pb-4">
-          <h3 className={titleStyle}>{t("paper-sizes")}</h3>
+          <h3 className={titleStyle}>{t("products.details.paper_sizes")}</h3>
           <div className="m-2 border border-color-theme rounded-lg overflow-hidden">
             <ProductPaperList
               sizes={paperSizes as unknown as PaperSizeType[]}
