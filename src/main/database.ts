@@ -789,7 +789,7 @@ export class AppDatabase {
         const sql = `
           SELECT 
             s.*,
-            c.names as client_name,
+            c.names as client_name_db,
             c.phone_number as client_phone,
             u.name as recorded_by_name,
             h.name as house_name,
@@ -1107,6 +1107,27 @@ export class AppDatabase {
               pageSize,
             });
           });
+        });
+      });
+    });
+  }
+
+  async getProductDetails(productId: string): Promise<any | null> {
+    return this.perform(async () => {
+      return new Promise((resolve, reject) => {
+        const sql = `
+          SELECT 
+            p.*, 
+            c.name as category_name,
+            sc.name as sub_category_name
+          FROM products p
+          LEFT JOIN categories c ON p.diver_category_id = c.id
+          LEFT JOIN sub_categories sc ON p.diver_sub_category_id = sc.id
+          WHERE p.product_id = ?
+        `;
+        this.db.get(sql, [productId], (err, row) => {
+          if (err) reject(err);
+          else resolve(row ?? null);
         });
       });
     });

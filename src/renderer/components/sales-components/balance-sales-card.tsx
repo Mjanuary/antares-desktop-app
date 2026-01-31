@@ -16,15 +16,12 @@ export const SaleBalanceCard: FunctionComponent<{
       </span>
 
       <div
-        className={classNames(
-          "border   rounded-lg items-center gap-3 lg:gap-0",
-          {
-            "border-yellow-500/50 bg-yellow-500/5":
-              balance.balance_status !== "COMPLETED",
-            "border-green-500/50 bg-green-500/5":
-              balance.balance_status === "COMPLETED",
-          },
-        )}
+        className={classNames("border rounded-lg items-center gap-3 lg:gap-0", {
+          "border-yellow-500/50 bg-yellow-500/5":
+            balance.balance_status !== "COMPLETED",
+          "border-green-500/50 bg-green-500/5":
+            balance.balance_status === "COMPLETED",
+        })}
       >
         <div className={"grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 px-4"}>
           {[
@@ -85,15 +82,15 @@ export const SaleBalanceCard: FunctionComponent<{
             },
           )}
         >
-          <div className="items-center lg:gap-1 flex-col lg:flex-row flex">
+          <div className="items-center lg:gap-1 flex-col flex">
             <span className="text-xs opacity-80">{t("balance-status")}:</span>
             <b>{balance.balance_status}</b>{" "}
           </div>
-          <div className="items-center lg:gap-1 flex-col lg:flex-row flex">
+          <div className="items-center lg:gap-1 flex-col flex">
             <span className="text-xs opacity-80">{t("pay-date")}:</span>
             <b>{dateFormat(balance.pay_date)}</b>{" "}
           </div>
-          <div className="items-center lg:gap-1 flex-col lg:flex-row flex">
+          <div className="items-center lg:gap-1 flex-col flex">
             <span className="text-xs opacity-80">{t("create-balance")}:</span>
             <b>{dateFormat(balance.created_date)}</b>{" "}
           </div>

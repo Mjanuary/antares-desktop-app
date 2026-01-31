@@ -11,6 +11,7 @@ import {
   ProductFilters,
 } from "../../../types/app.logic.types";
 import { ProductFilterModal } from "./components/product-filter-modal";
+import { ProductDetails } from "./components/product-details";
 
 const ProductsPage = () => {
   const { t } = useTranslation();
@@ -27,6 +28,10 @@ const ProductsPage = () => {
 
   const [filters, setFilters] = useState<ProductFilters>({});
   const [categories, setCategories] = useState<any[]>([]);
+
+  const [selectedProductId, setSelectedProductId] = useState<string | null>(
+    null,
+  );
 
   const handleSearch = useCallback((term: string) => {
     setSearchText(term);
@@ -137,12 +142,33 @@ const ProductsPage = () => {
       label: t("products.columns.status"),
       render: (row) => <Badge variant="outline">{row.sync_status}</Badge>,
     },
+    {
+      key: "",
+      render: (row) => (
+        <Button
+          variant="primary-light"
+          size="sm"
+          onClick={() => setSelectedProductId(row.product_id)}
+        >
+          {t("products.columns.view")}
+        </Button>
+      ),
+    },
   ];
 
   const updateFilter = (key: keyof ProductFilters, value: any) => {
     setFilters((prev) => ({ ...prev, [key]: value }));
     setPage(1);
   };
+
+  if (selectedProductId) {
+    return (
+      <ProductDetails
+        productId={selectedProductId}
+        onClose={() => setSelectedProductId(null)}
+      />
+    );
+  }
 
   return (
     <>

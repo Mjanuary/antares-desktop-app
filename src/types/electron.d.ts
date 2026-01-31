@@ -51,6 +51,8 @@ declare global {
         pageSize: number;
       }>;
 
+      getProductDetails: (productId: string) => Promise<any | null>;
+
       // Balances
       getBalances: (
         page?: number,

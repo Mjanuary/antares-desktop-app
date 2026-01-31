@@ -274,7 +274,12 @@ const SalesPage = () => {
   // sale details
 
   if (selectedSaleId) {
-    return <SaleDetails saleId={selectedSaleId} />;
+    return (
+      <SaleDetails
+        saleId={selectedSaleId}
+        onClose={() => setSelectedSaleId(null)}
+      />
+    );
   }
 
   return (

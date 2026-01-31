@@ -1,332 +1,204 @@
-import { FaReceipt } from "react-icons/fa";
-import { MdAccountCircle, MdPrint } from "react-icons/md";
+import React, { FunctionComponent, useEffect, useState } from "react";
+import { MdAccountCircle, MdArrowBack, MdClose, MdPrint } from "react-icons/md";
 import { RiBankFill } from "react-icons/ri";
-import { useState } from "react";
+import { SaleBalanceCard } from "../../../components/sales-components/balance-sales-card";
 import { Badge } from "../../../components/ui/badge";
 import { Button } from "../../../components/ui/button";
-import { SaleBalanceCard } from "../../../components/sales-components/balance-sales-card";
-import { DeleteDiverSale } from "../../../components/sales-components/delete-diver-sale";
-import {
-  BalanceProductType,
-  BalanceStatusEnum,
-  BalanceType,
-  BranchType,
-  CurrencyEnum,
-  DiverCategoryType,
-  DiversSaleItemType,
-  DiversSalesType,
-  DiverSubCategoryType,
-  DiverType,
-  HouseType,
-} from "../../../../types/app.logic.types";
 import { dateFormat, numberReadFormat } from "../../../utils/client-utils";
+import { BalanceType, CurrencyEnum } from "../../../../types/app.logic.types";
+import classNames from "classnames";
+import { TopNavigation } from "../../../components/top-navigation";
 
-interface MyComponentProps {
-  params: {
-    saleId: string;
-  };
+interface SaleDetail {
+  id: string;
+  parent_sale_id: string | null;
+  branch_id: string;
+  client_id: string | null;
+  client_name: string | null;
+  client_name_db: string | null;
+  client_phone: string | null;
+  house_id: string;
+  transaction_date: string;
+  payment_currency: string;
+  branch_currency: string;
+  price_total: number;
+  price_total_bc: number;
+  rate_RWF: number;
+  rate_CDF: number;
+  payed_USD: number;
+  payed_CDF: number;
+  payed_RWF: number;
+  total_payed_cash: number;
+  total_payed_cash_bc: number;
+  balance: number;
+  balance_bc: number;
+  comment: string;
+  deposit_id: string | null;
+  receipt_id: string | null;
+  total_products: number;
+  recorded_by: string;
+  app_connection: string | null;
+  row_version: number;
+  row_deleted: string | null;
+  created_time: string;
+  updated_time: string;
+  sync_status: string;
+  recorded_by_name: string;
+  house_name: string;
+  house_address: string;
+  house_location: string;
 }
 
-const balance: BalanceType = {
-  id: "id-here",
-  balance_parent_id: "z.string().nullable()",
-  client_name: " z.string()",
-  product_type: BalanceProductType.DIVERS,
-  product_id: "z.string().nullable()",
-  payment_currency: CurrencyEnum.CDF,
-  branch_currency: CurrencyEnum.CDF,
-  rate_RWF: 1232,
-  rate_CDF: 1232,
-  amount: 1232,
-  amount_bc: 1232,
-  payed_amount: 1232,
-  payed_amount_bc: 1232,
-  sale_id: "z.string().nullable()",
-  parent_sale_id: "z.string().nullable()",
-  recorded_date: new Date(),
-  pay_date: new Date(),
-  branch_id: "z.string()",
-  house_id: "z.string().nullable()",
-  active: true,
-  balance_status: BalanceStatusEnum.COMPLETED,
-  created_date: new Date(),
-  updated_date: new Date(),
-  balance_contacts: "",
-  comment: "",
-  recorded_by: " z.string().nullable()",
+interface SaleProduct {
+  id: string;
+  sale_id: string;
+  product_id: string;
+  product_to_branch_id: string;
+  recorded_by: string;
+  quantity: number;
+  bonus: number;
+  price_unit: number;
+  price_total: number;
+  price_total_bc: number;
+  printed: number;
+  designed: number;
+  designed_by: string | null;
+  app_connection: string | null;
+  row_version: number;
+  row_deleted: string | null;
+  created_time: string;
+  updated_time: string;
+  sync_status: string;
+  product_name: string;
+  local_image_filename: string;
+}
 
-  // sync changes
-  app_connection: "z.string().nullable().optional()",
-  row_version: 1,
-  row_deleted: null,
-};
+export interface SaleBalanceType {
+  id: string;
+  balance_id: string;
+  sale_id: string;
+  product_type: string;
+  branch_id: string;
+  house_id: string | null;
+  recorded_date: Date;
+  recorded_by: string | null;
+  active: boolean;
 
-const branch: BranchType = {
-  id: "branch-id",
-  name: "Branch Name",
-  country: "Country Name",
-  address: "Address",
-  contacts: "Contacts",
-  branch_currency: CurrencyEnum.CDF,
-  supported_currency: CurrencyEnum.CDF,
-  rate_in: null,
-  rate_out: null,
-  active: true,
-  active_store: true,
-  created_date: new Date(),
-  updated_date: new Date(),
-  show_rate_card: true,
-  remember_rate_on_sale: true,
-  remember_price_on_re_sale: true,
-  show_rate_on_all_forms: true,
+  payment_currency: string;
+  branch_currency: string;
 
-  // sync changes
-  app_connection: null,
-  row_version: 1,
-  row_deleted: null,
-};
+  rate_RWF: number | null;
+  rate_CDF: number | null;
 
-const house: HouseType = {
-  name: "House Name",
-  country: "Country Name",
-  row_version: 1,
-  id: "house-id",
-  address: "Address",
-  contacts: "Contacts",
-  active: true,
-  comment: "Some comment",
-  created_date: new Date(),
-  updated_date: new Date(),
-  app_connection: "",
-  row_deleted: null,
-};
+  payed_USD: number | null;
+  payed_CDF: number | null;
+  payed_RWF: number | null;
+  total_payed: number | null;
+  total_payed_bc: number | null;
+  created_date: Date;
+  updated_date: Date;
+  deposit_id: string | null;
+  app_connection: string | null;
+  row_version: number;
+  row_deleted: string;
+  sync_status: string;
+}
 
-const saleDetailsdata: DiversSalesType = {
-  id: "sale-id",
-  balance: 1232,
-  balance_bc: 1232,
-  branch_currency: CurrencyEnum.CDF,
-  branch_id: "branch-id",
-  client_name: "Client Name",
-  comment: "Some comment",
-  created_time: new Date(),
-  deposit_id: null,
-  house_id: "house-id",
-  payment_currency: CurrencyEnum.CDF,
-  price_total: 1232,
-  price_total_bc: 1232,
-  recorded_by: "recorder-id",
-  rate_CDF: 1232,
-  rate_RWF: 1232,
-  transaction_date: new Date(),
-  total_payed_cash: 1232,
-  total_payed_cash_bc: 1232,
-  payed_USD: 0,
-  payed_RWF: 0,
-  payed_CDF: 1232,
-  row_version: 1,
-  row_deleted: null,
-  updated_time: new Date(),
-  total_products: 12,
-  receipt_id: null,
-  client_phone: "contents-id",
-  sale_id: "sale-id",
-  parent_sale_id: "parent-sale-id",
-  client_id: "client-id",
-  app_connection: "deposit-id",
-};
+interface SaleDetailsData {
+  sale_details: SaleDetail;
+  products: SaleProduct[];
+  balances: BalanceType[];
+}
 
-const products: {
-  diver_sales_items: DiversSaleItemType;
-  divers_category: DiverCategoryType;
-  divers_sub_category: DiverSubCategoryType;
-  product: DiverType | null;
-}[] = [
-  {
-    diver_sales_items: {
-      id: "string;",
-      price_total: 123,
-      price_total_bc: 123,
-      recorded_by: "string;",
-      created_time: new Date(),
-      updated_time: new Date(),
-      row_version: 1,
-      app_connection: null,
-      row_deleted: null,
-      bonus: 0,
-      designed: false,
-      price_unit: 123,
-      quantity: 123,
-      product_id: "product-id",
-      product_to_branch_id: "product-to-branch-id",
-      printed: false,
-      designed_by: "",
-      sale_id: "sale-id",
-    },
-    divers_category: {
-      id: "category-id",
-      name: "Category Name",
-      description: "Category Description",
-      active: true,
-      row_version: 1,
-      created_date: new Date(),
-      app_connection: null,
-      row_deleted: null,
-    },
-    divers_sub_category: {
-      id: "sub-category-id",
-      name: "Sub Category Name",
-      description: "Sub Category Description",
-      active: true,
-      row_version: 1,
-      created_date: new Date(),
-      category_id: "category-id",
-      created_by: "creator-id",
-      app_connection: null,
-      row_deleted: null,
-    },
-    product: {
-      id: "product-id",
-      cover_image_url: "https://via.placeholder.com/150",
-      name: "Product Name",
-      description: "Product Description",
-      active: true,
-      public: false,
-      row_version: 1,
-      app_connection: null,
-      row_deleted: null,
-      created_by: "creator-id",
-      colors: [],
-      custom_diver: false,
-      diver_category_id: "category-id",
-      diver_sub_category_id: "sub-category-id",
-      code: "P001",
-      images: [],
-      notes: "",
-      paper_size: [],
-      thumbnail: "",
-      bar_code: "",
-      created_time: new Date(),
-      updated_time: new Date(),
-      paper_colors: [],
-      qr_code: "janvier interation",
-    },
-  },
-];
+const t = (t: string) => t;
 
-export default function SaleDetails({ params }: MyComponentProps) {
-  // const { status } = useAuth();
-  // const haveAccess = userHaveAccess(AccessCodes.DiversSaleView, branch);
-  // const deleteAccess = userHaveAccess(AccessCodes.DiversSaleDelete, branch);
-  const haveAccess = true;
-  const deleteAccess = true;
+export const SaleDetails: React.FunctionComponent<{
+  saleId: string;
+  onClose: () => void;
+}> = ({ saleId, onClose }) => {
+  const [data, setData] = useState<SaleDetailsData | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  const [selectedReceipt, setSelectedReceipt] = useState<string | null>(null);
+  useEffect(() => {
+    const loadData = async () => {
+      if (!saleId) return;
 
-  // const pageLoading = status === "loading";
+      setLoading(true);
+      try {
+        const result = await window.electronAPI.getSaleDetails(saleId);
+        setData(result);
+      } catch (error) {
+        console.error("Failed to load sale details", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadData();
+  }, [saleId]);
 
-  // const { data, isLoading } = useQuery({
-  //   queryKey: ["diver-sales-details", params.saleId],
-  //   queryFn: () => getDiverSaleDetails(params.saleId),
-  //   enabled: !!params.saleId && !pageLoading && haveAccess,
-  //   refetchOnWindowFocus: false,
-  // });
+  console.log({ data });
 
-  // const t = useTranslations("sales-details");
-  const t = (E: string) => E;
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center p-12">
+        <div className="text-zinc-500">Loading sale details...</div>
+      </div>
+    );
+  }
 
-  // if (status === "loading" || isLoading) return <LoadingPage />;
-  // if (!haveAccess) return <NoAccessPage />;
+  if (!data || !data.sale_details) {
+    return (
+      <div className="flex items-center justify-center p-12">
+        <div className="text-red-500">Sale not found</div>
+      </div>
+    );
+  }
 
-  // if (!data || !data?.sale)
-  //   return (
-  //     <div>
-  //       <div className="height-offset-top-navigation" />
-  //       <div className="p-3 rounded bg-red-500/10  mt-4 text-center text-red-500 container mx-auto">
-  //         <h3 className="text-lg">{t("no-sales-title")}</h3>
-  //         <p className="text-xs"> {t("no-sales-description")}</p>
-  //       </div>
-  //     </div>
-  //   );
-  const sale = saleDetailsdata;
-  const recorder = { name: "Recorder Name" };
-  // const { products } = {} as { products: any[]; sale: any };
-  const saleBranch = branch;
-  const showBranchCurrency = sale.branch_currency !== sale.payment_currency;
+  const { sale_details, products, balances } = data;
 
+  const showBranchCurrency = true;
   return (
     <>
-      {/* {selectedReceipt && (
-        <Modal
-          title={t("print-receipt")}
-          size="lg"
-          onClose={() => setSelectedReceipt(null)}
-        >
-          <PrintReceiptContainer
-            printButtonSize="lg"
-            printButtonVariant="primary"
-            receiptId={selectedReceipt}
-          />
-        </Modal>
-      )} */}
-
       <div>
         <div className="mx-auto">
-          <div className="flex lg:flex-row flex-col lg:items-center lg:justify-between border-b border-color-theme p-2 bg-white/90 dark:bg-gray-700/80 backdrop-blur-sm sticky top-12 pt-2 z-10">
-            <div className="flex gap-2 items-center">
-              <FaReceipt className="text-3xl" />
+          <TopNavigation title={t("sale-details")} onBack={onClose}>
+            <Button variant="secondary" icon={<MdPrint />}>
+              {t("print-receipt")}
+            </Button>
+          </TopNavigation>
 
-              <div className="flex flex-col">
-                <h2 className="text-lg">{t("sale-details")}</h2>
-                <span className="text-xs -mt-1 text-primary-200">
-                  {sale?.client_name || sale.id}
-                </span>
-              </div>
-            </div>
-
-            <div className="flex gap-2 pt-3 lg:pt-0 mx-auto lg:mx-0 w-fit">
-              <Button
-                onClick={() => setSelectedReceipt(sale.id)}
-                variant="secondary"
-                icon={<MdPrint />}
-              >
-                {t("print-receipt")}
-              </Button>
-
-              {deleteAccess && !sale.deposit_id && (
-                <Button variant="destructive">{t("de-sale")}</Button>
-              )}
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-2 min-h-[90vh]">
-            <div className="border-r flex border-color-theme p-2 flex-col gap-3 px-4">
+          <div className="flex grid-cols-1-- lg:grid-cols-2--  min-h-[90vh]">
+            <div className="border-r flex-1 flex border-color-theme p-2 flex-col gap-3 px-4">
               <div>
                 <span className="text-base-color opacity-50 font-extralight uppercase text-xs">
                   {t("c-details")}
                 </span>
-                <div className=" flex px-3 lg:gap-2  border flex-col lg:flex-row border-color-theme rounded-xl">
+                <div className=" flex px-3 lg:gap-2  border flex-col-- ---lg:flex-row border-color-theme rounded-xl">
                   <div className="flex gap-1 px-1- flex-1 items-center">
                     <MdAccountCircle className="text-4xl text-base-color" />
                     <div className="px-2- flex-1 border-color-theme p-1 flex flex-col">
                       <span className="text-xs text-base-color">
-                        {t("c-name")}
+                        {t("client-name")}
                       </span>
                       <div className="flex gap-1 -mt-1">
-                        <span>{sale.client_name}</span>
+                        <span>
+                          {sale_details?.client_name ||
+                            sale_details.client_name_db}
+                        </span>
                       </div>
                     </div>
                   </div>
 
-                  {house && (
+                  {sale_details.house_id && (
                     <div className="flex-1 flex items-center">
                       <RiBankFill className="text-4xl text-base-color" />
                       <div className="border-l- px-3 flex-1 px-2-- border-color-theme p-2 flex flex-col">
                         <span className="text-xs text-base-color">
-                          {t("h")}
+                          {t("house")}
                         </span>
                         <div className="flex gap-1">
-                          <span>{house.name}</span> / {house.address}
+                          <span>{sale_details.house_name}</span> /{" "}
+                          {sale_details.house_address}
                         </div>
                       </div>
                     </div>
@@ -335,42 +207,46 @@ export default function SaleDetails({ params }: MyComponentProps) {
               </div>
               <div>
                 <span className="text-base-color opacity-50 font-extralight uppercase text-xs">
-                  {t("b-details")}
+                  {t("branch-details")}
                 </span>
-                <div className="border grid gap-3 lg:grid-cols-3 p-2 px-4 rounded-lg border-color-theme">
-                  <div className="flex flex-col">
+                <div className="border flex flex-col rounded-lg border-color-theme">
+                  {/* <div className="flex flex-col">
                     <span className="text-sm text-base-color">{t("b")}</span>
-                    <h5>{saleBranch?.name}</h5>
-                  </div>
+                    <h5>{sale_details.?.name}</h5>
+                  </div> */}
 
-                  <div className="flex flex-col lg:px-4 py-2 lg:py-0 lg:border-y-0 border-y lg:border-x border-color-theme">
+                  <div className="flex lg:px-4 gap-4 p-2 items-center border-color-theme">
                     <span className="text-sm text-base-color">
-                      {t("b-currency")} {`(${t("now")})`}
+                      {t("branch-currency")} {`(${t("now")})`}
                     </span>
-                    <h5>{saleBranch?.branch_currency} </h5>
+                    <h5>{sale_details?.branch_currency} </h5>
                   </div>
 
-                  {saleBranch?.branch_currency !== sale.branch_currency && (
-                    <div className="flex flex-col px-4 border-x border-color-theme">
+                  {!!(
+                    sale_details?.branch_currency !==
+                      sale_details.payment_currency &&
+                    sale_details?.branch_currency
+                  ) && (
+                    <div className="flex lg:px-4 p-2 border-y borrder-t border-color-theme">
                       <span className="text-sm text-base-color">
-                        {t("b-currency")} {`(${t("then")})`}
+                        {t("branch-currency")} {`(${t("then")})`}
                       </span>
-                      <h5>{sale?.branch_currency} </h5>
+                      <h5>{sale_details?.branch_currency} </h5>
                     </div>
                   )}
 
-                  <div className="flex flex-col lg:px-3">
+                  <div className="flex lg:px-4 p-2 gap-4 border-t border-color-theme">
                     <span className="text-sm text-base-color">{t("rate")}</span>
-                    <div className="flex bg-parent">
-                      <h5 className="flex-1">
-                        {numberReadFormat(sale.rate_CDF)}{" "}
+                    <div className="flex bg-parent gap-4 items-center">
+                      <h5 className="flex-1 flex items-center gap-1">
+                        {numberReadFormat(sale_details.rate_CDF)}{" "}
                         <span className="text-xs font-extralight">
                           {CurrencyEnum.CDF}
                         </span>
                       </h5>
 
-                      <h5 className="flex-1">
-                        {numberReadFormat(sale.rate_RWF)}{" "}
+                      <h5 className="flex-1 flex items-center gap-1">
+                        {numberReadFormat(sale_details.rate_RWF)}{" "}
                         <span className="text-xs font-extralight">
                           {CurrencyEnum.RWF}
                         </span>
@@ -383,28 +259,32 @@ export default function SaleDetails({ params }: MyComponentProps) {
                 <span className="text-base-color opacity-50 font-extralight uppercase text-xs">
                   {t("prices")}
                 </span>
-                <div className="border px-4 border-color-theme rounded-lg p-2 gap-3 lg:gap-0 grid-cols-2 lg:grid-cols-4 grid">
+                <div className="border px-4 border-color-theme rounded-lg p-2 gap-3 lg:gap-0 flex justify-between items-center gap-4">
                   <div>
                     <span className="text-base-color text-sm">
-                      {t("p-type")}
+                      {t("payment-currency")}
                     </span>
                     <h5 className="font-bold text-green-500">
-                      {sale.payment_currency}
+                      {sale_details.payment_currency}
                     </h5>
                   </div>
 
                   <div>
-                    <span className="text-base-color text-sm">{t("pt")}</span>
+                    <span className="text-base-color text-sm">
+                      {t("price-total")}
+                    </span>
                     <h5 className="whitespace-nowrap">
-                      {numberReadFormat(sale.price_total)}{" "}
-                      <span>{sale.payment_currency}</span>
+                      {numberReadFormat(sale_details.price_total)}{" "}
+                      <span>{sale_details.payment_currency}</span>
                     </h5>
                     {showBranchCurrency && (
                       <h5 className="text-xs text-base-color">
-                        {t("b-currency")}:{" "}
+                        {t("branch-currency")}:{" "}
                         <span className="whitespace-nowrap text-yellow-600">
-                          <b>{numberReadFormat(sale.total_payed_cash_bc)}</b>{" "}
-                          <span>{sale.branch_currency}</span>
+                          <b>
+                            {numberReadFormat(sale_details.total_payed_cash_bc)}
+                          </b>{" "}
+                          <span>{sale_details.branch_currency}</span>
                         </span>
                       </h5>
                     )}
@@ -413,18 +293,20 @@ export default function SaleDetails({ params }: MyComponentProps) {
               </div>
               <div>
                 <span className="text-base-color opacity-50 font-extralight uppercase text-xs">
-                  {t("pym")}
+                  {t("payment-details")}
                 </span>
 
                 <div className="rounded-xl border border-color-theme">
                   <div className="flex flex-col lg:flex-row text-center rounded-lg p-1 gap-1 ">
-                    {sale.payed_USD && +sale.payed_USD > 0 && (
+                    {!!(
+                      sale_details.payed_USD && +sale_details.payed_USD > 0
+                    ) && (
                       <div className="flex flex-col gap-1 flex-1 bg-color-overlay-theme p-3 rounded-lg">
                         <span className="text-base-color text-xs">
-                          {t("pyd-in")} {CurrencyEnum.USD}
+                          {t("paid-in")} {CurrencyEnum.USD}
                         </span>
                         <h5 className="text-xl font-bold">
-                          {numberReadFormat(sale.payed_USD)}{" "}
+                          {numberReadFormat(sale_details.payed_USD)}{" "}
                           <span className="font-extralight text-xs">
                             {CurrencyEnum.USD}
                           </span>
@@ -432,13 +314,15 @@ export default function SaleDetails({ params }: MyComponentProps) {
                       </div>
                     )}
 
-                    {sale.payed_RWF && +sale.payed_RWF > 0 && (
+                    {!!(
+                      sale_details.payed_RWF && +sale_details.payed_RWF > 0
+                    ) && (
                       <div className="flex flex-1 flex-col gap-1 bg-color-overlay-theme p-3 rounded-lg">
                         <span className="text-base-color text-xs">
-                          {t("pyd-in")} {CurrencyEnum.RWF}
+                          {t("payed-in")} {CurrencyEnum.RWF}
                         </span>
                         <h5 className="text-xl font-bold">
-                          {numberReadFormat(sale.payed_RWF)}{" "}
+                          {numberReadFormat(sale_details.payed_RWF)}{" "}
                           <span className="font-extralight text-xs">
                             {CurrencyEnum.RWF}
                           </span>
@@ -446,13 +330,15 @@ export default function SaleDetails({ params }: MyComponentProps) {
                       </div>
                     )}
 
-                    {sale.payed_CDF && +sale.payed_CDF > 0 && (
+                    {!!(
+                      sale_details.payed_CDF && +sale_details.payed_CDF > 0
+                    ) && (
                       <div className="flex flex-1 flex-col gap-1 bg-color-overlay-theme p-3 rounded-lg">
                         <span className="text-base-color text-xs">
-                          {t("pyd-in")} {CurrencyEnum.CDF}
+                          {t("payed-in")} {CurrencyEnum.CDF}
                         </span>
                         <h5 className="text-xl font-bold">
-                          {numberReadFormat(sale.payed_CDF)}{" "}
+                          {numberReadFormat(sale_details.payed_CDF)}{" "}
                           <span className="font-extralight text-xs">
                             {CurrencyEnum.CDF}
                           </span>
@@ -464,21 +350,21 @@ export default function SaleDetails({ params }: MyComponentProps) {
                   <div className="grid grid-cols-2 p-4">
                     <div className="text-left">
                       <span className="text-sm block mb-1 text-base-color">
-                        {t("exp-cash")}
+                        {t("expected-cash")}
                       </span>
                       <h5 className="text-xl font-bold">
-                        {numberReadFormat(sale.price_total)}{" "}
+                        {numberReadFormat(sale_details.price_total)}{" "}
                         <span className="font-light text-xs text-green-500">
-                          {sale.payment_currency}
+                          {sale_details.payment_currency}
                         </span>
                       </h5>
                       {showBranchCurrency && (
                         <h6 className="text-xs text-base-color">
-                          {t("b-currency")}:{" "}
+                          {t("branch-currency")}:{" "}
                           <b className="whitespace-nowrap text-yellow-600">
-                            {numberReadFormat(sale.price_total_bc)}{" "}
+                            {numberReadFormat(sale_details.price_total_bc)}{" "}
                             <span className="font-extralight">
-                              {sale.branch_currency}
+                              {sale_details.branch_currency}
                             </span>
                           </b>
                         </h6>
@@ -487,12 +373,12 @@ export default function SaleDetails({ params }: MyComponentProps) {
 
                     <div className="text-right">
                       <span className="text-sm block mb-1 text-base-color">
-                        {t("rc-cash")}
+                        {t("total-payed-cash")}
                       </span>
                       <h5 className="text-xl font-bold">
-                        {numberReadFormat(sale.total_payed_cash)}{" "}
+                        {numberReadFormat(sale_details.total_payed_cash)}{" "}
                         <span className="font-light text-xs text-green-500">
-                          {sale.payment_currency}
+                          {sale_details.payment_currency}
                         </span>
                       </h5>
 
@@ -500,9 +386,9 @@ export default function SaleDetails({ params }: MyComponentProps) {
                         <h6 className="text-xs text-base-color">
                           {t("b-currency")}:{" "}
                           <b className="whitespace-nowrap text-yellow-600">
-                            {numberReadFormat(sale.total_payed_cash_bc)}{" "}
+                            {numberReadFormat(sale_details.total_payed_cash_bc)}{" "}
                             <span className="font-extralight">
-                              {sale.branch_currency}
+                              {sale_details.branch_currency}
                             </span>
                           </b>
                         </h6>
@@ -512,64 +398,107 @@ export default function SaleDetails({ params }: MyComponentProps) {
                 </div>
               </div>
 
-              {balance && <SaleBalanceCard balance={balance} />}
+              {balances &&
+                balances.map((balance) => (
+                  <SaleBalanceCard
+                    balance={{
+                      id: balance.id,
+                      balance_parent_id: balance.id,
+                      client_name: sale_details.client_name || "",
+                      product_type: balance.product_type || "",
+                      product_id: sale_details.id,
+                      payment_currency:
+                        balance.payment_currency as CurrencyEnum,
+                      branch_currency: balance.branch_currency as CurrencyEnum,
+                      rate_RWF: balance.rate_RWF || 0,
+                      rate_CDF: balance.rate_CDF || 0,
+                      amount: balance.amount || 0,
+                      amount_bc: balance.amount_bc || 0,
+                      payed_amount: balance.payed_amount || 0,
+                      payed_amount_bc: balance.payed_amount_bc,
+                      sale_id: balance.sale_id,
+                      parent_sale_id: balance?.parent_sale_id,
+                      recorded_date: balance.recorded_date,
+                      pay_date: balance.pay_date,
+                      branch_id: balance.branch_id,
+                      house_id: balance.house_id,
+                      active: balance.active,
+                      balance_status: balance.balance_status,
+                      created_date: balance.created_date,
+                      updated_date: balance.updated_date,
+                      balance_contacts: balance.balance_contacts,
+                      recorded_by: balance.recorded_by,
+                      // sync changes
+                      app_connection: balance.app_connection,
+                      row_version: balance.row_version,
+                      // local columns
+                      sync_status: balance.sync_status,
+                      comment: balance.comment,
+                      row_deleted: balance.row_deleted,
+                    }}
+                  />
+                ))}
 
               <div className="grid lg:grid-cols-3 pt-6 lg:pt-0">
                 <div className="col-span-2 pr-4">
-                  {!!sale.comment && (
+                  {!!sale_details.comment && (
                     <div className="">
                       <span className="text-sm text-base-color">
                         {t("cmnt")}
                       </span>
                       <p className="border border-color-theme mt-1 p-2 rounded-lg">
-                        {sale.comment}
+                        {sale_details.comment}
                       </p>
                     </div>
                   )}
                 </div>
 
-                {sale.payment_currency && +sale.payment_currency > 0 && (
-                  <div>
-                    <span>{t("blnc")}</span>
-                    <div className=" border p-1 rounded-2xl border-color-theme">
-                      <div className="bg-color-overlay-theme px-4 py-2 rounded-xl">
-                        <h5 className="text-xl font-bold">
-                          {numberReadFormat(sale.balance)}{" "}
-                          <span className="text-xs font-light">
-                            {sale.payment_currency}
-                          </span>
-                        </h5>
-                        {showBranchCurrency && (
-                          <span className="text-xs block text-base-color -mt-0.5">
-                            {t("b-currency")}:{" "}
-                            <b className="whitespace-nowrap text-yellow-600">
-                              {numberReadFormat(sale.balance_bc)}{" "}
-                              <span className="font-extralight">
-                                {sale.branch_currency}
-                              </span>
-                            </b>
-                          </span>
-                        )}
-                      </div>
+                {sale_details.payment_currency &&
+                  +sale_details.payment_currency > 0 && (
+                    <div>
+                      <span>{t("blnc")}</span>
+                      <div className=" border p-1 rounded-2xl border-color-theme">
+                        <div className="bg-color-overlay-theme px-4 py-2 rounded-xl">
+                          <h5 className="text-xl font-bold">
+                            {numberReadFormat(sale_details.balance)}{" "}
+                            <span className="text-xs font-light">
+                              {sale_details.payment_currency}
+                            </span>
+                          </h5>
+                          {showBranchCurrency && (
+                            <span className="text-xs block text-base-color -mt-0.5">
+                              {t("b-currency")}:{" "}
+                              <b className="whitespace-nowrap text-yellow-600">
+                                {numberReadFormat(sale_details.balance_bc)}{" "}
+                                <span className="font-extralight">
+                                  {sale_details.branch_currency}
+                                </span>
+                              </b>
+                            </span>
+                          )}
+                        </div>
 
-                      <div className="p-3 py-2 text-xs">
-                        <p className="text-base-color">{t("blnc-expl")}</p>
+                        <div className="p-3 py-2 text-xs">
+                          <p className="text-base-color">{t("blnc-expl")}</p>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                )}
+                  )}
               </div>
 
               <div className="grid lg:grid-cols-none grid-cols-2 gap-4 lg:gap-2 lg:flex justify-between border-t lg:border-t-0 border-color-theme p-4">
                 {[
-                  { title: t("rec-by"), value: recorder?.name },
                   {
-                    title: t("t-date"),
-                    value: dateFormat(sale.transaction_date),
+                    title: t("recorded-by"),
+                    value: sale_details?.recorded_by_name,
                   },
                   {
-                    title: t("rec-date"),
-                    value: dateFormat(sale.created_time),
+                    title: t("transaction-date"),
+                    value: dateFormat(sale_details.transaction_date),
+                  },
+                  {
+                    title: t("recorded-date"),
+                    value: dateFormat(sale_details.created_time),
                   },
                 ].map(({ title, value }) => (
                   <div key={title}>
@@ -580,113 +509,90 @@ export default function SaleDetails({ params }: MyComponentProps) {
               </div>
             </div>
 
-            <div className="border-t lg:border-t-0 lg:border-r border-color-theme">
+            <div
+              className="border-t lg:border-t-0 lg:border-r border-color-theme w-full"
+              style={{ maxWidth: "420px" }}
+            >
               <div className="">
                 <h2 className="text-2xl p-2 flex gap-2 items-center">
                   {t("products")}{" "}
                   <Badge variant="info">{products.length}</Badge>{" "}
                 </h2>
-                {products.map(
-                  (
-                    {
-                      diver_sales_items,
-                      divers_category,
-                      divers_sub_category,
-                      product,
-                    },
-                    index,
-                  ) => (
-                    <div
-                      className="p-2 border-t border-color-theme flex gap-2"
-                      key={index}
-                    >
-                      {product?.cover_image_url && (
-                        <img
-                          src={product?.cover_image_url}
-                          className="w-[150px] h-[150px] bg-contain bg-gray-500 rounded-lg"
-                          alt="Product cover"
-                        />
-                      )}
+                {products.map((productSaleItem, index) => (
+                  <div
+                    className="p-2 border-t border-color-theme flex gap-2"
+                    key={index}
+                  >
+                    {productSaleItem?.local_image_filename && (
+                      <img
+                        src={`media://${productSaleItem?.local_image_filename}`}
+                        className="w-[150px] h-[150px] bg-contain bg-gray-500 rounded-lg"
+                        alt="Product cover"
+                      />
+                    )}
 
-                      <div className="flex-1 pb-2">
-                        <h2 className="text-xl">{product?.name}</h2>
+                    <div className="flex-1 pb-2">
+                      <h2 className="text-xl">
+                        {productSaleItem.product_name}
+                      </h2>
 
-                        <div className="grid grid-cols-2 gap-1 pt-2">
-                          {[
-                            {
-                              title: t("pu"),
-                              value: numberReadFormat(
-                                diver_sales_items.price_unit,
-                              ),
-                              currency: sale.payment_currency,
-                            },
-                            {
-                              title: t("q"),
-                              value: numberReadFormat(
-                                diver_sales_items.quantity,
-                              ),
-                            },
-                            {
-                              title: t("pt"),
-                              value: numberReadFormat(
-                                diver_sales_items.price_total,
-                              ),
-                              currency: sale.payment_currency,
-                            },
-                            {
-                              title: t("bon"),
-                              value: numberReadFormat(diver_sales_items.bonus),
-                            },
-                            { title: t("cat"), value: divers_category },
-                            {
-                              title: t("sub-cat"),
-                              value: divers_sub_category,
-                            },
-                          ].map((el) => {
-                            if (!el.value) return null;
-                            return (
-                              <div
-                                key={el.title}
-                                className="flex flex-col border-b p-1 border-color-theme px-2"
-                              >
-                                <span className="text-xs opacity-50">
-                                  {el.title}:
-                                </span>
-                                <b>
-                                  {/* {el.value}{" "} */}
-                                  {el.currency && (
-                                    <span className="font-light text-sm">
-                                      {el.currency}
-                                    </span>
-                                  )}
-                                </b>
-                              </div>
-                            );
-                          })}
-                        </div>
+                      <div className="grid grid-cols-2 gap-1 pt-2">
+                        {[
+                          {
+                            title: t("quantity"),
+                            value: numberReadFormat(productSaleItem.quantity),
+                          },
+                          {
+                            title: t("price_unit"),
+                            value: numberReadFormat(productSaleItem.price_unit),
+                            currency: sale_details?.branch_currency,
+                          },
+                          {
+                            title: t("price_total"),
+                            value: numberReadFormat(
+                              productSaleItem.price_total,
+                            ),
+                            currency: sale_details?.branch_currency,
+                          },
+                          {
+                            title: t("bonus"),
+                            value: numberReadFormat(productSaleItem.bonus),
+                          },
+                        ].map((el, index) => {
+                          if (!el.value) return null;
+                          return (
+                            <div
+                              key={el.title}
+                              className={classNames(
+                                "flex flex-col p-1 border-color-theme px-2",
+                                {
+                                  "border-b": index <= 1,
+                                },
+                              )}
+                            >
+                              <span className="text-xs opacity-50">
+                                {el.title}:
+                              </span>
+                              <b>
+                                {el.value}{" "}
+                                {el.currency && (
+                                  <span className="font-light text-sm">
+                                    {el.currency}
+                                  </span>
+                                )}
+                              </b>
+                            </div>
+                          );
+                        })}
                       </div>
                     </div>
-                  ),
-                )}
+                  </div>
+                ))}
               </div>
             </div>
           </div>
         </div>
       </div>
-
-      {deleteAccess && <DeleteDiverSale />}
     </>
   );
-}
-function useAuth(): { status: any } {
-  throw new Error("Function not implemented.");
-}
-
-function useUserContext(): { branch: any } {
-  // throw new Error("Function not implemented.");
-  return { branch: { branchId: "" } };
-  // return {
-  //   products: null,
-  //   sale: { balance, branch: saleBranch, house, recorder, sale },
-  // };
-}
+};
