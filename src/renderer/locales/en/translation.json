@@ -56,7 +56,8 @@
       "error": "Error: {{error}}",
       "load_more": "Load more...",
       "search_placeholder": "Search"
-    }
+    },
+    "view": "View"
   },
 
   "actions": {
@@ -218,7 +219,40 @@
       "items": "Items",
       "total": "Total",
       "paid": "Paid",
-      "balance": "Balance"
+      "balance": "Balance",
+      "total_products": "Total Products",
+      "price_total": "Total Price",
+      "branch_currency": "Branch Currency"
+    },
+    "details": {
+      "title": "Sale Details",
+      "print_receipt": "Print Receipt",
+      "client_details": "Client Details",
+      "client_name": "Client Name",
+      "house": "House",
+      "branch_details": "Branch Details",
+      "branch_currency": "Branch Currency",
+      "now": "Now",
+      "then": "Then",
+      "rate": "Rate",
+      "prices": "Prices",
+      "payment_currency": "Payment Currency",
+      "price_total": "Total Price",
+      "payment_details": "Payment Details",
+      "paid_in": "Paid In",
+      "expected_cash": "Expected Cash",
+      "total_paid_cash": "Total Paid Cash",
+      "base_currency": "Base Currency",
+      "comment": "Comment",
+      "balance": "Balance",
+      "balance_explanation": "This amount represents the remaining balance to be paid.",
+      "recorded_by": "Recorded By",
+      "transaction_date": "Transaction Date",
+      "recorded_date": "Recorded Date",
+      "products": "Products",
+      "quantity": "Quantity",
+      "price_unit": "Unit Price",
+      "bonus": "Bonus"
     }
   },
   "sidebar": {

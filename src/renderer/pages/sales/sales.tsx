@@ -32,6 +32,7 @@ interface SaleListType {
   payed_RWF: number;
   row_deleted: any;
   sync_status: string;
+  branch_currency: string;
 }
 
 interface SaleFilters {
@@ -201,35 +202,53 @@ const SalesPage = () => {
       key: "client_name",
       label: t("sales.columns.client"),
       render: (row) => (
-        <div className="flex flex-col text-xs">
+        <div className="flex flex-col">
           <span className="font-bold">{row.client_name || "-"}</span>
-          <span className="text-gray-400">{row.client_phone}</span>
+          {row.house_name && (
+            <span className="text-gray-400 text-xs">{row.house_name}</span>
+          )}
         </div>
       ),
     },
-    { key: "house_name", label: t("sales.columns.house") },
     {
       key: "total_products",
-      label: t("sales.columns.items"),
+      label: t("sales.columns.total_products"),
       width: "50px",
       tdClassName: "text-center",
     },
     {
       key: "price_total",
-      label: t("sales.columns.total"),
+      label: t("sales.columns.price_total"),
       render: (row) => (
-        <div className="flex flex-col text-xs whitespace-nowrap">
+        <div className="flex flex-col whitespace-nowrap">
           <span className="font-bold">
             {row.price_total} {row.payment_currency}
           </span>
-          <span className="text-[10px] text-gray-500">
-            BC: {row.price_total_bc}
-          </span>
+          {/* <span className="text-xs text-gray-500">
+            {t("sales.columns.branch_currency")}: <b>{row.price_total_bc}</b>{" "}
+            {row.branch_currency}
+          </span> */}
         </div>
       ),
     },
     {
-      key: "payed_USD",
+      key: "",
+      label: t("sales.columns.paid"),
+      render: (row) => (
+        <div className="flex flex-col whitespace-nowrap gap-0.5">
+          <span>
+            {row.total_payed_cash} {row.payment_currency}
+          </span>
+          {/* <span className=" text-xs ">
+            <Badge variant="default" title={t("sales.columns.branch_currency")}>
+              {row.total_payed_cash_bc} {row.branch_currency}
+            </Badge>
+          </span> */}
+        </div>
+      ),
+    },
+    {
+      key: "",
       label: t("sales.columns.paid"),
       render: (row) => (
         <div className="flex flex-col text-xs whitespace-nowrap gap-0.5">
@@ -246,7 +265,8 @@ const SalesPage = () => {
         <div
           className={`font-bold ${row.balance > 0 ? "text-red-400" : "text-green-400"}`}
         >
-          {row.balance}
+          {row.balance}{" "}
+          <span className="font-light">{row.payment_currency}</span>
         </div>
       ),
     },
@@ -259,10 +279,11 @@ const SalesPage = () => {
     },
     {
       key: "",
+      width: "10px",
       render: (row) => (
         <Button
           onClick={() => setSelectedSaleId(row.id)}
-          variant="outline"
+          variant="primary-light"
           size="sm"
         >
           {t("common.view")}

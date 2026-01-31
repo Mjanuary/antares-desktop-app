@@ -110,12 +110,13 @@ interface SaleDetailsData {
   balances: BalanceType[];
 }
 
-const t = (t: string) => t;
+import { useTranslation } from "react-i18next";
 
 export const SaleDetails: React.FunctionComponent<{
   saleId: string;
   onClose: () => void;
 }> = ({ saleId, onClose }) => {
+  const { t } = useTranslation();
   const [data, setData] = useState<SaleDetailsData | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -161,9 +162,9 @@ export const SaleDetails: React.FunctionComponent<{
     <>
       <div>
         <div className="mx-auto">
-          <TopNavigation title={t("sale-details")} onBack={onClose}>
+          <TopNavigation title={t("sales.details.title")} onBack={onClose}>
             <Button variant="secondary" icon={<MdPrint />}>
-              {t("print-receipt")}
+              {t("sales.details.print_receipt")}
             </Button>
           </TopNavigation>
 
@@ -171,14 +172,14 @@ export const SaleDetails: React.FunctionComponent<{
             <div className="border-r flex-1 flex border-color-theme p-2 flex-col gap-3 px-4">
               <div>
                 <span className="text-base-color opacity-50 font-extralight uppercase text-xs">
-                  {t("c-details")}
+                  {t("sales.details.client_details")}
                 </span>
                 <div className=" flex px-3 lg:gap-2  border flex-col-- ---lg:flex-row border-color-theme rounded-xl">
                   <div className="flex gap-1 px-1- flex-1 items-center">
                     <MdAccountCircle className="text-4xl text-base-color" />
                     <div className="px-2- flex-1 border-color-theme p-1 flex flex-col">
                       <span className="text-xs text-base-color">
-                        {t("client-name")}
+                        {t("sales.details.client_name")}
                       </span>
                       <div className="flex gap-1 -mt-1">
                         <span>
@@ -194,7 +195,7 @@ export const SaleDetails: React.FunctionComponent<{
                       <RiBankFill className="text-4xl text-base-color" />
                       <div className="border-l- px-3 flex-1 px-2-- border-color-theme p-2 flex flex-col">
                         <span className="text-xs text-base-color">
-                          {t("house")}
+                          {t("sales.details.house")}
                         </span>
                         <div className="flex gap-1">
                           <span>{sale_details.house_name}</span> /{" "}
@@ -207,7 +208,7 @@ export const SaleDetails: React.FunctionComponent<{
               </div>
               <div>
                 <span className="text-base-color opacity-50 font-extralight uppercase text-xs">
-                  {t("branch-details")}
+                  {t("sales.details.branch_details")}
                 </span>
                 <div className="border flex flex-col rounded-lg border-color-theme">
                   {/* <div className="flex flex-col">
@@ -217,7 +218,8 @@ export const SaleDetails: React.FunctionComponent<{
 
                   <div className="flex lg:px-4 gap-4 p-2 items-center border-color-theme">
                     <span className="text-sm text-base-color">
-                      {t("branch-currency")} {`(${t("now")})`}
+                      {t("sales.details.branch_currency")}{" "}
+                      {`(${t("sales.details.now")})`}
                     </span>
                     <h5>{sale_details?.branch_currency} </h5>
                   </div>
@@ -229,14 +231,17 @@ export const SaleDetails: React.FunctionComponent<{
                   ) && (
                     <div className="flex lg:px-4 p-2 border-y borrder-t border-color-theme">
                       <span className="text-sm text-base-color">
-                        {t("branch-currency")} {`(${t("then")})`}
+                        {t("sales.details.branch_currency")}{" "}
+                        {`(${t("sales.details.then")})`}
                       </span>
                       <h5>{sale_details?.branch_currency} </h5>
                     </div>
                   )}
 
                   <div className="flex lg:px-4 p-2 gap-4 border-t border-color-theme">
-                    <span className="text-sm text-base-color">{t("rate")}</span>
+                    <span className="text-sm text-base-color">
+                      {t("sales.details.rate")}
+                    </span>
                     <div className="flex bg-parent gap-4 items-center">
                       <h5 className="flex-1 flex items-center gap-1">
                         {numberReadFormat(sale_details.rate_CDF)}{" "}
@@ -257,12 +262,12 @@ export const SaleDetails: React.FunctionComponent<{
               </div>
               <div>
                 <span className="text-base-color opacity-50 font-extralight uppercase text-xs">
-                  {t("prices")}
+                  {t("sales.details.prices")}
                 </span>
                 <div className="border px-4 border-color-theme rounded-lg p-2 gap-3 lg:gap-0 flex justify-between items-center gap-4">
                   <div>
                     <span className="text-base-color text-sm">
-                      {t("payment-currency")}
+                      {t("sales.details.payment_currency")}
                     </span>
                     <h5 className="font-bold text-green-500">
                       {sale_details.payment_currency}
@@ -271,7 +276,7 @@ export const SaleDetails: React.FunctionComponent<{
 
                   <div>
                     <span className="text-base-color text-sm">
-                      {t("price-total")}
+                      {t("sales.details.price_total")}
                     </span>
                     <h5 className="whitespace-nowrap">
                       {numberReadFormat(sale_details.price_total)}{" "}
@@ -279,7 +284,7 @@ export const SaleDetails: React.FunctionComponent<{
                     </h5>
                     {showBranchCurrency && (
                       <h5 className="text-xs text-base-color">
-                        {t("branch-currency")}:{" "}
+                        {t("sales.details.branch_currency")}:{" "}
                         <span className="whitespace-nowrap text-yellow-600">
                           <b>
                             {numberReadFormat(sale_details.total_payed_cash_bc)}
@@ -293,7 +298,7 @@ export const SaleDetails: React.FunctionComponent<{
               </div>
               <div>
                 <span className="text-base-color opacity-50 font-extralight uppercase text-xs">
-                  {t("payment-details")}
+                  {t("sales.details.payment_details")}
                 </span>
 
                 <div className="rounded-xl border border-color-theme">
@@ -303,7 +308,7 @@ export const SaleDetails: React.FunctionComponent<{
                     ) && (
                       <div className="flex flex-col gap-1 flex-1 bg-color-overlay-theme p-3 rounded-lg">
                         <span className="text-base-color text-xs">
-                          {t("paid-in")} {CurrencyEnum.USD}
+                          {t("sales.details.paid_in")} {CurrencyEnum.USD}
                         </span>
                         <h5 className="text-xl font-bold">
                           {numberReadFormat(sale_details.payed_USD)}{" "}
@@ -319,7 +324,7 @@ export const SaleDetails: React.FunctionComponent<{
                     ) && (
                       <div className="flex flex-1 flex-col gap-1 bg-color-overlay-theme p-3 rounded-lg">
                         <span className="text-base-color text-xs">
-                          {t("payed-in")} {CurrencyEnum.RWF}
+                          {t("sales.details.paid_in")} {CurrencyEnum.RWF}
                         </span>
                         <h5 className="text-xl font-bold">
                           {numberReadFormat(sale_details.payed_RWF)}{" "}
@@ -335,7 +340,7 @@ export const SaleDetails: React.FunctionComponent<{
                     ) && (
                       <div className="flex flex-1 flex-col gap-1 bg-color-overlay-theme p-3 rounded-lg">
                         <span className="text-base-color text-xs">
-                          {t("payed-in")} {CurrencyEnum.CDF}
+                          {t("sales.details.paid_in")} {CurrencyEnum.CDF}
                         </span>
                         <h5 className="text-xl font-bold">
                           {numberReadFormat(sale_details.payed_CDF)}{" "}
@@ -350,7 +355,7 @@ export const SaleDetails: React.FunctionComponent<{
                   <div className="grid grid-cols-2 p-4">
                     <div className="text-left">
                       <span className="text-sm block mb-1 text-base-color">
-                        {t("expected-cash")}
+                        {t("sales.details.expected_cash")}
                       </span>
                       <h5 className="text-xl font-bold">
                         {numberReadFormat(sale_details.price_total)}{" "}
@@ -360,7 +365,7 @@ export const SaleDetails: React.FunctionComponent<{
                       </h5>
                       {showBranchCurrency && (
                         <h6 className="text-xs text-base-color">
-                          {t("branch-currency")}:{" "}
+                          {t("sales.details.branch_currency")}:{" "}
                           <b className="whitespace-nowrap text-yellow-600">
                             {numberReadFormat(sale_details.price_total_bc)}{" "}
                             <span className="font-extralight">
@@ -373,7 +378,7 @@ export const SaleDetails: React.FunctionComponent<{
 
                     <div className="text-right">
                       <span className="text-sm block mb-1 text-base-color">
-                        {t("total-payed-cash")}
+                        {t("sales.details.total_paid_cash")}
                       </span>
                       <h5 className="text-xl font-bold">
                         {numberReadFormat(sale_details.total_payed_cash)}{" "}
@@ -384,7 +389,7 @@ export const SaleDetails: React.FunctionComponent<{
 
                       {showBranchCurrency && (
                         <h6 className="text-xs text-base-color">
-                          {t("b-currency")}:{" "}
+                          {t("sales.details.base_currency")}:{" "}
                           <b className="whitespace-nowrap text-yellow-600">
                             {numberReadFormat(sale_details.total_payed_cash_bc)}{" "}
                             <span className="font-extralight">
@@ -444,7 +449,7 @@ export const SaleDetails: React.FunctionComponent<{
                   {!!sale_details.comment && (
                     <div className="">
                       <span className="text-sm text-base-color">
-                        {t("cmnt")}
+                        {t("sales.details.comment")}
                       </span>
                       <p className="border border-color-theme mt-1 p-2 rounded-lg">
                         {sale_details.comment}
@@ -456,7 +461,7 @@ export const SaleDetails: React.FunctionComponent<{
                 {sale_details.payment_currency &&
                   +sale_details.payment_currency > 0 && (
                     <div>
-                      <span>{t("blnc")}</span>
+                      <span>{t("sales.details.balance")}</span>
                       <div className=" border p-1 rounded-2xl border-color-theme">
                         <div className="bg-color-overlay-theme px-4 py-2 rounded-xl">
                           <h5 className="text-xl font-bold">
@@ -467,7 +472,7 @@ export const SaleDetails: React.FunctionComponent<{
                           </h5>
                           {showBranchCurrency && (
                             <span className="text-xs block text-base-color -mt-0.5">
-                              {t("b-currency")}:{" "}
+                              {t("sales.details.base_currency")}:{" "}
                               <b className="whitespace-nowrap text-yellow-600">
                                 {numberReadFormat(sale_details.balance_bc)}{" "}
                                 <span className="font-extralight">
@@ -479,7 +484,9 @@ export const SaleDetails: React.FunctionComponent<{
                         </div>
 
                         <div className="p-3 py-2 text-xs">
-                          <p className="text-base-color">{t("blnc-expl")}</p>
+                          <p className="text-base-color">
+                            {t("sales.details.balance_explanation")}
+                          </p>
                         </div>
                       </div>
                     </div>
@@ -489,15 +496,15 @@ export const SaleDetails: React.FunctionComponent<{
               <div className="grid lg:grid-cols-none grid-cols-2 gap-4 lg:gap-2 lg:flex justify-between border-t lg:border-t-0 border-color-theme p-4">
                 {[
                   {
-                    title: t("recorded-by"),
+                    title: t("sales.details.recorded_by"),
                     value: sale_details?.recorded_by_name,
                   },
                   {
-                    title: t("transaction-date"),
+                    title: t("sales.details.transaction_date"),
                     value: dateFormat(sale_details.transaction_date),
                   },
                   {
-                    title: t("recorded-date"),
+                    title: t("sales.details.recorded_date"),
                     value: dateFormat(sale_details.created_time),
                   },
                 ].map(({ title, value }) => (
@@ -515,7 +522,7 @@ export const SaleDetails: React.FunctionComponent<{
             >
               <div className="">
                 <h2 className="text-2xl p-2 flex gap-2 items-center">
-                  {t("products")}{" "}
+                  {t("sales.details.products")}{" "}
                   <Badge variant="info">{products.length}</Badge>{" "}
                 </h2>
                 {products.map((productSaleItem, index) => (
@@ -539,23 +546,23 @@ export const SaleDetails: React.FunctionComponent<{
                       <div className="grid grid-cols-2 gap-1 pt-2">
                         {[
                           {
-                            title: t("quantity"),
+                            title: t("sales.details.quantity"),
                             value: numberReadFormat(productSaleItem.quantity),
                           },
                           {
-                            title: t("price_unit"),
+                            title: t("sales.details.price_unit"),
                             value: numberReadFormat(productSaleItem.price_unit),
                             currency: sale_details?.branch_currency,
                           },
                           {
-                            title: t("price_total"),
+                            title: t("sales.details.price_total"),
                             value: numberReadFormat(
                               productSaleItem.price_total,
                             ),
                             currency: sale_details?.branch_currency,
                           },
                           {
-                            title: t("bonus"),
+                            title: t("sales.details.bonus"),
                             value: numberReadFormat(productSaleItem.bonus),
                           },
                         ].map((el, index) => {

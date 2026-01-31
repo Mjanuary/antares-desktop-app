@@ -56,7 +56,8 @@
       "error": "Erreur : {{error}}",
       "load_more": "Charger plus...",
       "search_placeholder": "Rechercher"
-    }
+    },
+    "view": "Voir"
   },
 
   "actions": {
@@ -194,7 +195,40 @@
       "items": "Articles",
       "total": "Total",
       "paid": "Payé",
-      "balance": "Solde"
+      "balance": "Solde",
+      "total_products": "Total Produits",
+      "price_total": "Prix Total",
+      "branch_currency": "Devise Succursale"
+    },
+    "details": {
+      "title": "Détails de la vente",
+      "print_receipt": "Imprimer le reçu",
+      "client_details": "Détails du client",
+      "client_name": "Nom du client",
+      "house": "Maison",
+      "branch_details": "Détails de la succursale",
+      "branch_currency": "Devise de la succursale",
+      "now": "Maintenant",
+      "then": "Alors",
+      "rate": "Taux",
+      "prices": "Prix",
+      "payment_currency": "Devise de paiement",
+      "price_total": "Prix total",
+      "payment_details": "Détails du paiement",
+      "paid_in": "Payé en",
+      "expected_cash": "Argent attendu",
+      "total_paid_cash": "Total payé en espèces",
+      "base_currency": "Devise de base",
+      "comment": "Commentaire",
+      "balance": "Solde",
+      "balance_explanation": "Ce montant représente le solde restant à payer.",
+      "recorded_by": "Enregistré par",
+      "transaction_date": "Date de transaction",
+      "recorded_date": "Date d'enregistrement",
+      "products": "Produits",
+      "quantity": "Quantité",
+      "price_unit": "Prix unitaire",
+      "bonus": "Bonus"
     }
   },
   "sidebar": {
