@@ -72,6 +72,14 @@ contextBridge.exposeInMainWorld("electronAPI", {
   getCategories: () => ipcRenderer.invoke("get-categories"),
   getSpendingCategories: () => ipcRenderer.invoke("get-spending-categories"),
 
+  createExpense: (expense: any) =>
+    ipcRenderer.invoke("create-expense", expense),
+
+  deleteExpense: (id: string, deleteInfo: string) =>
+    ipcRenderer.invoke("delete-expense", id, deleteInfo),
+
+  getBranchDetails: () => ipcRenderer.invoke("get-branch-details"),
+
   // Window operations
   minimize: () => ipcRenderer.send("minimize-window"),
   maximize: () => ipcRenderer.send("maximize-window"),

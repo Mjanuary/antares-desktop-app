@@ -57,7 +57,19 @@
       "load_more": "Charger plus...",
       "search_placeholder": "Rechercher"
     },
-    "view": "Voir"
+    "view": "Voir",
+    "total": "Total",
+    "sync_status": "Statut Sync",
+    "synced": "Synchronisé",
+    "create_new": "Créer",
+    "type": "Type",
+    "currency": "Devise",
+    "amount_usd": "Montant (USD)",
+    "amount_cdf": "Montant (CDF)",
+    "amount_rwf": "Montant (RWF)",
+    "comment": "Commentaire",
+    "cancel": "Annuler",
+    "save": "Enregistrer"
   },
 
   "actions": {
@@ -78,7 +90,29 @@
     "title": "Dépenses",
     "description": "Gérez vos dépenses",
     "page_title": "Dépenses",
-    "page_description": "Gérez vos dépenses et frais"
+    "page_description": "Gérez vos dépenses et frais",
+    "delete_title": "Supprimer la dépense",
+    "delete_confirmation": "Êtes-vous sûr de vouloir supprimer cette dépense ?",
+    "delete_reason_label": "Raison",
+    "delete_reason_placeholder": "Entrez la raison de la suppression",
+    "errors": {
+      "api_not_found": "API getSpendings introuvable",
+      "no_connection": "Aucune connexion trouvée",
+      "delete_validation_failed": "La validation de la suppression a échoué"
+    },
+    "create_modal": {
+      "title_length_error": "Le titre doit comporter au moins 4 caractères",
+      "category_required": "La catégorie est requise",
+      "amount_positive_error": "Le montant doit être un nombre positif",
+      "expense_title_placeholder": "Titre de la dépense",
+      "select_currency_placeholder": "Sélectionner la devise",
+      "amount_placeholder": "0.00",
+      "comment_placeholder": "Commentaire optionnel",
+      "total_bc": "Total BC",
+      "no_connection_info": "Aucune info de connexion trouvée",
+      "create_success": "Dépense créée avec succès",
+      "create_failure": "Échec de la création de la dépense"
+    }
   },
   "deposits": {
     "page_title": "Dépôts",

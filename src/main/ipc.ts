@@ -117,6 +117,18 @@ export function setupIPC() {
     return await db.getSpendingCategories();
   });
 
+  ipcMain.handle("create-expense", async (_, expense) => {
+    return await db.createExpense(expense);
+  });
+
+  ipcMain.handle("delete-expense", async (_, id, deleteInfo) => {
+    return await db.deleteExpense(id, deleteInfo);
+  });
+
+  ipcMain.handle("get-branch-details", async () => {
+    return await db.getBranchDetails();
+  });
+
   // Window operations
   ipcMain.on("minimize-window", (event) => {
     const window = BrowserWindow.fromWebContents(event.sender);

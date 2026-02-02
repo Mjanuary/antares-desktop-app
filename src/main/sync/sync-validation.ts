@@ -310,6 +310,8 @@ const branchSchema = z.object({
   sync_status: apiSyncStatusField,
 });
 
+export type BranchType_Zod = z.infer<typeof branchSchema>;
+
 const usersToHousesSchema = z.object({
   user_id: z.string(),
   house_id: z.string(),

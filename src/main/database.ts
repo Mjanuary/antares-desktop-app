@@ -1577,4 +1577,92 @@ export class AppDatabase {
       });
     });
   }
+
+  async createExpense(expense: any): Promise<any> {
+    return this.perform(async () => {
+      return new Promise((resolve, reject) => {
+        const sql = `
+          INSERT INTO spendings (
+            id, title, spending_category_id, spending_type, 
+            branch_currency, cash_USD, cash_CDF, cash_RWF, total_bc,
+            branch_id, recorded_by, comment, approved, active,
+            created_date, updated_date, sync_status, row_deleted
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'PENDING', NULL)
+        `;
+
+        const values = [
+          expense.id,
+          expense.title,
+          expense.spending_category_id,
+          expense.spending_type,
+          expense.branch_currency,
+          expense.cash_USD || 0,
+          expense.cash_CDF || 0,
+          expense.cash_RWF || 0,
+          expense.total_bc || 0,
+          expense.branch_id,
+          expense.recorded_by,
+          expense.comment,
+          expense.approved ? 1 : 0,
+          expense.active ? 1 : 0,
+          expense.created_date || new Date().toISOString(),
+          expense.updated_date || new Date().toISOString(),
+        ];
+
+        this.db.run(sql, values, function (err) {
+          if (err) reject(err);
+          else resolve(expense);
+        });
+      });
+    });
+  }
+
+  async deleteExpense(id: string, deleteInfo: string): Promise<boolean> {
+    return this.perform(async () => {
+      return new Promise((resolve, reject) => {
+        const sql = `
+          UPDATE spendings 
+          SET row_deleted = ?, sync_status = 'PENDING', updated_date = ?
+          WHERE id = ?
+        `;
+        this.db.run(
+          sql,
+          [deleteInfo, new Date().toISOString(), id],
+          function (err) {
+            if (err) reject(err);
+            else resolve(true);
+          },
+        );
+      });
+    });
+  }
+
+  async getBranchDetails(): Promise<any> {
+    return this.perform(async () => {
+      return new Promise((resolve, reject) => {
+        const sql = "SELECT * FROM branch LIMIT 1";
+        this.db.get(sql, [], (err, row: any) => {
+          if (err) {
+            reject(err);
+          } else if (!row) {
+            reject(new Error("No branch record found"));
+          } else {
+            try {
+              row.rate_in = JSON.parse(row.rate_in);
+            } catch {
+              row.rate_in = null;
+            }
+
+            try {
+              row.rate_out = JSON.parse(row.rate_out);
+            } catch {
+              row.rate_out = null;
+            }
+
+            resolve(row);
+          }
+        });
+      });
+    });
+  }
 }

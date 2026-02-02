@@ -141,6 +141,10 @@ declare global {
       getCategories: () => Promise<any[]>;
       getSpendingCategories: () => Promise<any[]>;
 
+      createExpense: (expense: any) => Promise<any>;
+      deleteExpense: (id: string, deleteInfo: string) => Promise<boolean>;
+      getBranchDetails: () => Promise<any>;
+
       // Window operations
       minimize: () => void;
       maximize: () => void;

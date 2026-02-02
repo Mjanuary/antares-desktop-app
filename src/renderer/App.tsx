@@ -28,11 +28,13 @@ import AppTopBar from "./components/app-top-bar/app-top-bar";
 const queryClient = new QueryClient();
 
 function App() {
-  const { account, setAccount } = authStore();
+  const { account, setAccount, setBranch } = authStore();
 
   const loadConnection = async () => {
     const connection = await window.electronAPI.getConnection();
+    const branch = await window.electronAPI.getBranchDetails();
     setAccount(connection);
+    setBranch(branch);
   };
 
   useEffect(() => {
