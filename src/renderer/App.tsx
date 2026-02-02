@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { HashRouter as Router, Routes, Route } from "react-router-dom";
-import { useTranslation } from "react-i18next";
+// import { useTranslation } from "react-i18next";
 import { Settings } from "./pages/settings";
 import { Home } from "./pages/home";
 import UpdateNotification from "./components/UpdateNotification";
@@ -24,6 +24,8 @@ import { useSyncStore } from "../store/sync-store";
 import { useNetworkStore } from "../store/network-store";
 import { Toaster } from "./components/ui/toaster";
 import AppTopBar from "./components/app-top-bar/app-top-bar";
+import { saleStore } from "../store/sale-store";
+import SaleFormsDisplay from "./pages/sale-form/sale-form-display";
 
 const queryClient = new QueryClient();
 
@@ -44,6 +46,7 @@ function App() {
   // ✅ Global Sync Listener
   const { setStatus } = useSyncStore();
   const { setOnline } = useNetworkStore();
+  const { saleForms, setFocus, focus } = saleStore();
 
   useEffect(() => {
     // Sync status listener
@@ -85,23 +88,18 @@ function App() {
                 title="Antares"
                 onSaleClick={() => console.log("Sale clicked here")}
                 onSubmitSearch={(e) => console.log(e)}
-                tabs={[
-                  {
-                    title: "Products",
-                    onClick: () => {},
-                    subTitle: "12 products",
-                    active: true,
-                  },
-                  {
-                    title: "Products",
-                    onClick: () => {},
-                    subTitle: "12 products",
-                    active: false,
-                  },
-                ]}
+                tabs={saleForms.map((form) => ({
+                  title: form.name,
+                  onClick: () =>
+                    form.id === focus ? setFocus(null) : setFocus(form.id),
+                  subTitle: `${form.products.length} products`,
+                  active: form.id === focus,
+                }))}
               />
             </>
           )}
+
+          <SaleFormsDisplay />
 
           {appsOpen && <AppsMenu onClose={() => setAppsOpen(false)} />}
 
