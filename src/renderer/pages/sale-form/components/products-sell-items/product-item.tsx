@@ -11,18 +11,21 @@ import { QuantityInput, ClickableQuantity } from "./quantity-input";
 import { Badge } from "../../../../components/ui/badge";
 import { numberReadFormat } from "../../../../utils";
 import { Button } from "../../../../components/ui/button";
-import { DiversSaleItemType_Details } from "../../sale.utils";
-import { CurrencyEnum } from "../../../../../types/app.logic.types";
+// import { ProductForm_SaleItemType_Details } from "../../sale.utils";
+import {
+  CurrencyEnum,
+  ProductForm_SaleItemType_Details,
+} from "../../../../../types/app.logic.types";
 
 export const ProductItem: FunctionComponent<{
-  data: DiversSaleItemType_Details;
+  data: ProductForm_SaleItemType_Details;
   selectedCurrency: CurrencyEnum;
   onUpdateQuantity: (
-    data: DiversSaleItemType_Details,
+    data: ProductForm_SaleItemType_Details,
     quantity: number,
   ) => void;
   onUpdatePriceUnit: (
-    data: DiversSaleItemType_Details,
+    data: ProductForm_SaleItemType_Details,
     quantity: number,
   ) => void;
   onRemove: (id: string) => void;
@@ -35,27 +38,18 @@ export const ProductItem: FunctionComponent<{
   onRemove,
   disabled,
 }) => {
-  // const t = useTranslations("sell-invitation");
-  const t = (key: string) => key; // Dummy translation function
+  const t = (key: string): string => key; // Dummy translation function
   const [quantityEdit, setQuantityEdit] = useState(false);
   const [priceUnitEdit, setPriceUnitEdit] = useState(false);
 
-  const {
-    bonus,
-    price_total,
-    printed,
-    category_name,
-    image_url,
-    name,
-    stock_quantity,
-  } = data;
+  const { bonus, price_total, printed, image_url, name, stock_quantity } = data;
 
   return (
     <div className="p-2 rounded-2xl border border-color-theme flex gap-4 bg-color-overlay-theme">
       <div>
         {image_url ? (
           <img
-            src={image_url}
+            src={`media://${image_url}`}
             alt="Product cover"
             className="w-[130px] h-[130px] bg-gray-400 rounded-lg"
           />
@@ -67,7 +61,6 @@ export const ProductItem: FunctionComponent<{
       <div className="flex-1">
         <div>
           <h2 className="text-md pb-1">{name}</h2>
-          <p className="text-sm opacity-60">{category_name}</p>
         </div>
 
         <div className="flex flex-wrap lg:pr-4 justify-between ---grid-cols-4 gap-4 p whitespace-nowrap border-t border-color-theme pt-2 pb-2">

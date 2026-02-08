@@ -32,9 +32,9 @@ export const EditSaleComment: FunctionComponent<{
             disabled={disabled}
           ></textarea>
 
-          <div className="flex justify-end pt-4">
+          {/* <div className="flex justify-end pt-4">
             <Button variant="primary">{actionTitle || "Save"}</Button>
-          </div>
+          </div> */}
         </Modal>
       )}
     </>

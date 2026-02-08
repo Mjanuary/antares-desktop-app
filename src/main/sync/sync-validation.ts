@@ -202,7 +202,7 @@ const productSchema = z.object({
   sync_status: apiSyncStatusField,
 });
 
-const saleSchema = z.object({
+export const saleSchema = z.object({
   id: z.string(),
   parent_sale_id: z.string().nullable().optional(),
   branch_id: z.string().nullable().optional(),
@@ -237,7 +237,9 @@ const saleSchema = z.object({
   sync_status: apiSyncStatusField,
 });
 
-const salesItemSchema = z.object({
+export type SaleType_Zod = z.infer<typeof saleSchema>;
+
+export const salesItemSchema = z.object({
   id: z.string(),
   sale_id: z.string(),
   product_id: z.string(),
@@ -258,6 +260,8 @@ const salesItemSchema = z.object({
   updated_time: apiDateField,
   sync_status: apiSyncStatusField,
 });
+
+export type SalesItemType_Zod = z.infer<typeof salesItemSchema>;
 
 const depositSchema = z.object({
   id: z.string(),
@@ -325,7 +329,7 @@ const usersToHousesSchema = z.object({
   sync_status: apiSyncStatusField,
 });
 
-const balanceSchema = z.object({
+export const balanceSchema = z.object({
   id: z.string(),
   balance_parent_id: z.string().nullable().optional(),
   client_name: z.string().nullable().optional(),
@@ -357,6 +361,8 @@ const balanceSchema = z.object({
   row_deleted: apiJsonField,
   sync_status: apiSyncStatusField,
 });
+
+export type Balance_Zod = z.infer<typeof balanceSchema>;
 
 const balancePaymentSchema = z.object({
   id: z.string(),

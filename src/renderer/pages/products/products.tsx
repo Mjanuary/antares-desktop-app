@@ -3,7 +3,6 @@ import { useEffect, useState, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { FaFilter, FaSync } from "react-icons/fa";
 import CustomTable, { ColumnType } from "../../components/custom-table";
-import { Badge } from "../../components/ui/badge";
 import { SelectInput } from "../../components/select-input";
 import { Button } from "../../components/ui/button";
 import {
@@ -12,6 +11,7 @@ import {
 } from "../../../types/app.logic.types";
 import { ProductFilterModal } from "./components/product-filter-modal";
 import { ProductDetails } from "./components/product-details";
+import SellProductButton from "../sale-form/components/product-sell-button";
 
 const ProductsPage = () => {
   const { t } = useTranslation();
@@ -137,9 +137,9 @@ const ProductsPage = () => {
       key: "",
       width: "10px",
       render: (row) => (
-        <Button variant="outline" size="sm">
+        <SellProductButton variant="outline" size="sm" product={row}>
           {t("products.columns.sale_product")}
-        </Button>
+        </SellProductButton>
       ),
     },
     {

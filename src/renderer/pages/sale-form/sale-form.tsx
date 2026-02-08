@@ -30,17 +30,27 @@ import {
   Balance__ValidationSchema,
   POSITIVE_VALUE_REGEX,
   BranchRate,
+  DiversSaleItemType,
 } from "../../../types/app.logic.types";
 import { saleStore } from "../../../store/sale-store";
 import { authStore } from "../../../store/auth";
 import { FindCreateClient } from "../clients/components/find-create-client";
+import {
+  SalesItemType_Zod,
+  salesItemSchema,
+  Balance_Zod,
+  balanceSchema,
+  SaleType_Zod,
+  saleSchema,
+} from "../../../main/sync/sync-validation";
+import { SyncStatus } from "../../../main/constants";
 
 interface MyComponentProps {
   saleId: string;
 }
 
 export default function SaleForm({ saleId }: MyComponentProps) {
-  const { setProductsList, saleForms } = saleStore();
+  const { setProductsList, saleForms, closeSaleForm } = saleStore();
   const { account, branch } = authStore();
 
   const saleFormData = saleForms.find((f) => f.id === saleId);
@@ -48,8 +58,6 @@ export default function SaleForm({ saleId }: MyComponentProps) {
   const branchId = branch?.id;
   const userId = account?.id;
   const branchRate = branch?.rate_in;
-
-  console.log({ saleFormData });
 
   // const t = useTranslations("sell-invitation");
   const t = (key: string) => key;
@@ -83,21 +91,8 @@ export default function SaleForm({ saleId }: MyComponentProps) {
   const [saleSuccess, setSaleSuccess] = useState<boolean>(false);
   const [printReceipt, setPrintReceipt] = useState<string | null>(null);
 
-  console.log({ sellHouse });
-
   // const showRate = !!branch?.branch?.show_rate_on_all_forms;
   const showRate = true;
-
-  // const { mutate: createSaleServer, isPending } = useMutation({
-  //   mutationFn: recordDiverSale,
-  //   onSuccess: () => {
-  //     toast.success("sale recorded successfully");
-  //     setSaleSuccess(true);
-  //   },
-  //   onError: (error) => {
-  //     toast.error(error.message || "Failed to create diver");
-  //   },
-  // });
 
   useEffect(() => {
     setSelectedCurrency(branch?.branch_currency as CurrencyEnum);
@@ -114,13 +109,12 @@ export default function SaleForm({ saleId }: MyComponentProps) {
     setSellHouse(house_id);
   };
 
-  const supportedPayments = ["USD", "RWF", "CDF"];
-  // const supportedPayments = branch?.branch?.supported_currency?.split(
-  //   ","
-  // ) as CurrencyEnum[];
+  const supportedPayments = (branch?.supported_currency?.split(
+    ",",
+  ) as CurrencyEnum[]) || ["USD", "RWF", "CDF"];
 
-  // const branchCurrency = branch?.branch?.branch_currency as CurrencyEnum;
-  const branchCurrency = CurrencyEnum.RWF as CurrencyEnum;
+  const branchCurrency =
+    (branch?.branch_currency as CurrencyEnum) || CurrencyEnum.RWF;
 
   const recalculateSelectedProducts = ({
     currency,
@@ -196,6 +190,12 @@ export default function SaleForm({ saleId }: MyComponentProps) {
     ],
   );
 
+  const onCloseForm = () => {
+    if (window.confirm("Are you sure you want to close this form?")) {
+      closeSaleForm(saleId);
+    }
+  };
+
   const {
     balance_CDF,
     balance_RWF,
@@ -253,10 +253,10 @@ export default function SaleForm({ saleId }: MyComponentProps) {
     }
 
     // validate with zod
-    const diverSaleData: DiversSalesType = {
+    const diverSaleData: SaleType_Zod = {
       id: saleId,
       branch_id: branch?.id || null,
-      transaction_date: new Date(transactionDate),
+      transaction_date: new Date(transactionDate).toISOString(),
       client_name: clientName,
       client_phone: clientPhone,
       total_products: total_products,
@@ -276,16 +276,17 @@ export default function SaleForm({ saleId }: MyComponentProps) {
       balance_bc: balance_branch_currency,
       comment: comment,
       recorded_by: userId!,
-      created_time: new Date(),
-      updated_time: new Date(),
+      created_time: new Date().toISOString(),
+      updated_time: new Date().toISOString(),
       receipt_id: saleId,
       client_id: selectedClientId || undefined,
       row_version: 1,
-      app_connection: null,
+      app_connection: branch?.app_connection || null,
       row_deleted: null,
+      sync_status: SyncStatus.Pending,
     };
 
-    const balanceData: BalanceType = {
+    const balanceData: Balance_Zod = {
       id: saleId,
       balance_parent_id: saleId,
       client_name: clientName,
@@ -299,32 +300,66 @@ export default function SaleForm({ saleId }: MyComponentProps) {
       amount_bc: balance_branch_currency,
       sale_id: saleId,
       parent_sale_id: saleId,
-      recorded_date: new Date(transactionDate),
-      pay_date: new Date(balancePayDate),
+      recorded_date: new Date(transactionDate).toISOString(),
+      pay_date: new Date(balancePayDate).toISOString(),
       branch_id: branch?.id!,
       house_id: sellHouse !== "N/A" ? sellHouse : null,
-      active: true,
+      active: 1,
       balance_status: BalanceStatusEnum.WAITING,
-      created_date: new Date(),
-      updated_date: new Date(),
+      created_date: new Date().toISOString(),
+      updated_date: new Date().toISOString(),
       payed_amount: 0,
       payed_amount_bc: 0,
       balance_contacts: balanceContacts,
-      comment: comment,
       recorded_by: userId || "",
       row_version: 1,
-      app_connection: null,
+      app_connection: branch?.app_connection || null,
       row_deleted: null,
+      sync_status: SyncStatus.Pending,
+      payment_date_history: null,
     };
 
-    const updatesSalesItems = productsList.map((el) => ({
-      ...el,
-      sale_id: saleId,
-    }));
+    const updatesSalesItems: SalesItemType_Zod[] = productsList.map((el) => {
+      const price_total =
+        getNumber(el.price_unit) *
+        (getNumber(el.quantity) + getNumber(el.bonus));
+
+      const price_total_bc = currencyConversion(
+        {
+          CDF: rateCDF,
+          RWF: rateRWF,
+        },
+        selectedCurrency!,
+        branchCurrency,
+        price_total,
+      );
+
+      return {
+        id: el.id,
+        product_id: el.product_id,
+        bonus: el.bonus,
+        quantity: el.quantity,
+        sale_id: saleId,
+        app_connection: branch?.app_connection || null,
+        row_deleted: null,
+        row_version: 1,
+        created_time: new Date().toISOString(),
+        updated_time: new Date().toISOString(),
+        recorded_by: userId || "",
+        price_total: price_total,
+        price_total_bc: price_total_bc,
+        designed: el.designed ? 1 : 0,
+        price_unit: el.price_unit,
+        printed: el.printed ? 1 : 0,
+        product_to_branch_id: el.product_to_branch_id!,
+        sync_status: SyncStatus.Pending,
+      };
+    });
+
+    console.log({ updatesSalesItems });
 
     // validate
-    const validationDiver =
-      DiverSale__ValidationSchema.safeParse(diverSaleData);
+    const validationDiver = saleSchema.safeParse(diverSaleData);
     if (!validationDiver.success) {
       toast.success(validationDiver.error.issues[0].message);
       console.log({ validationDiver: validationDiver.error });
@@ -333,7 +368,7 @@ export default function SaleForm({ saleId }: MyComponentProps) {
 
     // validate items-product
     const validationDiverItems = z
-      .array(DiverSaleItem__ValidationSchema)
+      .array(salesItemSchema)
       .safeParse(updatesSalesItems);
     if (!validationDiverItems.success) {
       toast.success(validationDiverItems.error.issues[0].message);
@@ -343,8 +378,7 @@ export default function SaleForm({ saleId }: MyComponentProps) {
     }
 
     if (!ignoreBalance && balance_selected_currency > 0) {
-      const validationBalance =
-        Balance__ValidationSchema.safeParse(balanceData);
+      const validationBalance = balanceSchema.safeParse(balanceData);
       if (!validationBalance.success) {
         toast.success(validationBalance.error.issues[0].message);
         return;
@@ -409,8 +443,11 @@ export default function SaleForm({ saleId }: MyComponentProps) {
             paddingBottom: "80px",
           }}
         >
-          <div className="pt-3 px-6 font-thin">
+          <div className="pt-3 px-6 font-thin flex items-center justify-between">
             <h2 className="text-2xl">{t("title-product")}</h2>
+            <Button variant="destructive" onClick={onCloseForm}>
+              {t("close-form")}
+            </Button>
           </div>
           <div className="px-6">
             {mainError && (

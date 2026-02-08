@@ -3,13 +3,14 @@ import {
   DiversSaleItemType,
   DiverSearchSellType,
   CurrencyEnum,
+  ProductForm_SaleItemType_Details,
 } from "../../../types/app.logic.types";
 
 export type DiversSaleItemType_Details = DiversSaleItemType &
   DiverSearchSellType;
 
 const calculatePriceTotal = (
-  products: DiversSaleItemType_Details[],
+  products: ProductForm_SaleItemType_Details[],
 ): { priceTotal: number; totalProducts: number } => {
   let priceTotal = 0;
   let totalProducts = 0;
@@ -34,7 +35,7 @@ export const calculateSalesData = ({
   branchCurrency: CurrencyEnum;
   rateCDF: number;
   rateRWF: number;
-  productsList: DiversSaleItemType_Details[];
+  productsList: ProductForm_SaleItemType_Details[];
   payedFrw: number;
   payedDol: number;
   payedFc: number;

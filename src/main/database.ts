@@ -8,6 +8,11 @@ import { runMigrations } from "./database/migrations";
 import { appTableList, SettingsSeeds, SyncStatus } from "./constants";
 import { runSeeds } from "./database/seeds";
 import { UpsertManyOptions } from "../types/sync.types";
+import {
+  Balance_Zod,
+  SalesItemType_Zod,
+  SaleType_Zod,
+} from "./sync/sync-validation";
 
 type DbRole = "initializer" | "consumer" | "worker";
 
@@ -846,10 +851,11 @@ export class AppDatabase {
   }
 
   async recordSale(
-    saleData: any,
-    productItems: any[],
-    balanceData: any | null,
+    saleData: SaleType_Zod,
+    productItems: SalesItemType_Zod[],
+    balanceData: Balance_Zod | null,
   ): Promise<void> {
+    console.log("recordSale", saleData, productItems, balanceData);
     return this.perform(async () => {
       return new Promise((resolve, reject) => {
         this.db.serialize(() => {
@@ -858,7 +864,12 @@ export class AppDatabase {
           // 1. Insert Sale
           const saleKeys = Object.keys(saleData);
           const salePlaceholders = saleKeys.map(() => "?").join(", ");
-          const saleValues = Object.values(saleData);
+          const saleValues = Object.values({
+            ...saleData,
+
+            created_time: new Date(),
+            updated_time: new Date(),
+          });
 
           this.db.run(
             `INSERT INTO sales (${saleKeys.join(", ")}) VALUES (${salePlaceholders})`,
@@ -881,13 +892,20 @@ export class AppDatabase {
             );
 
             for (const item of productItems) {
-              itemStmt.run(Object.values(item), (err) => {
-                if (err) {
-                  console.error("Error inserting sale item:", err);
-                  // Rollback handled in final step if possible, but limited in loop.
-                  // Ideally we track error state.
-                }
-              });
+              itemStmt.run(
+                Object.values({
+                  ...item,
+                  created_time: new Date(),
+                  updated_time: new Date(),
+                }),
+                (err) => {
+                  if (err) {
+                    console.error("Error inserting sale item:", err);
+                    // Rollback handled in final step if possible, but limited in loop.
+                    // Ideally we track error state.
+                  }
+                },
+              );
             }
             itemStmt.finalize((err) => {
               if (err) {
@@ -902,7 +920,13 @@ export class AppDatabase {
           if (balanceData) {
             const balanceKeys = Object.keys(balanceData);
             const balancePlaceholders = balanceKeys.map(() => "?").join(", ");
-            const balanceValues = Object.values(balanceData);
+            const balanceValues = Object.values({
+              ...balanceData,
+              created_date: new Date(),
+              updated_date: new Date(),
+              recorded_date: new Date(balanceData?.recorded_date ?? new Date()),
+              pay_date: new Date(balanceData?.pay_date ?? new Date()),
+            });
 
             this.db.run(
               `INSERT INTO balances (${balanceKeys.join(", ")}) VALUES (${balancePlaceholders})`,

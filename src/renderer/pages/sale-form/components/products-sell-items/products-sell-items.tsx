@@ -1,17 +1,14 @@
-import { FormEvent, FunctionComponent, useState } from "react";
-import { MdAdd, MdBarcodeReader } from "react-icons/md";
+import { FunctionComponent } from "react";
+import { MdAdd } from "react-icons/md";
 import { NoProductSelected } from "./no-product-selected";
 import { ProductItem } from "./product-item";
 import { Badge } from "../../../../components/ui/badge";
-import { Input } from "../../../../components/ui/input";
-import { getNumber } from "../../../../utils";
-import { DiversSaleItemType_Details } from "../../sale.utils";
 import { Button } from "../../../../components/ui/button";
 import { currencyConversion } from "../../../../components/sale-form/rate-convertion";
 import { focusInput } from "../../../../utils/client-utils";
 import {
   CurrencyEnum,
-  DiverSearchSellType,
+  ProductForm_SaleItemType_Details,
 } from "../../../../../types/app.logic.types";
 
 const ProductSellItems: FunctionComponent<{
@@ -20,8 +17,8 @@ const ProductSellItems: FunctionComponent<{
   branchCurrency: CurrencyEnum;
   rateRWF: number;
   rateCDF: number;
-  productsList: DiversSaleItemType_Details[];
-  setProductsList: (products: DiversSaleItemType_Details[]) => void;
+  productsList: ProductForm_SaleItemType_Details[];
+  setProductsList: (products: ProductForm_SaleItemType_Details[]) => void;
   disabled?: boolean;
 }> = ({
   saleId,
@@ -35,134 +32,9 @@ const ProductSellItems: FunctionComponent<{
 }) => {
   // const t = useTranslations("sell-invitation");
   const t = (key: string) => key; // Dummy translation function
-  const { branch } = useUserContext();
-  const { session } = useAuth();
-  const [input, setInput] = useState("");
-  const [selectedCode, setSelectedCode] = useState<null | string>(null);
-  const isLoading = false;
-  // const { data: diverResults, isLoading } = useQuery({
-  //   queryKey: ["diver-details", branch?.branch?.id, selectedCode],
-  //   queryFn: () =>
-  //     getDiverSaleScanSearch({
-  //       branchId: branch?.branch?.id!,
-  //       code: selectedCode!,
-  //     }),
-  //   enabled: !!selectedCode && !!branch?.branch?.id,
-  //   refetchOnWindowFocus: false,
-  // });
-
-  // useEffect(() => {
-  //   focusInput();
-  // }, []);
-
-  const onSubmit = (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setSelectedCode(input);
-    focusInput();
-  };
-
-  // useEffect(() => {
-  //   if (!!diverResults && !isLoading && !!selectedCode) {
-  //     setSelectedCode(null);
-  //     setInput("");
-  //     focusInput();
-  //     if (diverResults.length >= 1)
-  //       addScannedProductToProductList(diverResults[0]);
-  //   }
-
-  //   if (
-  //     !isLoading &&
-  //     !!selectedCode &&
-  //     (!diverResults || diverResults?.length <= 0)
-  //   ) {
-  //     toast.error("No products found");
-  //   }
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [diverResults, isLoading, selectedCode]);
-
-  // const addScannedProductToProductList = (product: DiverSearchSellType) => {
-  //   if (disabled) return;
-  //   const found = productsList.find(
-  //     (el) => el.product_id === product.product_id,
-  //   );
-
-  //   if (found) {
-  //     setProductsList(
-  //       productsList.map((item) => {
-  //         if (item.product_id === found.product_id) {
-  //           const newQuantity = item.quantity + 1;
-  //           const priceTotal = item.price_unit * newQuantity;
-
-  //           const totalBranch = currencyConversion(
-  //             {
-  //               CDF: rateCDF,
-  //               RWF: rateRWF,
-  //             },
-  //             selectedCurrency,
-  //             branchCurrency,
-  //             priceTotal,
-  //           );
-
-  //           return {
-  //             ...item,
-  //             quantity: newQuantity,
-  //             price_total: priceTotal,
-  //             price_total_bc: totalBranch,
-  //           };
-  //         } else {
-  //           return item;
-  //         }
-  //       }),
-  //     );
-  //   } else {
-  //     const priceUnit = getNumber(
-  //       selectedCurrency === CurrencyEnum.CDF
-  //         ? product.price_CDF
-  //         : selectedCurrency === CurrencyEnum.USD
-  //           ? product.price_USD
-  //           : product.price_RWF,
-  //     );
-
-  //     const newPriceTotal = priceUnit * 1;
-  //     const totalBranch = currencyConversion(
-  //       {
-  //         CDF: rateCDF,
-  //         RWF: rateRWF,
-  //       },
-  //       selectedCurrency,
-  //       branchCurrency,
-  //       newPriceTotal,
-  //     );
-
-  //     setProductsList([
-  //       ...productsList,
-  //       {
-  //         ...product,
-  //         bonus: 0,
-  //         created_time: new Date(),
-  //         designed: false,
-  //         designed_by: "N/A",
-  //         id: "uuidv4()",
-  //         price_total: newPriceTotal,
-  //         price_total_bc: totalBranch,
-  //         price_unit: priceUnit,
-  //         printed: false,
-  //         product_id: product.product_id,
-  //         product_to_branch_id: product.product_to_branch_id!,
-  //         quantity: 1,
-  //         recorded_by: session?.user.id!,
-  //         sale_id: saleId,
-  //         updated_time: new Date(),
-  //         row_version: 1,
-  //         app_connection: null,
-  //         row_deleted: null,
-  //       },
-  //     ]);
-  //   }
-  // };
 
   const onUpdateQuantity = (
-    prod: DiversSaleItemType_Details,
+    prod: ProductForm_SaleItemType_Details,
     updatedQuantity: number,
   ) => {
     console.log("updatedQuantity", updatedQuantity);
@@ -200,7 +72,7 @@ const ProductSellItems: FunctionComponent<{
   };
 
   const onUpdatePriceUnit = (
-    prod: DiversSaleItemType_Details,
+    prod: ProductForm_SaleItemType_Details,
     updatedPriceUnit: number,
   ) => {
     console.log("updatedPriceUnit", updatedPriceUnit);
@@ -258,28 +130,9 @@ const ProductSellItems: FunctionComponent<{
             <Badge variant="info">{productsList.length}</Badge>
           </p>
         </div>
-        <form
-          onSubmit={onSubmit}
-          className="flex border flex-1 items-center border-color-theme p-1 rounded-lg gap-1"
-        >
-          <Input
-            type="text"
-            containerClassName="flex-1"
-            onChange={(e) => setInput(e.target.value)}
-            value={input}
-            disabled={isLoading || disabled}
-            id="scan-input"
-          />
-          <Button variant="primary-light" disabled={isLoading || disabled}>
-            <MdBarcodeReader className="text-2xl" />
-          </Button>
-        </form>
-        <Button
-          variant="secondary"
-          size="icon"
-          disabled={isLoading || disabled}
-        >
-          <MdAdd className="text-2xl" />
+
+        <Button variant="secondary" size="sm" icon={<MdAdd />}>
+          {t("add-product")}
         </Button>
       </div>
 
@@ -298,7 +151,7 @@ const ProductSellItems: FunctionComponent<{
             onUpdateQuantity={onUpdateQuantity}
             onUpdatePriceUnit={onUpdatePriceUnit}
             onRemove={onRemoveProduct}
-            disabled={isLoading || disabled}
+            disabled={disabled}
           />
         ))}
       </div>
@@ -307,11 +160,3 @@ const ProductSellItems: FunctionComponent<{
 };
 
 export default ProductSellItems;
-function useUserContext(): { branch: any } {
-  // throw new Error("Function not implemented.");
-  return { branch: { branch: { id: "branch-id" } } };
-}
-function useAuth(): { session: any } {
-  // throw new Error("Function not implemented.");
-  return { session: { user: { id: "user-id" } } };
-}

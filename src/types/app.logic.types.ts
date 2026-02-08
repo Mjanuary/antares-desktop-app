@@ -558,10 +558,35 @@ export interface ProductListType {
   is_printable: boolean | number;
   custom_diver: boolean | number;
   sync_status: string;
+  branch_product_id: string | null;
 }
 
 export type DiversSaleItemType_Details = DiversSaleItemType &
   DiverSearchSellType;
+
+export type ProductForm_SaleItemType_Details = {
+  product_id: string;
+  product_to_branch_id: string | null;
+  code: string | null;
+  image_url: string | null;
+  name: string;
+  price_CDF: string | null;
+  price_RWF: string | null;
+  price_USD: string | null;
+  stock_quantity: number | null;
+
+  quantity: number;
+  price_unit: number;
+
+  id: string;
+  sale_id: string;
+  price_total: number;
+  price_total_bc: number;
+  printed: boolean;
+  designed: boolean;
+  bonus: number;
+  designed_by?: string | undefined;
+};
 
 export interface DepositReport {
   divers: {
