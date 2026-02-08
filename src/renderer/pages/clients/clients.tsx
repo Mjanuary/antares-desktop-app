@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { FaPlus, FaSync } from "react-icons/fa";
 import CustomTable, { ColumnType } from "../../components/custom-table";
@@ -11,45 +12,41 @@ import { ClientRecordType_Zod } from "../../../types/app.logic.types";
 
 const ClientsPage = () => {
   const { t } = useTranslation();
-  const [clients, setClients] = useState<ClientRecordType_Zod[]>([]);
-  const [loading, setLoading] = useState(false);
-
   // Form State
   const [showCreateForm, setShowCreateForm] = useState(false);
 
   // Pagination & Filtering State
   const [page, setPage] = useState(1);
   const [pageSize] = useState(40);
-  const [total, setTotal] = useState(0);
   const [searchText, setSearchText] = useState("");
   const [sortBy, setSortBy] = useState("created_date DESC");
   const [dateFilter] = useState({ from: "", to: "" });
 
-  const fetchClients = async () => {
-    setLoading(true);
-    try {
-      const response = await window.electronAPI.getClients(
-        page,
-        pageSize,
-        searchText,
-        {
-          sortBy,
-          dateFrom: dateFilter.from,
-          dateTo: dateFilter.to,
-        },
-      );
-      setClients(response.data);
-      setTotal(response.total);
-    } catch (error) {
-      console.error("Failed to fetch clients", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const {
+    data,
+    isLoading: loading,
+    refetch,
+  } = useQuery({
+    queryKey: [
+      "clients",
+      page,
+      pageSize,
+      searchText,
+      sortBy,
+      dateFilter.to,
+      dateFilter.from,
+    ],
+    queryFn: () =>
+      window.electronAPI.getClients(page, pageSize, searchText, {
+        sortBy,
+        dateFrom: dateFilter.from,
+        dateTo: dateFilter.to,
+      }),
+    placeholderData: keepPreviousData,
+  });
 
-  useEffect(() => {
-    fetchClients();
-  }, [page, searchText, sortBy, dateFilter]);
+  const clients = data?.data || [];
+  const total = data?.total || 0;
 
   const columns: ColumnType<ClientRecordType_Zod>[] = [
     { key: "names", label: t("clients.columns.name") },
@@ -73,7 +70,7 @@ const ClientsPage = () => {
           <CreateClientForm
             onSuccess={() => {
               setShowCreateForm(false);
-              fetchClients();
+              refetch();
             }}
             onClose={() => setShowCreateForm(false)}
           />
@@ -153,7 +150,7 @@ const ClientsPage = () => {
                   />
 
                   <Button
-                    onClick={fetchClients}
+                    onClick={() => refetch()}
                     size="icon"
                     variant="secondary"
                   >

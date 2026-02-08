@@ -92,7 +92,7 @@ function App() {
                   title: form.name,
                   onClick: () =>
                     form.id === focus ? setFocus(null) : setFocus(form.id),
-                  subTitle: `${form.products.length} products`,
+                  subTitle: `${form.productsList.length} items`,
                   active: form.id === focus,
                 }))}
               />

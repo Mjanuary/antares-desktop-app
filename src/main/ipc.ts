@@ -82,6 +82,13 @@ export function setupIPC() {
     return await db.getCategories();
   });
 
+  ipcMain.handle(
+    "record-sale",
+    async (_, saleData, productItems, balanceData) => {
+      return await db.recordSale(saleData, productItems, balanceData);
+    },
+  );
+
   // Connections operations ----------------------------------------------
   ipcMain.handle("create-app-connection", async (_, data) => {
     return await db.createDeviceConnection(data);

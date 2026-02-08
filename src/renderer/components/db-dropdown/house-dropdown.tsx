@@ -1,6 +1,5 @@
-// import { getUsers } from "@/actions/access";
 // import { getErrorMessage } from "@/lib/error";
-// import { useQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { FunctionComponent, ReactNode, useMemo } from "react";
 import { Spinner } from "../loading";
 import { SelectInput } from "../select-input";
@@ -12,15 +11,19 @@ export const HouseDropDown: FunctionComponent<{
   disabled?: boolean;
   label?: string | ReactNode;
 }> = ({ value, onChange, error: parentError, disabled, label }) => {
-  // const { data, isLoading, error, isError } = useQuery({
-  //   queryKey: ["users"],
-  //   queryFn: () => getUsers(),
-  //   refetchOnWindowFocus: false,
-  // });
-  const data: { id: string; name: string }[] = []; // Dummy data
-  const isLoading = false; // Dummy loading state
-  const isError = false; // Dummy error state
-  const error: any = null; // Dummy error
+  const {
+    data: housesData,
+    isLoading,
+    error,
+    isError,
+  } = useQuery({
+    queryKey: ["houses"],
+    queryFn: () =>
+      window.electronAPI.getHouses(1, 100, "", { sortBy: "name ASC" }),
+    refetchOnWindowFocus: false,
+  });
+
+  const data = housesData?.data || [];
 
   const getErrorMessage = (err: any) => {
     return err?.message || "An error occurred";
@@ -64,12 +67,12 @@ export const HouseDropDown: FunctionComponent<{
       <SelectInput
         options={[
           {
-            groupTitle: "Users",
+            groupTitle: "Houses",
             options: optionsList,
           },
         ]}
         className="!text-sm px-1"
-        placeholder="Select user"
+        placeholder="Select house"
         value={value}
         onValueChange={onChange}
         error={parentError}

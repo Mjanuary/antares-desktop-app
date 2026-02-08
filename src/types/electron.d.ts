@@ -101,6 +101,12 @@ declare global {
         balances: any[];
       } | null>;
 
+      recordSale: (
+        saleData: any,
+        productItems: any[],
+        balanceData: any | null,
+      ) => Promise<void>;
+
       getSpendings: (
         page?: number,
         pageSize?: number,

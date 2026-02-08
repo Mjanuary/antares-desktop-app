@@ -46,6 +46,9 @@ contextBridge.exposeInMainWorld("electronAPI", {
   getSaleDetails: (saleId: string) =>
     ipcRenderer.invoke("get-sale-details", saleId),
 
+  recordSale: (saleData: any, productItems: any[], balanceData: any | null) =>
+    ipcRenderer.invoke("record-sale", saleData, productItems, balanceData),
+
   // Balances operations
   getBalances: (
     page?: number,
